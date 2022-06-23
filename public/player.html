@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+
+	<title>NFT Gallery</title>
+
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<!-- TODO change actions to grid or flexbox -->
+<div class="everything">
+	<div id="actions"> 
+		<div class="fright">
+			<button id="b_redo" class="queryred invis_able invis" >Redo Turn</button>
+			<button id="b_end" class="querygreen invis_able invis">End Turn</button>
+		</div>
+		<div class="actionleft">
+			<div id="actionmsg"></div>
+			<div id="hirediv" class="invis_able invis">
+				<button id="b_hire-1" class="querygreen invis_able invis">Hire 1 for &dollar;1</button>
+				<button id="b_hire-2" class="querygreen invis_able invis">Hire 2</button>
+				<button id="b_hire-3" class="querygreen invis_able invis">Hire 3</button>
+				<button id="b_hire-4" class="querygreen invis_able invis">Hire 4</button>
+			</div>
+			<button id="b_eatix" class="querygreen invis_able invis">EA: Use Tix</button>
+			<button id="b_eabonus" class="querygreen invis_able invis">EA: Contract Bonus</button>
+			<button id="b_continue" class="querygreen invis_able invis">Continue</button>
+			<button id="b_nothing" class="querygreen invis_able invis">Do Nothing</button>
+			<div id="orientdiv" class="invis_able invis">
+				<button id="b_orient-pink" class="querypink">Influence Side Up</button>
+				<button id="b_orient-brown" class="querybrown">Money Side Up</button>
+			</div>
+			<!-- <div id="peekoption"><input type="checkbox" id="peekatcontracts" name="peek">
+				<label for="peek"> Peek at contracts</label>
+			</div> -->
+		</div>
+		
+	</div>
+	<div id="allplayerinfo">
+		<div id="playerinfox0" class="playerinfo">
+			<div class="playername">Name</div><div class="playertime">-:--</div>
+			<div class="playermoney">$10</div><div class="playerscore">15</div>
+			<img class="icon" src="res/auction.png" style="grid-column: 1;"><div class="auctionbid">$7</div>
+			<div style="grid-column: 1/span 2;">Sold:</div>
+			<img class="icon" src="res/abstract.png"><div class="soldabstract">0</div>
+			<img class="icon" src="res/paint.png"><div class="soldpaint">1</div>
+			<img class="icon" src="res/sketch.png"><div class="soldsketch">2</div>
+			<img class="icon" src="res/photo.png"><div class="soldphoto">0</div>
+		</div>
+		<div id="playerinfox1" class="playerinfo">
+			<div class="playername" style="grid-column: span 8;">Name</div><div class="playertime">-:--</div>
+			<div class="playermoney" style="grid-column: 1/span 4;">$10</div><div class="playerscore">15</div>
+			<img class="icon" src="res/auction.png" style="grid-column: 1;"><div class="auctionbid">$7</div>
+			<div style="grid-column: 1/span 2;">Sold:</div>
+			<img class="icon" src="res/abstract.png"><div class="soldabstract">1</div>
+			<img class="icon" src="res/paint.png"><div class="soldpaint">2</div>
+			<img class="icon" src="res/sketch.png"><div class="soldsketch">0</div>
+			<img class="icon" src="res/photo.png"><div class="soldphoto">1</div>
+		</div>
+		<div id="playerinfox2" class="playerinfo">
+			<div class="playername" style="grid-column: span 8;">Name</div><div class="playertime">-:--</div>
+			<div class="playermoney" style="grid-column: 1/span 4;">$10</div><div class="playerscore">15</div>
+			<img class="icon" src="res/auction.png" style="grid-column: 1;"><div class="auctionbid">$7</div>
+			<div style="grid-column: 1/span 2;">Sold:</div>
+			<img class="icon" src="res/abstract.png"><div class="soldabstract">1</div>
+			<img class="icon" src="res/paint.png"><div class="soldpaint">2</div>
+			<img class="icon" src="res/sketch.png"><div class="soldsketch">0</div>
+			<img class="icon" src="res/photo.png"><div class="soldphoto">1</div>
+		</div>
+		<div id="playerinfox3" class="playerinfo">
+			<div class="playername" style="grid-column: span 8;">Name</div><div class="playertime">-:--</div>
+			<div class="playermoney" style="grid-column: 1/span 4;">$10</div><div class="playerscore">15</div>
+			<img class="icon" src="res/auction.png" style="grid-column: 1;"><div class="auctionbid">$7</div>
+			<div style="grid-column: 1/span 2;">Sold:</div>
+			<img class="icon" src="res/abstract.png"><div class="soldabstract">1</div>
+			<img class="icon" src="res/paint.png"><div class="soldpaint">2</div>
+			<img class="icon" src="res/sketch.png"><div class="soldsketch">0</div>
+			<img class="icon" src="res/photo.png"><div class="soldphoto">1</div>
+		</div>
+		<div id="gameinfo" class="gameinfo">
+			<div style="grid-column: 1/span 4;">Auction:</div>
+			<img class="icon" src="res/abstract.png"><div id="auctionabstract">1</div>
+			<img class="icon" src="res/paint.png"><div id="auctionpaint">2</div>
+			<img class="icon" src="res/sketch.png"><div id="auctionsketch">0</div>
+			<img class="icon" src="res/photo.png"><div id="auctionphoto">1</div>
+			<hr>
+			<div style="grid-column: 1/span 2;">Art:</div>
+			<img class="icon" src="res/abstract.png"><div id="remainabstract">1</div>
+			<img class="icon" src="res/paint.png"><div id="remainpaint">2</div>
+			<img class="icon" src="res/sketch.png"><div id="remainsketch">0</div>
+			<img class="icon" src="res/photo.png"><div id="remainphoto">1</div>
+			<hr>
+			<div style="grid-column: span 4;">Bag</div>
+			<img class="icon" src="res/visitor_pink.png"><div id="bagpink">1</div>
+			<img class="icon" src="res/visitor_brown.png"><div id="bagbrown">2</div>
+			<img class="icon" src="res/visitor_white.png"><div id="bagwhite">3</div>
+			<hr>
+			<div style="grid-column: 1/span 4;">Tix</div>
+			<img class="icon" src="res/ticket_pink.png"><div id="tixpink">4</div>
+			<img class="icon" src="res/ticket_brown.png"><div id="tixbrown">5</div>
+			<img class="icon" src="res/ticket_white.png"><div id="tixwhite">6</div>
+			<hr>
+			<div class="intscore" style="grid-column: 1/span 4;">Int. Scoring</div>
+			<img id="tixlowestimg" class="icon intscore" src="res/ticket_pink.png"><div id="tixlowest" class="intscore" style="grid-column: span 2;">4</div>
+			<hr>
+			<div style="grid-column: 1/span 8;">End Game (2 of 3)</div>
+			<div style="grid-column: 1/span 4; text-align:right;">
+				<img class="icon" src="res/visitor_pink.png">
+				<img class="icon" src="res/visitor_brown.png">
+				<img class="icon" src="res/visitor_white.png">
+			</div>
+			<div id="bagany" style="grid-column: span 1;">6</div>
+			<div style="grid-column: 1/span 4; text-align:right;">
+				<img class="icon" src="res/ticket_pink.png">
+				<img class="icon" src="res/ticket_brown.png">
+				<img class="icon" src="res/ticket_white.png">
+			</div>
+			<div id="tixany" style="grid-column: span 2;">15</div>
+			<div style="grid-column: 1/span 4; text-align:right;">
+			<img class="icon" src="res/celebrity.png"></div>
+			<div id="numcelebrity">0</div><div style="grid-column: span 3">(of 2)</div>
+		</div>
+	</div>
+	<div class="logbox">
+		<ul id="loglist">
+		</ul>
+	</div>
+	<div id="allboardsdiv">
+		<div id="boarddiv" class="board boardcolor">
+			<div class="contracts ">
+				<div id="sp_deal" class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+				<div class="contractspace boardcolor"></div>
+			</div>
+			<div class="market ">
+				<div class="marketdivtop"></div>
+				<div class="marketdivtop center"><div class="credamt">3</div> </div>
+				<div class="marketdivtop center"><div class="credamt">2</div> </div>
+				<div class="marketdivtop center"><div class="credamt">1</div> </div>
+
+				<div class="marketdivtop"></div>
+				<div class="marketdivtop marketborder"><img class="marketitemsmall" src="res/visitor_any.png"></div>
+				<div class="marketdivtop marketborder">            
+					<div class="marketitem1"><img class="" src="res/visitor_pink.png"></div>
+					<div class="marketitem2"><img class="" src="res/visitor_brown.png"></div>
+				</div>
+				<div class="marketdivtop marketborder">
+					<div class="marketitem1"><img class="" src="res/visitor_white.png"></div>
+					<div class="marketitem2"><img class="" src="res/visitor_brownpink.png"></div>
+				</div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/abstract.png"> </div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/paint.png"> </div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/sketch.png"> </div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/photo.png"> </div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+				<div class="marketdiv markettilespace"></div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/money.png"><div class="moneyamt">-1</div> </div>
+				<div id="sp_auction-0-0" class="marketdiv"><img class="marketitem" src="./res/ticket_any.png"></div>
+				<div id="sp_auction-0-1" class="marketdiv"><img class="marketitem" src="res/helper.png"></div>
+				<div id="sp_auction-0-2" class="marketdiv"><img class="marketitem" src="res/2tixbonus.png"></div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/money.png"><div class="moneyamt">-3</div> </div>
+				<div id="sp_auction-1-0" class="marketdiv"><img class="marketitem" src="res/helper.png"></div>
+				<div id="sp_auction-1-1" class="marketdiv"><img class="marketitem" src="res/incrCred.png"></div>
+				<div id="sp_auction-1-2" class="marketdiv"><img class="marketitem" src="res/incrMoney.png"></div>
+
+				<div class="marketdiv"><img class="marketitem" src="res/money.png"><div class="moneyamt">-6</div> </div>
+				<div id="sp_auction-2-0" class="marketdiv"><img class="marketitem" src="res/visitor_any.png"></div>
+				<div id="sp_auction-2-1" class="marketdiv"><img class="marketitem" src="res/incrMoney.png"></div>
+				<div id="sp_auction-2-2" class="marketdiv"><img class="marketitem" src="res/incrCred.png"></div>
+
+				<div class="marketdiv" style="font-size: 150%;">&updownarrow;<br>&gt;</div>
+				<div class="marketdiv marketdiv3">
+					<div class="credmoney3">6</div>
+					<div class="credmoney3">3</div>
+					<div class="credmoney3">1</div>
+				</div>
+				<div class="marketdiv marketdiv3">
+					<div class="credmoney3">10</div>
+					<div class="credmoney3">6</div>
+					<div class="credmoney3">3</div>
+
+				</div>
+				<div class="marketdiv marketdiv3">
+					<div class="credmoney3">15</div>
+					<div class="credmoney3">10</div>
+					<div class="credmoney3">6</div>
+
+				</div>
+			</div>
+			<div class="polis">
+				<div class="gallery playeryellow"></div>
+				<div class="lobbyunder">
+					<div id="sp_action-sales" class="action">
+						<div class="mainaction"></div>&Rightarrow;
+						<div class="sideaction"></div>
+					</div>
+					<div class="lobby playeryellow"></div>
+				</div>
+				<div class="gallery playerpurple"></div>
+
+				<div class="lobbyunder">
+					<div id="sp_action-market" class="action">
+						<div class="mainaction"></div>&Rightarrow;
+						<div class="sideaction"></div>
+					</div>
+					<div class="lobby playerblue"></div>
+				</div>
+				<div class="plaza"></div>
+				<div class="lobbyover">
+					<div class="lobby playerpurple"></div>
+					<div id="sp_action-art" class="action">
+						<div class="mainaction"></div>&Rightarrow;
+						<div class="sideaction"></div>
+					</div>
+				</div>
+
+					<div class="gallery playerblue"></div>
+				<div class="lobbyover">
+					<div class="lobby playerorange"></div>
+					<div id="sp_action-media" class="action">
+						<div class="mainaction"></div>&Rightarrow;
+						<div class="sideaction"></div>
+					</div>
+				</div>
+				<div class="gallery playerorange"></div>
+			</div>
+			<div class="artarea ">
+				<div class="artoftype">
+					<div class="artist artistblue artistabstract">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/abstract.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div class="artist artistred artistabstract">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/abstract.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div id="spaceabstract" class="artspace"></div>
+
+				</div>
+				<div class="artoftype">
+					<div class="artist artistblue artistpaint">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/paint.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div class="artist artistred artistpaint">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/paint.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div id="spacepaint" class="artspace"></div>
+
+				</div>
+				<div class="artoftype">
+					<div class="artist artistblue artistsketch">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/sketch.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div class="artist artistred artistsketch">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/sketch.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div id="spacesketch" class="artspace"></div>
+
+				</div>
+				<div class="artoftype">
+					<div class="artist artistblue artistphoto">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/photo.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div class="artist artistred artistphoto">
+						<div class="artistupper">
+							<img class="artisttype" src="./res/photo.png">
+							<div class="artistpromo"><p>-&nbsp;&nbsp;&UpperRightArrow;</p></div>
+							<div class="artistfame fame19"><p>&oast;</p></div>
+						</div>
+						<div class="artistlower">
+							<div class="artistfame fame13"><p>13</p></div>
+							<div class="artistfame fame14"><p>14</p></div>
+							<div class="artistfame fame15 artistvaluebump"><p>15</p></div>
+							<div class="artistfame fame16"><p>16</p></div>
+							<div class="artistfame fame17"><p>17</p></div>
+							<div class="artistfame fame18"><p>18</p></div>
+							<div class="artistfame fame12"><p>12</p></div>
+							<div class="artistfame fame11 artistvaluebump"><p>11</p></div>
+							<div class="artistfame fame10"><p>10</p></div>
+							<div class="artistfame fame9"><p>9</p></div>
+							<div class="artistfame fame8 artistvaluebump"><p>8</p></div>
+							<div class="artistfame fame7"><p>7</p></div>
+							<div class="artistfame fame1"><p>1</p></div>
+							<div class="artistfame fame2 artistvaluebump"><p>2</p></div>
+							<div class="artistfame fame3"><p>3</p></div>
+							<div class="artistfame fame4"><p>4</p></div>
+							<div class="artistfame fame5 artistvaluebump"><p>5</p></div>
+							<div class="artistfame fame6"><p>6</p></div>
+						</div>
+					</div>
+					<div id="spacephoto" class="artspace"></div>
+
+				</div>
+			</div>
+			<div class="promoarea ">
+				<div class="promocol">
+					<div class="center">
+						<div class="credamt">-1</div>
+					</div>
+					<div class="center">
+						<img class="marketitemsmall" src="../res/ticket_any.png">
+					</div>
+					<div class="center">
+						<div class="promospace">1</div>
+					</div>
+				</div>
+				<div class="promocol">
+					<div class="center">
+						<div class="credamt">-2</div>
+					</div>
+					<div class="center">
+						<img class="marketitemsmall" src="res/incrCred.png">
+					</div>
+					<div class="center">
+						<div class="promospace">2</div>
+					</div>
+
+				</div>
+				<div class="promocol">
+					<div class="center">
+						<div class="credamt">-3</div>
+					</div>
+					<div class="center">
+						<img class="marketitemsmall" src="res/2tixbonus.png">
+					</div>
+					<div class="center">
+						<div class="promospace">3</div>
+					</div>
+
+				</div>
+				<div class="promocol">
+					<div class="center">
+						<div class="credamt">-4</div>
+					</div>
+					<div class="center">
+						<img class="marketitemsmall" src="res/incrMoney.png">
+					</div>
+					<div class="center">
+						<div class="promospace">4</div>
+					</div>
+
+				</div>
+				<div class="promocol">
+					<div class="center">
+						<div class="credamt">-5</div>
+					</div>
+					<div class="center">
+						<img class="marketitemsmall" src="res/visitor_any.png">
+					</div>
+					<div class="center">
+						<div class="promospace">5</div>
+					</div>
+
+				</div>
+				<div class="promocol promocolwide ">
+					<div class="artreknown center"  style="width: 75px;">&starf;<span style="color: black;font-size: 130%;">+</span><img src="./res/visitor_white.png" style="flex-grow: 0; width:24px"></div>
+
+				</div>
+			</div>
+			<div class="tixarea">
+				<div id="i_tix-pink" class="tixspace pink">
+				</div>
+				<div id="i_tix-brown" class="tixspace brown">
+				</div>
+				<div id="i_tix-white" class="tixspace white">
+				</div>
+			</div>
+			<div class="credarea">
+				<div id="sp_infl-0" class="credbox credpink">0<img class="credstar" src="res/star.png"><div class="credmoney">0</div></div>
+				<div id="sp_infl-1" class="credbox">1<div class="credmoney">1</div></div>
+				<div class="credbox">2</div>
+				<div class="credbox">3</div>
+				<div id="sp_infl-4" class="credbox">4<div class="credmoney">2</div></div>
+				<div id="sp_infl-5" class="credbox credpink">5<img class="credstar" src="res/star.png"></div>
+				<div class="credbox">6</div>
+				<div class="credbox">7</div>
+				<div id="sp_infl-8" class="credbox">8<div class="credmoney">3</div></div>
+				<div class="credbox">9</div>
+				<div id="sp_infl-10" class="credbox credpink">10<img class="credstar" src="res/star.png"></div>
+				<div class="credbox">11</div>
+				<div id="sp_infl-12" class="credbox">12<div class="credmoney">4</div></div>
+				<div class="credbox">13</div>
+				<div class="credbox">14</div>
+				<div id="sp_infl-15" class="credbox credpink">15<img class="credstar" src="res/star.png"><div class="credmoney">5</div></div>
+				<div class="credbox">16</div>
+				<div class="credbox">17</div>
+				<div id="sp_infl-18" class="credbox">18<div class="credmoney">6</div></div>
+				<div class="credbox">19</div>
+				<div id="sp_infl-20" class="credbox credpink">20<img class="credstar" src="res/star.png"><div class="credmoney">7</div></div>
+				<div class="credbox">21</div>
+				<div id="sp_infl-22" class="credbox">22<div class="credmoney">8</div></div>
+				<div class="credbox">23</div>
+				<div id="sp_infl-24" class="credbox">24<div class="credmoney">9</div></div>
+				<div id="sp_infl-25" class="credbox credpink">25<img class="credstar" src="res/star.png"></div>
+				<div id="sp_infl-26" class="credbox">26<div class="credmoney">10</div></div>
+				<div id="sp_infl-27" class="credbox">27<div class="credmoney">11</div></div>
+				<div id="sp_infl-28" class="credbox">28<div class="credmoney">12</div></div>
+				<div id="sp_infl-29" class="credbox">29<div class="credmoney">13</div></div>
+				<div id="sp_infl-30" class="credbox credpink">30<img class="credstar" src="res/star.png"><div class="credmoney">14</div></div>
+				<div id="sp_infl-31" class="credbox">31<div class="credmoney">15</div></div>
+				<div id="sp_infl-32" class="credbox">32<div class="credmoney">16</div></div>
+				<div id="sp_infl-33" class="credbox">33<div class="credmoney">17</div></div>
+				<div id="sp_infl-34" class="credbox">34<div class="credmoney">18</div></div>
+				<div class="credbox">35<div class="credmoney">20</div></div>
+			</div>
+					
+		</div>
+		<div id="playerbrddiv">
+			<div id="playerbrdx0" class="playerboard">
+				<div class="pbassts">
+					<div class="pbassttop"></div>
+					<div class="pbasstbox"><div class="pbasstcost">-1</div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_brown.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_pink.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"><img src="res/incrCred.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-4</div><div class="pbasstbonus"><img src="../res/ticket_any.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-5</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-6</div><div class="pbasstbonus"><img src="res/incrMoney.png"></div></div>
+				</div>
+				<div class="pbdisplay">
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><div class="pbartinner"><img class="pbartceleb" src="res/celeb.png"><img class="pbarthung" src="res/hung.png"></div></div>
+				</div>
+				<div class="pbdeskarea">
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbcomm"></div>
+				</div>
+				<div class="pbtiles">
+					<div id="sp_reptile-0" class="pbtilebonus"><img src="res/incrCred.png"></div>
+					<div id="sp_reptile-1" class="pbtilebonus"><img src="res/incrMoney.png"></div>
+					<div id="sp_reptile-2" class="pbtilebonus"><img src="res/incrFame.png"></div>
+	
+					<div class="pbtileinfo center">
+						<img class="pbtilelob" src="res/tile.png">
+						<div class="lobby pbtilelob center"><img src="res/visitor_any.png"></div>&Rightarrow;
+						<div class="plaza pbtilelob"></div>
+					</div>
+	
+					<div id="sp_reptile-3" class="pbtilebonus"><img src="res/visitor_any.png"></div>
+					<div id="sp_reptile-4" class="pbtilebonus"><img src="./res/ticket_any.png"></div>
+					<div id="sp_reptile-5" class="pbtilebonus"><img src="res/helper.png"></div>
+				</div>
+				<div class="pbcontracts">
+					<div id="sp_contract-0" class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_brown.png"></div>
+					<div id="sp_contract-1" class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_pink.png"></div>
+					<div id="sp_contract-2" class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_any.png"></div>
+				</div>
+				<div class="pbtix">
+					<div class="pbtixspace pink"></div>
+					<div class="pbtixspace brown"></div>
+					<div class="pbtixspace white"></div>
+				</div>
+			</div>
+			<div id="hungcard" class="endgame invis">
+				<img class="endgameitem" style="grid-column: 2;" src="res/hung.png">
+				<hr style="grid-column: 1/span 3;">
+				<img id="hung-0-0" class="endgameitem endgame1" src="res/photo.png"><div class="endgameitem endbonusamt center">10</div>
+				<img id="hung-0-1" class="endgameitem endgame1" src="res/sketch.png">
+				<img id="hung-0-2" class="endgameitem endgame1" src="res/paint.png">
+				<hr style="grid-column: 1/span 3;">
+				<img id="hung-1-0" class="endgameitem endgame1" src="res/photo.png">
+				<img id="hung-1-1" class="endgameitem endgame1" src="res/sketch.png"><div class="endgameitem endbonusamt center">15</div>
+				<img id="hung-1-2" class="endgameitem endgame1" src="res/abstract.png">
+				<img id="hung-1-3" class="endgameitem endgame1" src="res/abstract.png">
+			</div>
+			<div id="soldcard" class="endgame invis">
+				<img class="endgameitem" style="grid-column: 2;" src="res/sold.png">
+				<hr style="grid-column: 1/span 3;">
+				<img id="sold-0-0" class="endgameitem endgame1" src="res/photo.png"><div class="endgameitem endbonusamt center">5</div>
+				<hr style="grid-column: 1/span 3;">
+				<img id="sold-1-0" class="endgameitem endgame1" src="res/sketch.png"><div class="endgameitem endbonusamt center">10</div>
+				<img id="sold-1-1" class="endgameitem endgame1" src="res/paint.png">
+				<hr style="grid-column: 1/span 3;">
+				<img id="sold-2-0" class="endgameitem endgame1" src="res/abstract.png"><div class="endgameitem endbonusamt center">10</div>
+				<img id="sold-2-1" class="endgameitem endgame1" src="res/abstract.png">
+			</div>
+			<!-- <div id="playerbrdx0" class="playerbrdback"><img src="res/playerBoard.png" class="playerbrd"></img>
+				<div id="sp_reptile-0" class="selectable reptileloc"></div>
+				<div id="sp_reptile-1" class="selectable reptileloc"></div>
+				<div id="sp_reptile-2" class="selectable reptileloc"></div>
+				<div id="sp_reptile-3" class="selectable reptileloc"></div>
+				<div id="sp_reptile-4" class="selectable reptileloc"></div>
+				<div id="sp_reptile-5" class="selectable reptileloc"></div>
+				<div id="sp_contract-0" class="selectable plcontractloc contractsize"></div>
+				<div id="sp_contract-1" class="selectable plcontractloc contractsize"></div>
+				<div id="sp_contract-2" class="selectable plcontractloc contractsize"></div>
+			</div> -->
+			<!-- <img id="curatorcard" class="dccard invis" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" alt="" />
+			<img id="dealercard" class="dccard invis" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" alt="" /> -->
+			<div id="playerbrdx1" class="playerboard">
+				<div class="pbassts">
+					<div class="pbassttop"></div>
+					<div class="pbasstbox"><div class="pbasstcost">-1</div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_brown.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_pink.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"><img src="res/incrCred.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-4</div><div class="pbasstbonus"><img src="../res/ticket_any.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-5</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-6</div><div class="pbasstbonus"><img src="res/incrMoney.png"></div></div>
+				</div>
+				<div class="pbdisplay">
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><div class="pbartinner"><img class="pbartceleb" src="res/celeb.png"><img class="pbarthung" src="res/hung.png"></div></div>
+				</div>
+				<div class="pbdeskarea">
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbcomm"></div>
+				</div>
+				<div class="pbtiles">
+					<div class="pbtilebonus"><img src="res/incrCred.png"></div>
+					<div class="pbtilebonus"><img src="res/incrMoney.png"></div>
+					<div class="pbtilebonus"><img src="res/incrFame.png"></div>
+	
+					<div class="pbtileinfo center">
+						<img class="pbtilelob" src="res/tile.png">
+						<div class="lobby pbtilelob center"><img src="res/visitor_any.png"></div>&Rightarrow;
+						<div class="plaza pbtilelob"></div>
+					</div>
+	
+					<div class="pbtilebonus"><img src="res/visitor_any.png"></div>
+					<div class="pbtilebonus"><img src="./res/ticket_any.png"></div>
+					<div class="pbtilebonus"><img src="res/helper.png"></div>
+				</div>
+				<div class="pbcontracts">
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_brown.png"></div>
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_pink.png"></div>
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_any.png"></div>
+				</div>
+				<div class="pbtix">
+					<div class="pbtixspace pink"></div>
+					<div class="pbtixspace brown"></div>
+					<div class="pbtixspace white"></div>
+				</div>
+			</div>
+			<div id="playerbrdx2" class="playerboard">
+				<div class="pbassts">
+					<div class="pbassttop"></div>
+					<div class="pbasstbox"><div class="pbasstcost">-1</div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_brown.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_pink.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"><img src="res/incrCred.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-4</div><div class="pbasstbonus"><img src="../res/ticket_any.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-5</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-6</div><div class="pbasstbonus"><img src="res/incrMoney.png"></div></div>
+				</div>
+				<div class="pbdisplay">
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><div class="pbartinner"><img class="pbartceleb" src="res/celeb.png"><img class="pbarthung" src="res/hung.png"></div></div>
+				</div>
+				<div class="pbdeskarea">
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbcomm"></div>
+				</div>
+				<div class="pbtiles">
+					<div class="pbtilebonus"><img src="res/incrCred.png"></div>
+					<div class="pbtilebonus"><img src="res/incrMoney.png"></div>
+					<div class="pbtilebonus"><img src="res/incrFame.png"></div>
+	
+					<div class="pbtileinfo center">
+						<img class="pbtilelob" src="res/tile.png">
+						<div class="lobby pbtilelob center"><img src="res/visitor_any.png"></div>&Rightarrow;
+						<div class="plaza pbtilelob"></div>
+					</div>
+	
+					<div class="pbtilebonus"><img src="res/visitor_any.png"></div>
+					<div class="pbtilebonus"><img src="./res/ticket_any.png"></div>
+					<div class="pbtilebonus"><img src="res/helper.png"></div>
+				</div>
+				<div class="pbcontracts">
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_brown.png"></div>
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_pink.png"></div>
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_any.png"></div>
+				</div>
+				<div class="pbtix">
+					<div class="pbtixspace pink"></div>
+					<div class="pbtixspace brown"></div>
+					<div class="pbtixspace white"></div>
+				</div>
+			</div>
+			<div id="playerbrdx3" class="playerboard">
+				<div class="pbassts">
+					<div class="pbassttop"></div>
+					<div class="pbasstbox"><div class="pbasstcost">-1</div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_brown.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-2</div><div class="pbasstbonus"><img src="../res/ticket_pink.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"><img src="res/incrCred.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-3</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-4</div><div class="pbasstbonus"><img src="../res/ticket_any.png"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-5</div><div class="pbasstbonus"></div></div>
+					<div class="pbasstbox"><div class="pbasstcost">-6</div><div class="pbasstbonus"><img src="res/incrMoney.png"></div></div>
+				</div>
+				<div class="pbdisplay">
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><img class="pbarthung pbartinner" src="res/hung.png"></div>
+					<div class="pbartspace"><div class="pbartinner"><img class="pbartceleb" src="res/celeb.png"><img class="pbarthung" src="res/hung.png"></div></div>
+				</div>
+				<div class="pbdeskarea">
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk pbdeskdown"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbdesk"><img class="pbdeskhelp" src="res/helper.png"></div>
+					<div class="pbcomm"></div>
+				</div>
+				<div class="pbtiles">
+					<div class="pbtilebonus"><img src="res/incrCred.png"></div>
+					<div class="pbtilebonus"><img src="res/incrMoney.png"></div>
+					<div class="pbtilebonus"><img src="res/incrFame.png"></div>
+	
+					<div class="pbtileinfo center">
+						<img class="pbtilelob" src="res/tile.png">
+						<div class="lobby pbtilelob center"><img src="res/visitor_any.png"></div>&Rightarrow;
+						<div class="plaza pbtilelob"></div>
+					</div>
+	
+					<div class="pbtilebonus"><img src="res/visitor_any.png"></div>
+					<div class="pbtilebonus"><img src="./res/ticket_any.png"></div>
+					<div class="pbtilebonus"><img src="res/helper.png"></div>
+				</div>
+				<div class="pbcontracts">
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_brown.png"></div>
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_pink.png"></div>
+					<div class="pbcontractspace"><img class="pbcontractbg" src="./res/ticket_any.png"></div>
+				</div>
+				<div class="pbtix">
+					<div class="pbtixspace pink"></div>
+					<div class="pbtixspace brown"></div>
+					<div class="pbtixspace white"></div>
+				</div>
+			</div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilemoney"><p>1</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/cred.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_white.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_pink.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_brown.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilemoney"><p>1</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_any.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilemoney"><p>4</p></div>
+			<div class="tilereq3">
+				<div><img style="height:100%; width:100%;" src="./res/visitor_white.png"></div>
+				<div><img style="height:100%; width:100%;" src="./res/visitor_pink.png"></div>
+				<div><img style="height:100%; width:100%;" src="./res/visitor_brown.png"></div>
+			</div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/tile.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/auction.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>1</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/helper.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="thumbtile"><div class=""><p>4&nbsp;&nbsp;&UpperRightArrow;</p></div></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="tilereq2">
+				<div><img style="height:100%; width:100%;" src="./res/sold.png"></div>
+				<div><img style="height:100%; width:100%;" src="./res/hung.png"></div>
+			</div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style=" width:100%;" src="./res/sold.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="width:100%;" src="./res/hung.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="tilereq4">
+				<div><img style="height:100%; width:100%;" src="./res/abstract.png"></div>
+				<div><img style="height:100%; width:100%;" src="./res/sketch.png"><img style="height:100%; width:100%;" src="./res/photo.png"></div>
+				<div><img style="height:100%; width:100%;" src="./res/paint.png"></div>
+			</div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/photo.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/paint.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/abstract.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>3</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/sketch.png"></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>1</p></div>
+			<div class="tilebenefit tilemoney"><p>2</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/star.png"><p style="font-size: 80%;">15+</p></div>
+		</div>
+		<div class="tile invis">
+			<div class="tilebenefit tilecred"><p>2</p></div>
+			<div class="tilebenefit tilemoney"><p>4</p></div>
+			<div class="tilereq"><img style="height:100%; width:100%;" src="./res/celeb.png"></div>
+		</div>
+		
+	</div>
+</div>
+<div id="arttemplate" class="art invis" style="background: tan;">
+	<div class="artupper">
+		<img class="arttype" src="./res/abstract.png">
+	</div>
+	<div class="artlower">
+		<div class="artreknown"><span class="reknownx">2</span>&starf;<br><span style="color: black;font-size: 130%;">+</span><img src="./res/visitor_white.png" style="width:40%"></div>
+		<div class="arttix"></div>
+		<div class="articon" >
+			<img class="arttype" src="./res/abstract.png">
+		</div>
+	</div>
+	<div class="artvalue"></div>
+</div>
+
+<div id="contracttemplate" class="contractdiv flippable movable showback invis">
+	<div class="flip-inner">
+		<div class="contractfrontinner flip-front flip-side center">
+			<div class="contractfronttop"><img class="contracttype" src="res/abstract.png"></div>
+			<div class="contractfrontbottom"><img class="contractfrontbonus" src="res/helper.png"></div>
+		</div>
+		<div class="contractbackinner flip-back flip-side center">
+			<div class="contractbackbonus"><img class="artbonusimg" src="res/incrMoney.png"></div>
+			<div class="contractbackbonus"><img class="artbonusimg invert" src="res/incrCred.png"></div>
+		</div>
+	</div>
+</div>
+
+
+<noscript>
+<p>For functionality of this page it is necessary to enable JavaScript.
+Here are the <a href="http://www.enable-javascript.com/" target="_blank">
+instructions how to enable JavaScript in your web browser</a>.</p>
+</noscript>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="js/gameclient.mjs"></script>
+</body>
+</html>

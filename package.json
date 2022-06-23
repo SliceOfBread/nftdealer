@@ -1,0 +1,16 @@
+{
+  "name": "nftdealer",
+  "version": "0.1",
+  "description": "a boardgame",
+  "dependencies": {
+    "express": "^4.17.3",
+    "node": "^16.13.2",
+    "socket.io": "^4.1.2"
+  },
+  "scripts": {
+    "start": "node --inspect index.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.5"
+  }
+}

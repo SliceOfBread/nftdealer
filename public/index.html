@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>eNeFTee DeALeR Set Up</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+      <script src="/socket.io/socket.io.js"></script>
+
+      <script type="module" src="js/create.mjs"></script>
+      <h1>eNeFTee DeALeR Set Up</h1>
+      <hr>
+      <br>
+      <div id="setup" class="setup">
+        <select id="selectplayers" class="setup">
+            <option value="1" disabled>Solo (TBD)</option>
+            <option value="2" selected>2 Players</option>
+            <option value="3">3 Players</option>
+            <option value="4">4 Players</option>
+        </select>
+        <br>
+        <div id="pl1">
+          <input id="tname1" type="text" class="setup" size="10" value="PlayerName1">
+        <select id="selectcolorp1" class="setup">
+            <option value="random" selected>Random</option>
+            <option value="orange">Orange</option>
+            <option value="purple">Purple</option>
+            <option value="blue">Blue</option>
+            <option value="yellow">Yellow</option>
+        </select>
+        </div>
+        <div id="pl2">
+          <input id="tname2" type="text" class="setup" size="10" value="PlayerName2">
+        <select id="selectcolorp2" class="setup">
+            <option value="random" selected>Random</option>
+            <option value="orange">Orange</option>
+            <option value="purple">Purple</option>
+            <option value="blue">Blue</option>
+            <option value="yellow">Yellow</option>
+        </select>
+        </div>
+        <div id="pl3" class="invis">
+          <input id="tname3" type="text" class="setup" size="10" value="PlayerName3">
+        <select id="selectcolorp3" class="setup">
+            <option value="random" selected>Random</option>
+            <option value="orange">Orange</option>
+            <option value="purple">Purple</option>
+            <option value="blue">Blue</option>
+            <option value="yellow">Yellow</option>
+        </select>
+        </div>
+        <div id="pl4" class="invis">
+          <input id="tname4" type="text" class="setup" size="10" value="PlayerName4">
+        <select id="selectcolorp4" class="setup">
+            <option value="random" selected>Random</option>
+            <option value="orange">Orange</option>
+            <option value="purple">Purple</option>
+            <option value="blue">Blue</option>
+            <option value="yellow">Yellow</option>
+        </select>
+        </div>
+        <label for="selectstarter">Starting Player</label>
+        <select id="selectstarter" class="setup">
+            <option value="random" selected>Random</option>
+            <option value="orange" disabled>Orange</option>
+            <option value="purple" disabled>Purple</option>
+            <option value="blue" disabled>Blue</option>
+            <option value="yellow" disabled>Yellow</option>
+        </select>
+        <br>
+        <label for="numcontracts">Number of contracts displayed</label>
+        <input id="numcontracts" type="number"  class="setup" min="4" max="8" value="4">
+        <!-- <br>
+        <button onclick="randomizeColors()">Randomize Colors</button> -->
+        <hr>
+        <br>
+        <button id="startgame">Start Game</button>
+      </div>
+
+
+   
+   
+
+    </body>
+</html>

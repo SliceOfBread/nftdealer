@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>eNeFTee DeALeR</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <script src="/socket.io/socket.io.js"> </script>
+        <script>
+            var socket = io();
+
+            window.onload = function() {
+                getGameStart();
+                
+            }
+
+            function getGameStart() {
+                let url = window.location;
+
+                if (url.search) {
+                    let params = new URLSearchParams(url.search);
+                    gameId = params.get("gid");
+                    socket.emit('getgame request', {gameId:gameId});
+                } else {
+                    // TODO error ?popup need gameId? redirect?
+                    //socket.emit('update request');
+                }
+
+            }
+
+            socket.on('game setup', function(msg) {
+                let players = msg.players;
+                let messages = document.getElementById('messages');
+                messages.innerText = "";
+                for (let u=0; u < players.length; u++) {
+                    let userLink = document.createElement("a");
+                    userLink.innerText = players[u].name;
+                    userLink.href = "/player?pid=" + players[u].id + "&gid=" + msg.gameId;
+                    let item = document.createElement('li');
+                    item.appendChild(userLink);
+                    messages.appendChild(item);
+                }
+                
+
+            });
+
+      </script>
+      <h1>eNeFTee DeALeR</h1>
+      <hr>
+      <ul id="messages"></ul>
+      <hr>
+   
+
+    </body>
+</html>

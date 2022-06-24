@@ -58,17 +58,17 @@ const gamesList = new InMemoryGameList();
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.resolve('./index.html'));
+    res.sendFile(path.resolve('./public/index.html'));
 });
 
-app.get('/game.html', (req, res) => {
-    res.sendFile(path.resolve('./game.html'));
-});
+// app.get('/game.html', (req, res) => {
+//     res.sendFile(path.resolve('./public/game.html'));
+// });
 
 
 app.get('/player', (req, res) => {
 	if (req.query.gid) {
-		res.sendFile(path.resolve('./player.html'));
+		res.sendFile(path.resolve('./public/player.html'));
 	} else {
 		// send page that redirects to show all games?
 		// TODO
@@ -84,9 +84,9 @@ app.get('/player', (req, res) => {
 // 	}	
 //  });
  
-app.get('/style.css', (req, res) => {
-	res.sendFile(path.resolve('./style.css'));
- });
+// app.get('/style.css', (req, res) => {
+// 	res.sendFile(path.resolve('./public/style.css'));
+//  });
  
 var game = new GameServer();
 // var player2game = {};

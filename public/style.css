@@ -1581,11 +1581,9 @@ div .clickable, img .clickable {
     height:5.4vw;
 } */
 
-/* #sp_deal {
-    left:9.5vw;
-    top:1vw;
-
-} */
+#sp_deal {
+    z-index: 3;
+}
 
 /* #i_tix-pink  {
     left:41vw; 

@@ -15,7 +15,7 @@ import {
 	CLICKITEM,
 	DEBUG,
 	PLAYERCOLOR,
-	} from './js/egalconstants.mjs' ;
+	} from './public/js/egalconstants.mjs' ;
 	
 import {
 	GameServer} from './js/gameserver.mjs';

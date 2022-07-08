@@ -3791,6 +3791,10 @@ class GameServer extends Game {
 		this.log.push(tmp);		
 	}
 
+	gameComplete() {
+		return (this.state === GAMESTATE.FINALSCORE);
+	}
+
 	serialize(playerId = null) {
 		let obj = {clickables:[], msgs:[], moveNum:this.moves.length};
 		let tmp;

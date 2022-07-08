@@ -10,6 +10,7 @@ import { Server } from "socket.io";
 const server = createServer(app);
 const io = new Server(server);
 
+const { Client } = require('pg');
 
 import {
 	CLICKITEM,
@@ -23,9 +24,91 @@ import {
 const port = process.env.PORT || 3000;
 
 class GameList {
-	getGame(id) {}
+	findGame(id) {}
+	createGame(id, info) {}
 	saveGame(id, info) {}
-	getAllGames() {}
+	findAllGames() {}
+}
+
+class PostgreS extends GameList {
+	// much of the PostgreSQL code is loosely based off of code from github terraforming-mars/src/database/PostgreSQL.ts
+
+	constructor() {
+		super();
+		this.pool = new Pool({
+			connectionString: process.env.DATABASE_URL,
+			ssl: {
+			  rejectUnauthorized: false
+			}
+		});
+		
+		this.pool.connect().then(function () {
+			console.log('PostgreSQL connected');
+			this.pool.query('CREATE TABLE IF NOT EXISTS \
+				games(game_id varchar, \
+				player_ids text, \
+				game_init text, \
+				game_state text, \
+				game_complete boolean default false, \
+				last_used timestamp default now(), \
+				PRIMARY KEY (game_id))').then(function () {
+					console.log('games table created');
+				});
+		}).catch(function(err)  {
+			console.error('connection error', err.stack);
+		});
+
+	}
+
+	async findGame(id) {
+		this.pool.query(`SELECT * FROM games WHERE game_id=${id}`)
+		.then(function(result) {
+			if (result.rows.length == 1) {
+				// parse stuff before return
+				let ret = {
+					gameId:result.rows[0].game_id,
+					ids:JSON.parse(result.rows[0].player_ids),
+					init:JSON.parse(result.rows[0].game_init),
+					lastUsed:result.rows[0].last_used,
+					complete:result.rows[0].game_complete,
+					state:JSON.parse(result.rows[0].game_state),
+				};
+
+				return ret;
+			} else if (result.length > 1) {
+				console.error(`multiple ids in database! : ${id}`);
+			} else {
+				console.error(`game id not in database:${id}`);
+			}
+		}) ;
+		
+	}
+  
+	async saveGame(id, info) {
+		this.pool.query(``) // TODO
+	  
+		this.games.set(id, JSON.stringify(info));
+	}
+
+	async createGame(id, info) {
+		this.pool.query(`INSERT INTO games (game_id, player_ids, game_init, game_state 
+			VALUES(${id},${JSON.stringify(info.ids)},${JSON.stringify(info.init)},${JSON.stringify(info.state)}) 
+			RETURNING (xmax = 0) AS inserted`)
+		.then(function(result) {
+			try {
+				if (!result.rows[0].inserted) {
+					console.error('ERROR:Game not inserted into database');
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		});
+	}
+  
+	async findAllGames() { // TODO
+	  return [...this.games.values()];
+	}
+
 }
   
 class InMemoryGameList extends GameList {
@@ -34,7 +117,7 @@ class InMemoryGameList extends GameList {
 	  this.games = new Map();
 	}
   
-	findGame(id) {
+	async findGame(id) {
 		try {
 			return JSON.parse(this.games.get(id));
 		} catch (error) {
@@ -44,16 +127,23 @@ class InMemoryGameList extends GameList {
 	  
 	}
   
-	saveGame(id, info) {
-	  this.games.set(id, JSON.stringify(info));
+	async saveGame(id, info) {
+		this.games.set(id, JSON.stringify(info));
+	}
+	  
+	async createGame(id, info) {
+	  	this.games.set(id, JSON.stringify(info));
 	}
   
-	findAllGames() {
+	async findAllGames() {
 	  return [...this.games.values()];
 	}
 }
 
-const gamesList = new InMemoryGameList();
+// TODO redo following to use Postgres if available or InMemory if not
+// also TODO, rewrite gamesData access to use callback/promise/await
+// const gamesData = new InMemoryGameList();
+const gamesData = new PostgreS();
 
 app.use(express.static('public'));
 
@@ -96,20 +186,6 @@ io.on('connection', (socket) => {
 	// NOTE: for now, only one game supported. Eventually, games should be
 	// stored/restored to/from a database
 	// *************************************
-	// data stored
-	// gameId, info
-	// gameId = "g" + long number
-	// info = {
-			// ids:[],
-			// init: {
-			// 	players:setup,
-			// 	options:msg.options, 
-			// 	seed: initSeed,
-			// },
-			// state:{},
-			// moves:[]
-	//	}
-	// TODO implement above
 
 	// see https://socket.io/get-started/private-messaging-part-2/
 	//  but we want to use playerID to associate with connection
@@ -121,103 +197,99 @@ io.on('connection', (socket) => {
 			// let thisGameId = player2game[msg.playerId];
 			let thisGameId = msg.gameId;
 			// fetch game from storage
-			let thisGame = gamesList.findGame(thisGameId);
-			if (thisGame && thisGame.ids) {
-				// deserialize to game
-				game.deserialize(thisGame.state);
-				if (!msg.playerId) {
-					// spectator TODO
-					socket.emit('game update', game.serialize());
-					return;
-				}
-				let gamePl = thisGame.ids.find((conn) => conn.playerId == msg.playerId);
-				if (!gamePl) {
-					// if game player not stored yet, add to thisgame and store
-					thisGame.ids.push({socketId:socket.id, playerId:msg.playerId});
-					gamesList.saveGame(thisGameId, thisGame);
-				} else if (gamePl.socketId != socket.id) {
-					// if game player stored but socketId mismatch (browser refresh, etc)
-					// update socketId
-					gamePl.socketId = socket.id;
-					gamesList.saveGame(thisGameId, thisGame);
-				} // else we already have correct socketId
-				let tmp = game.serialize(msg.playerId);
-				socket.emit('game update', tmp);
-			} else {
-				console.log("Didn't find game:" + thisGameId);
-				// add game to gamesList
-				// TODO ERROR?
-				// thisGame = [{socketId:socket.id, playerId:msg.playerId}];
-				// gamesList.saveGame(thisGameId, thisGame);
-			}
+			gamesData.findGame(thisGameId).then(function(thisGame) {
+				if (thisGame && thisGame.ids) {
+					// deserialize to game
+					game.deserialize(thisGame.state);
+					if (!msg.playerId) {
+						// spectator TODO
+						socket.emit('game update', game.serialize());
+						return;
+					}
+					socket.emit('game update', game.serialize(msg.playerId));
+
+					let gamePl = thisGame.ids.find((conn) => conn.playerId == msg.playerId);
+					if (!gamePl) {
+						// if game player not stored yet, add to thisgame and store
+						thisGame.ids.push({socketId:socket.id, playerId:msg.playerId});
+						await gamesData.saveGame(thisGameId, thisGame);
+					} else if (gamePl.socketId != socket.id) {
+						// if game player stored but socketId mismatch (browser refresh, etc)
+						// update socketId
+						gamePl.socketId = socket.id;
+						await gamesData.saveGame(thisGameId, thisGame);
+					} // else we already have correct socketId
+				} else {
+					console.log("Didn't find game:" + thisGameId);
+				}	
+			});
 
 		} 
 	});
 
-	function saveToFile(msg) {
-		if (msg && msg.gameId) {
-			const dir = './games/';
-			let files = fs.readdirSync(dir);
-			let fn = 'game' + msg.gameId + '.txt';
-			// if (!files.includes(fn)) {
-				// fetch game from storage
-				let thisGame = gamesList.findGame(msg.gameId);
-				if (!thisGame || !thisGame.ids) {
-					console.log(`Did not find game in storage:${msg.gameId}:`);
-					return;
-				}
+	// function saveToFile(msg) {
+	// 	if (msg && msg.gameId) {
+	// 		const dir = './games/';
+	// 		let files = fs.readdirSync(dir);
+	// 		let fn = 'game' + msg.gameId + '.txt';
+	// 		// if (!files.includes(fn)) {
+	// 			// fetch game from storage
+	// 			let thisGame = gamesData.findGame(msg.gameId);
+	// 			if (!thisGame || !thisGame.ids) {
+	// 				console.log(`Did not find game in storage:${msg.gameId}:`);
+	// 				return;
+	// 			}
 
-				try {
-					fs.writeFileSync(dir + fn, JSON.stringify(thisGame));
-				} catch (error) {
-					let tmp = 0;
+	// 			try {
+	// 				fs.writeFileSync(dir + fn, JSON.stringify(thisGame));
+	// 			} catch (error) {
+	// 				let tmp = 0;
 
-				}
+	// 			}
 				
-			// }
+	// 		// }
 			
-		}
-	}
+	// 	}
+	// }
 
-	socket.on('save game', (msg) => saveToFile(msg));
+	// socket.on('save game', (msg) => saveToFile(msg));
 
-	function loadGame(msg) {
-		if (msg && msg.gameId) {
-			const dir = './games/';
-			let files = fs.readdirSync(dir);
-			let fn = 'game' + msg.gameId + '.txt';
-			if (files.includes(fn)) {
-				try {
-					let fileData = fs.readFileSync(dir + fn);
-					let thisGame = JSON.parse(fileData);
-					gamesList.saveGame(msg.gameId, thisGame);
-				} catch (error) {
-					let tmp = 0;
-				}
+	// function loadGame(msg) {
+	// 	if (msg && msg.gameId) {
+	// 		const dir = './games/';
+	// 		let files = fs.readdirSync(dir);
+	// 		let fn = 'game' + msg.gameId + '.txt';
+	// 		if (files.includes(fn)) {
+	// 			try {
+	// 				let fileData = fs.readFileSync(dir + fn);
+	// 				let thisGame = JSON.parse(fileData);
+	// 				gamesData.saveGame(msg.gameId, thisGame);
+	// 			} catch (error) {
+	// 				let tmp = 0;
+	// 			}
 								
-			}
+	// 		}
 			
-		}
-	}
+	// 	}
+	// }
 
-	socket.on('load game', (msg) => loadGame(msg));
+	// socket.on('load game', (msg) => loadGame(msg));
 
 	socket.on('create game', (msg) => {
 		console.log('create game rcvd, sending game setup');
 
 		let gameId = "g" + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16);
 
+		// TODO is newGame needed?
 		let newGame = new GameServer();
 		// setup is array of playerId (p######), name, color
 		let setup = playerSetup(msg.players, msg.options);
 		let initSeed = Math.floor(Math.random() * 0xffffffff);
 		newGame.init(setup, msg.options, initSeed);
-		// add playerIds to lookup table (playerId -> gameId)
-		// for (let pl of setup) {
-		// 	player2game[pl.id] = gameId;
-		// }
-		// don't save JSON (put that in saveGame if needed)
-		gamesList.saveGame(gameId, {
+		// Ideally, would not send game page until we know game was created correctly
+		socket.emit('game page', {gameId:gameId});
+		// createGame is async but returns nothing
+		await gamesData.createGame(gameId, {
 			ids:[],
 			init: {
 				players:setup,
@@ -225,19 +297,24 @@ io.on('connection', (socket) => {
 				seed: initSeed,
 			},
 			lastUsed:Date.now(),
+			complete:false,
 			state:newGame.serialize("server")
 		});
-		socket.emit('game page', {gameId:gameId});
 		
 	});
 
 	socket.on('getgame request', (msg) => {
+		// this requests the ids for all the players which are used to create the game links
 		if (msg && msg.gameId) {
-			let thisGame = gamesList.findGame(msg.gameId);
-			if (!thisGame) {
-				loadGame(msg);
-				thisGame = gamesList.findGame(msg.gameId);
-			};
+			let thisGame = await gamesData.findGame(msg.gameId);
+
+			// if (!thisGame) {
+			// 	// load game from file first
+			// 	loadGame(msg);
+			// 	thisGame = gamesData.findGame(msg.gameId);
+			// };
+
+			// TODO block this page after all players have 'checked in'
 			socket.emit('game setup', {players:thisGame.init.players, gameId:msg.gameId});
 		}
 	});
@@ -254,7 +331,7 @@ io.on('connection', (socket) => {
 			return;
 		}
 		// fetch game from storage
-		let thisGame = gamesList.findGame(msg.gameId);
+		let thisGame = await gamesData.findGame(msg.gameId);
 		if (!thisGame || !thisGame.ids) {
 			console.log(`Did not find game in storage:${msg.gameId}:`);
 			return;
@@ -311,11 +388,12 @@ io.on('connection', (socket) => {
 			}
 			// save game
 			if (!errorFlag) {
-				saveToFile({gameId:msg.gameId});
-				gamesList.saveGame(msg.gameId, {
+				// saveToFile({gameId:msg.gameId});
+				await gamesData.saveGame(msg.gameId, {
 					ids:thisGame.ids,
 					init:thisGame.init,
 					lastUsed:Date.now(),
+					complete: game.gameComplete(),
 					state:game.serialize("server")
 				});	
 			}

@@ -3,19 +3,21 @@ var app = express();
 
 import { createServer } from "http";
 import * as path from 'path';
-import * as fs from 'fs';
+// import * as fs from 'fs';
 
 import { Server } from "socket.io";
 
 const server = createServer(app);
 const io = new Server(server);
 
-const { Client } = require('pg');
+import pkg from 'pg';
+const { Pool } = pkg;
 
 import {
 	CLICKITEM,
 	DEBUG,
 	PLAYERCOLOR,
+	GAMESTATE
 	} from './public/js/egalconstants.mjs' ;
 	
 import {
@@ -24,10 +26,10 @@ import {
 const port = process.env.PORT || 3000;
 
 class GameList {
-	findGame(id) {}
-	createGame(id, info) {}
-	saveGame(id, info) {}
-	findAllGames() {}
+	async findGame(id) {}
+	async createGame(id, info) {}
+	async saveGame(id, info) {}
+	async findAllGames() {}
 }
 
 class PostgreS extends GameList {
@@ -41,10 +43,12 @@ class PostgreS extends GameList {
 			  rejectUnauthorized: false
 			}
 		});
+
+		var thisPool = this.pool;
 		
 		this.pool.connect().then(function () {
 			console.log('PostgreSQL connected');
-			this.pool.query('CREATE TABLE IF NOT EXISTS \
+			thisPool.query('CREATE TABLE IF NOT EXISTS \
 				games(game_id varchar, \
 				player_ids text, \
 				game_init text, \
@@ -53,6 +57,8 @@ class PostgreS extends GameList {
 				last_used timestamp default now(), \
 				PRIMARY KEY (game_id))').then(function () {
 					console.log('games table created');
+				}).catch(function(err) {
+					console.error('table creation error', err.stack);
 				});
 		}).catch(function(err)  {
 			console.error('connection error', err.stack);
@@ -61,8 +67,7 @@ class PostgreS extends GameList {
 	}
 
 	async findGame(id) {
-		this.pool.query(`SELECT * FROM games WHERE game_id=${id}`)
-		.then(function(result) {
+		const result = await this.pool.query('SELECT * FROM games WHERE game_id=$1', [id]);
 			if (result.rows.length == 1) {
 				// parse stuff before return
 				let ret = {
@@ -80,20 +85,19 @@ class PostgreS extends GameList {
 			} else {
 				console.error(`game id not in database:${id}`);
 			}
-		}) ;
 		
 	}
   
 	async saveGame(id, info) {
-		this.pool.query(``) // TODO
+		let tmp = 'UPDATE games SET player_ids = $2, game_init = $3, game_state = $4, game_complete = $5, last_used = NOW() WHERE game_id=$1';
+		await this.pool.query(tmp, [id, JSON.stringify(info.ids),JSON.stringify(info.init),JSON.stringify(info.state),(info.state.state == GAMESTATE.FINALSCORE)]);
 	  
-		this.games.set(id, JSON.stringify(info));
+		// this.games.set(id, JSON.stringify(info));
 	}
 
 	async createGame(id, info) {
-		this.pool.query(`INSERT INTO games (game_id, player_ids, game_init, game_state 
-			VALUES(${id},${JSON.stringify(info.ids)},${JSON.stringify(info.init)},${JSON.stringify(info.state)}) 
-			RETURNING (xmax = 0) AS inserted`)
+		let tmp = 'INSERT INTO games (game_id, player_ids, game_init, game_state) VALUES($1, $2, $3, $4) RETURNING (xmax = 0) AS inserted';
+		this.pool.query(tmp, [id,JSON.stringify(info.ids),JSON.stringify(info.init),JSON.stringify(info.state)])
 		.then(function(result) {
 			try {
 				if (!result.rows[0].inserted) {
@@ -102,6 +106,8 @@ class PostgreS extends GameList {
 			} catch (error) {
 				console.error(error);
 			}
+		}).catch((err) => {
+			console.error('ERROR:Trying to insert into database');
 		});
 	}
   
@@ -212,12 +218,12 @@ io.on('connection', (socket) => {
 					if (!gamePl) {
 						// if game player not stored yet, add to thisgame and store
 						thisGame.ids.push({socketId:socket.id, playerId:msg.playerId});
-						await gamesData.saveGame(thisGameId, thisGame);
+						gamesData.saveGame(thisGameId, thisGame);
 					} else if (gamePl.socketId != socket.id) {
 						// if game player stored but socketId mismatch (browser refresh, etc)
 						// update socketId
 						gamePl.socketId = socket.id;
-						await gamesData.saveGame(thisGameId, thisGame);
+						gamesData.saveGame(thisGameId, thisGame);
 					} // else we already have correct socketId
 				} else {
 					console.log("Didn't find game:" + thisGameId);
@@ -289,7 +295,7 @@ io.on('connection', (socket) => {
 		// Ideally, would not send game page until we know game was created correctly
 		socket.emit('game page', {gameId:gameId});
 		// createGame is async but returns nothing
-		await gamesData.createGame(gameId, {
+		gamesData.createGame(gameId, {
 			ids:[],
 			init: {
 				players:setup,
@@ -306,7 +312,9 @@ io.on('connection', (socket) => {
 	socket.on('getgame request', (msg) => {
 		// this requests the ids for all the players which are used to create the game links
 		if (msg && msg.gameId) {
-			let thisGame = await gamesData.findGame(msg.gameId);
+			gamesData.findGame(msg.gameId).then(function(thisGame) {
+				socket.emit('game setup', {players:thisGame.init.players, gameId:msg.gameId});
+			}); 
 
 			// if (!thisGame) {
 			// 	// load game from file first
@@ -315,7 +323,7 @@ io.on('connection', (socket) => {
 			// };
 
 			// TODO block this page after all players have 'checked in'
-			socket.emit('game setup', {players:thisGame.init.players, gameId:msg.gameId});
+			// socket.emit('game setup', {players:thisGame.init.players, gameId:msg.gameId});
 		}
 	});
 
@@ -331,87 +339,90 @@ io.on('connection', (socket) => {
 			return;
 		}
 		// fetch game from storage
-		let thisGame = await gamesData.findGame(msg.gameId);
-		if (!thisGame || !thisGame.ids) {
-			console.log(`Did not find game in storage:${msg.gameId}:`);
-			return;
-		}
-		// deserialize game
-		game.deserialize(thisGame.state);
-		let errorFlag = false;
+		// let thisGame = await gamesData.findGame(msg.gameId);
+		gamesData.findGame(msg.gameId).then(function(thisGame) {
+			if (!thisGame || !thisGame.ids) {
+				console.log(`Did not find game in storage:${msg.gameId}:`);
+				return;
+			}
+			// deserialize game
+			game.deserialize(thisGame.state);
+			let errorFlag = false;
 
-		// when move received
-		// - check if move allowed
-		// - implement move
-		// - send updated state individually to all players/spectators
-		if (msg.playerId != game.players[game.activePlayer].playerId) {
-			// msg with incorrect playerId
-			errorFlag = true;
-			console.log('Rcvd move from unexpected player, ignoring');
-			console.log(`Rcvd pid:${msg.playerId}, expected pid:${game.players[game.activePlayer].playerId}`);
-		} else if (!game.getActiveSpaces().clickables.includes(msg.move.location)) {
-			// what was clicked was not allowed to be clicked
-			errorFlag = true;
-			console.log("Clicked item not in allowed moves");
-		} else {
- 			// allowed move from correct player
-			// add move to move list // moved to processClick
+			// when move received
+			// - check if move allowed
+			// - implement move
+			// - send updated state individually to all players/spectators
+			if (msg.playerId != game.players[game.activePlayer].playerId) {
+				// msg with incorrect playerId
+				errorFlag = true;
+				console.log('Rcvd move from unexpected player, ignoring');
+				console.log(`Rcvd pid:${msg.playerId}, expected pid:${game.players[game.activePlayer].playerId}`);
+			} else if (!game.getActiveSpaces().clickables.includes(msg.move.location)) {
+				// what was clicked was not allowed to be clicked
+				errorFlag = true;
+				console.log("Clicked item not in allowed moves");
+			} else {
+				// allowed move from correct player
+				// add move to move list // moved to processClick
 
-			// process move
-			if (msg.move.location == CLICKITEM.REDOBUTTON) {
-				// while (game.moves.length && game.moves[game.moves.length-1].location) {
-				if (game.moves.length && (game.moves[game.moves.length-1].location || DEBUG)) {
-					// UNDO - remove moves that can be undone
-					if (!game.moves[game.moves.length-1].location) {
-						// during DEBUG, if we undo an un-undoable, we need to undo an extra
+				// process move
+				if (msg.move.location == CLICKITEM.REDOBUTTON) {
+					// while (game.moves.length && game.moves[game.moves.length-1].location) {
+					if (game.moves.length && (game.moves[game.moves.length-1].location || DEBUG)) {
+						// UNDO - remove moves that can be undone
+						if (!game.moves[game.moves.length-1].location) {
+							// during DEBUG, if we undo an un-undoable, we need to undo an extra
+							game.moves.pop();
+						}
 						game.moves.pop();
 					}
-					game.moves.pop();
-				}
-				// save moves and re-init game by creating new game
-				let newGame = new GameServer();
-				newGame.init(thisGame.init.players, thisGame.init.options, thisGame.init.seed);
-				// reprocess saved moves
-				newGame.processMoves(game.moves);
-				// replace game with newGame
-				game = newGame;
-				// game update sent below
-			} else {
-				try {
-					// don't let server crash for a problem
-					game.processClick(msg.move);
-				} catch (error) {
-					console.log(error.message);
-					errorFlag = true;
-				}
-				// game update sent below
-			}
-			// save game
-			if (!errorFlag) {
-				// saveToFile({gameId:msg.gameId});
-				await gamesData.saveGame(msg.gameId, {
-					ids:thisGame.ids,
-					init:thisGame.init,
-					lastUsed:Date.now(),
-					complete: game.gameComplete(),
-					state:game.serialize("server")
-				});	
-			}
-		}
-
-		// send game update
-		for (let entry of thisGame.ids) {
-			// for each id, send serialized game state
-			if (errorFlag) {
-				io.to(entry.socketId).emit('server error');
-			} else {
-				if (entry.playerId) {
-					io.to(entry.socketId).emit('game update', game.serialize(entry.playerId));
+					// save moves and re-init game by creating new game
+					let newGame = new GameServer();
+					newGame.init(thisGame.init.players, thisGame.init.options, thisGame.init.seed);
+					// reprocess saved moves
+					newGame.processMoves(game.moves);
+					// replace game with newGame
+					game = newGame;
+					// game update sent below
 				} else {
-					io.to(entry.socketId).emit('game update', game.serialize());
+					try {
+						// don't let server crash for a problem
+						game.processClick(msg.move);
+					} catch (error) {
+						console.log(error.message);
+						errorFlag = true;
+					}
+					// game update sent below
+				}
+				// save game
+				if (!errorFlag) {
+					// saveToFile({gameId:msg.gameId});
+					gamesData.saveGame(msg.gameId, {
+						ids:thisGame.ids,
+						init:thisGame.init,
+						lastUsed:Date.now(),
+						complete: game.gameComplete(),
+						state:game.serialize("server")
+					});	
 				}
 			}
-		}
+
+			// send game update
+			for (let entry of thisGame.ids) {
+				// for each id, send serialized game state
+				if (errorFlag) {
+					io.to(entry.socketId).emit('server error');
+				} else {
+					if (entry.playerId) {
+						io.to(entry.socketId).emit('game update', game.serialize(entry.playerId));
+					} else {
+						io.to(entry.socketId).emit('game update', game.serialize());
+					}
+				}
+			}			
+		});
+
 		
 	});
 

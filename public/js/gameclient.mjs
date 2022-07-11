@@ -484,15 +484,6 @@ class ContractClient extends Contract {
 			// this.dom.classList.add("contract");
 			document.getElementById("allboardsdiv").appendChild(this.dom);
 
-			// let imgBottom = document.createElement("IMG");
-			// imgBottom.src = "res/contractbottom" + bt + ".png";
-			// imgBottom.style.position = "absolute";
-			// imgBottom.style.left = "0px";
-			// imgBottom.style.top = "60px";
-
-			// let frontDiv = this.dom.children[0].children[0];
-			// frontDiv.appendChild(imgBottom);
-
 		}
 		this.dom.classList.remove("pinkup");
 		// move/flip contracts as needed
@@ -522,12 +513,12 @@ class ContractClient extends Contract {
 				// this.dom.style.visibility = "visible";
 				this.dom.classList.remove("showback");
 				// offset.top = "20px";
-				if (game.options.numContractPiles == 4) {
 					offset = boardOffset(document.getElementsByClassName('contractspace')[this.location.num + 1]);
+				if (game.options.numContractPiles == 4) {
 					// offset.left = 102 + (this.location.num) * 80 + "px";
 					this.dom.style.zIndex = 2 + (this.location.num) * 5 + (4 - this.location.pos);
 				} else {
-					offset = boardOffset(document.getElementsByClassName('contractspace')[this.location.num]);
+					// offset = boardOffset(document.getElementsByClassName('contractspace')[this.location.num]);
 					// offset.left = 5 + (this.location.num) * 50 + "px";
 					this.dom.style.zIndex = 2 + (this.location.num);
 				}
@@ -1372,11 +1363,17 @@ class GameClient extends Game {
 				for (let j in msg.soldcard[i]) {	// j will be the types of art needed
 					let numOfType = this.art.filter((a) => a.location.type === ARTLOC.SOLD && a.location.plNum === this.iAmPlNum && a.type === j).length;
 					for (let k=0; k < msg.soldcard[i][j]; k++) {	// k will be how many of type j needed
-						document.getElementById(`sold-${i}-${ii}`).src = `res/${j}.png`;
+						let el = document.getElementById(`sold-${i}-${ii}`);
+						let elsib = el.nextSibling;
+						el.src = `res/${j}.png`;
 						if (k >= numOfType) {
 							// TODO mark this req as not yet met
+							elsib.classList.remove('done');
+							elsib.classList.add('missing');
 						} else {
 							// mark this req as met
+							elsib.classList.remove('missing');
+							elsib.classList.add('done');
 						}
 						ii++;
 					}
@@ -1387,8 +1384,20 @@ class GameClient extends Game {
 			for (let i=0; i < msg.hungcard.length; i++) {	// normally 0-1
 				let ii = 0;
 				for (let j in msg.hungcard[i]) {
+					let numOfType = this.art.filter((a) => a.location.type === ARTLOC.DISPLAY && a.location.plNum === this.iAmPlNum && a.type === j).length;
 					for (let k=0; k < msg.hungcard[i][j]; k++) {
-						document.getElementById(`hung-${i}-${ii}`).src = `res/${j}.png`;
+						let el = document.getElementById(`hung-${i}-${ii}`);
+						let elsib = el.nextSibling;
+						el.src = `res/${j}.png`;
+						if (k >= numOfType) {
+							// TODO mark this req as not yet met
+							elsib.classList.remove('done');
+							elsib.classList.add('missing');
+						} else {
+							// mark this req as met
+							elsib.classList.remove('missing');
+							elsib.classList.add('done');
+						}
 						ii++;
 					}
 				}

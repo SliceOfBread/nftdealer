@@ -90,6 +90,16 @@ img {
     top: 5vw;
 }
 
+.done::after {
+    color:darkgreen;
+    content: '✓';
+}
+
+.missing::after {
+    color:red;
+    content: '✗';
+}
+
 .artspace {
     height:5vw;
     width: 5vw;
@@ -317,8 +327,8 @@ img {
 } */
 .endgame {
     display: inline-grid;
-    grid-template-columns: 1vw 1vw 1vw; 
-    width: 3.3vw;
+    grid-template-columns: 1vw 1vw 1vw 1vw; 
+    width: 4.3vw;
     border: 0.05vw solid black;
     border-radius: 0.25vw;
     align-content: center;
@@ -342,7 +352,7 @@ img {
     width: 1.8vw;
     height: 1.8vw;
     border: 0.05vw solid black;
-    grid-area: auto / 2 / span 2 / span 2;
+    grid-area: auto / 3 / span 2 / span 2;
     border-radius: 50%;
     font-size: 100%;
     font-weight: bold;

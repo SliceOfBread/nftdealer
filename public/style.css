@@ -85,6 +85,11 @@ img {
     transform: rotateY(180deg);
 }
 
+.bottom {
+    position: absolute;
+    top: 5vw;
+}
+
 .artspace {
     height:5vw;
     width: 5vw;
@@ -1274,6 +1279,10 @@ div .clickable, img .clickable {
 }
 .visitor {
     z-index: 3;
+    width: auto;
+    height: 1.2vw;
+}
+.whitelimit {
     width: auto;
     height: 1.2vw;
 }

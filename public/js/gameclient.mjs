@@ -633,7 +633,7 @@ class PlayerClient extends Player {
 		}
 
 		if (game.state === GAMESTATE.FINALSCORE) {
-
+			// TODO ???
 		}
 	
 		PlayerClient.updatePlayerPiece(this.playerpiece, this.location, this.color);
@@ -704,6 +704,7 @@ class PlayerClient extends Player {
 					break;
 			}
 		}
+		document.getElementById("limit".concat(this.color)).innerHTML = game.playerHasSold(plNum).length + 1;
 	}
 	static updatePlayerPiece(pieceDom, location, color = null) {
 		let offset = {top:0, left:0};
@@ -1366,18 +1367,24 @@ class GameClient extends Game {
 
 		// update hung/sold cards
 		if (msg.soldcard) {
-			for (let i=0; i < msg.soldcard.length; i++) {
+			for (let i=0; i < msg.soldcard.length; i++) {	// normally 0-2
 				let ii = 0;
-				for (let j in msg.soldcard[i]) {
-					for (let k=0; k < msg.soldcard[i][j]; k++) {
+				for (let j in msg.soldcard[i]) {	// j will be the types of art needed
+					let numOfType = this.art.filter((a) => a.location.type === ARTLOC.SOLD && a.location.plNum === this.iAmPlNum && a.type === j).length;
+					for (let k=0; k < msg.soldcard[i][j]; k++) {	// k will be how many of type j needed
 						document.getElementById(`sold-${i}-${ii}`).src = `res/${j}.png`;
+						if (k >= numOfType) {
+							// TODO mark this req as not yet met
+						} else {
+							// mark this req as met
+						}
 						ii++;
 					}
 				}
 			}
 		}
 		if (msg.hungcard) {
-			for (let i=0; i < msg.hungcard.length; i++) {
+			for (let i=0; i < msg.hungcard.length; i++) {	// normally 0-1
 				let ii = 0;
 				for (let j in msg.hungcard[i]) {
 					for (let k=0; k < msg.hungcard[i][j]; k++) {

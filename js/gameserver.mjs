@@ -479,7 +479,7 @@ class GameServer extends Game {
 		}
 		if (tixIndex != -1) {
 			let plStr = "player" + plNum;
-			this.logMsg("GETSTIX", this.activePlayer, tixColor)
+			this.logMsg("GETSTIX", this.activePlayer, tixColor);
 			this.tickets[tixColor][tixIndex] = plStr;
 			if (!this.getFlag(FLAG.MID_TRIGGERED)) {
 				// haven't triggered mid-game scoring yet, check if we should
@@ -1207,7 +1207,12 @@ class GameServer extends Game {
 				for (let tc of this.substackEnd()) {
 					tmp.clickables.push(this.obj2Str({type:CLICKITEM.TIX, color:tc}));
 				}
-				tmp.msgs.push("GETTIX");
+				if (this.state === GAMESTATE.TWOCHOICE) {
+					tmp.msgs.push("GETFIRSTTIX");
+				} else {
+					tmp.msgs.push("GETTIX");
+				}
+				
 				break;
 
 			case GAMESTATE.LEAVEASST:
@@ -3496,7 +3501,7 @@ class GameServer extends Game {
 
 		// infl track
 		for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-			let val = this.infl2money(this.players[plNum].influence);
+			let val = this.infl2money(infl[plNum]);
 			money[plNum] += val;
 			if (!forLiveScore) this.logMsg("INFLBONUS",plNum,val);
 		}

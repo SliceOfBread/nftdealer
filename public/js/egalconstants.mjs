@@ -316,6 +316,7 @@ const PROMPT = {
 		SELLART:"art to sell",
 		PLACECONTRACT:"space to place contract",
 		GETTIX:"ticket to get",
+		GETFIRSTTIX:"first of two tickets",
 		USECONTRACT:"contract to use for sale",
 		LEAVINGVISITOR:"visitor to leave",
 		GALVISITOR:"a visitor to move to your gallery",

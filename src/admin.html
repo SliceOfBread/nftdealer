@@ -69,8 +69,9 @@
                     gameDom.innerHTML = null;
                     for (let i=0; i < msg.length; i++) {
                         let userLink = document.createElement("a");
-                        userLink.innerText = msg[i].gameid;
-                        userLink.href = "/admin?ac=" + params.get('ac') + "&gid=" + msg[i].gameid;
+                        let gid = msg[i].game_id || msg[i].gameid;
+                        userLink.innerText = gid;
+                        userLink.href = "/admin?ac=" + params.get('ac') + "&gid=" + gid;
                         let item = document.createElement('li');
                         item.appendChild(userLink);
                         gameDom.appendChild(item);

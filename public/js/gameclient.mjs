@@ -1449,6 +1449,28 @@ class GameClient extends Game {
 				txt += `<br>${PROMPT.EN.PLACE[place]}-${this.decodeMsg("PLNAME".concat(':',this.results[i].player))}-${this.results[i].money}`;
 			}
 			this.actionMsg(txt);
+			// show final stats
+			document.getElementById("finalstats").classList.remove('invis');
+			let rowDoms = document.getElementById("statsplayers").getElementsByClassName("stats");
+			for (let plNum=0; plNum < this.numPlayers; plNum++) {
+				rowDoms[plNum].classList.remove('invis');
+				rowDoms[plNum].innerHTML = this.players[plNum].name;
+			}
+			rowDoms = document.getElementById("statsfinalscore").getElementsByClassName("stats");
+			for (let plNum=0; plNum < this.numPlayers; plNum++) {
+				rowDoms[plNum].classList.remove('invis');
+				rowDoms[plNum].innerHTML = this.players[plNum].money;
+			}
+			for (let statcat in this.stats) {
+				for (let stat in this.stats[statcat]) {
+					rowDoms = document.getElementById("stats".concat(statcat,stat)).getElementsByClassName("stats");
+					if (!rowDoms.length) continue;
+					for (let plNum=0; plNum < this.numPlayers; plNum++) {
+						rowDoms[plNum].classList.remove('invis');
+						rowDoms[plNum].innerHTML = this.stats[statcat][stat][plNum];
+					}
+				}
+			}
 		} else if (this.activePlayer == this.iAmPlNum) {
 			if (msg) {
 				for (let cl of msg.clickables) {

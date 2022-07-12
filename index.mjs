@@ -112,7 +112,9 @@ class PostgreS extends GameList {
 	}
   
 	async findAllGames() { // TODO
-	  return [...this.games.values()];
+		const result = await this.pool.query('SELECT game_id, last_used FROM games');
+
+	  	return result.rows;
 	}
 
 }
@@ -169,7 +171,19 @@ app.get('/player', (req, res) => {
 		// send page that redirects to show all games?
 		// TODO
 	}	
- });
+});
+
+const adminCode = process.env.ADMINCODE || "temporary"; // TODO change this to random
+
+app.get('/admin', (req, res) => {
+	if (req.query.ac && req.query.ac === adminCode) {
+		res.sendFile(path.resolve('./src/admin.html'));
+	} else {
+		setTimeout(() => {
+			res.status(403).send('Not Authorized');
+		}, 1000);
+	}
+});
  
 //  app.get('/game', (req, res) => {
 // 	if (req.query.gid) {
@@ -426,6 +440,41 @@ io.on('connection', (socket) => {
 		
 	});
 
+	socket.on('admin', (msg) => {
+		if (msg && msg.adminCode && msg.adminCode === adminCode) {
+			if (!msg.gameId) {
+				// send list of games
+				gamesData.findAllGames().then(function(aGames) {
+					socket.emit('list of games', aGames);
+				});
+			} else if (msg.keepNumMoves) {
+				// delete moves based on admin msg
+				gamesData.findGame(msg.gameId).then(function(thisGame) {
+					while (thisGame.state.moves.length > msg.keepNumMoves) {
+						thisGame.state.moves.pop();
+					}
+					// save moves and re-init game by creating new game
+					let newGame = new GameServer();
+					newGame.init(thisGame.init.players, thisGame.init.options, thisGame.init.seed);
+					// reprocess saved moves
+					newGame.processMoves(thisGame.state.moves);
+					// game update sent below
+					gamesData.saveGame(msg.gameId, {
+						ids:thisGame.ids,
+						init:thisGame.init,
+						lastUsed:Date.now(),
+						complete: newGame.gameComplete(),
+						state:newGame.serialize("server")
+					});	
+				}); 
+			} else {
+				// send info for selected game
+				gamesData.findGame(msg.gameId).then(function(thisGame) {
+					socket.emit('game admin info', {game:thisGame, gameId:msg.gameId});
+				}); 
+			}
+		}
+	});
 
 	function playerSetup(inPlayers, options) {
 		let players = [];

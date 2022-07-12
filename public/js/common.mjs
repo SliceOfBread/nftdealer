@@ -530,16 +530,17 @@ class Game {
 				case "currentPlayer":
 				case "seed":
 				case "origSeed":
-				case "options":
 				case "moves":
-				case "flags":
 				case "substack":
+				case "flags":
+				case "options":
 				case "activePlayer":
 				case "numPlayers":
 				case "state":
 				case "tickets":
 				case "thumbs":
 				case "results":
+				case "stats":
 				case "log":
 					this[k] = rebuild[k];
 					break;

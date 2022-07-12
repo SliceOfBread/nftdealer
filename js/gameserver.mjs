@@ -280,6 +280,7 @@ class GameServer extends Game {
 		this.origSeed = 0;
 		this.flags = 0;
 		this.results = null;
+		this.stats = {};
 		//this.remember = null;
 		this.substack = [];
 		for (let n=0; n<8; n++) {
@@ -542,6 +543,7 @@ class GameServer extends Game {
 
 	hireAsst() {
 		let asst = this.getUnemployed();
+		if (!asst) return;
 		this.logMsg("ASST2", this.activePlayer, "HIRED");
 		// get hiring bonus 
 		// (0,brown,pink,infl,0,bpw*,0,money) 
@@ -608,7 +610,7 @@ class GameServer extends Game {
 	infl2money(infl) {
 		const inflValue = [0,1,1,1,2,2,2,2,3,3,3,3,4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,10,11,12,13,14,15,16,17,18,20];
 
-		return inflValue[infl];
+		return (infl > inflValue.length-1) ? 20 : inflValue[infl];
 
 	}
 	inflNextMark(infl) {
@@ -3289,14 +3291,25 @@ class GameServer extends Game {
 	}
 
 	finalScore(forLiveScore = false) {
-		let money = [0,0,0,0];
-		let infl = [0,0,0,0];
+		// let money = [0,0,0,0];
+		// let infl = [0,0,0,0];
+		// for (let plNum=0; plNum < this.numPlayers; plNum++) {
+		// 	money[plNum] = this.players[plNum].money;
+		// 	infl[plNum] = this.players[plNum].influence;
+		// }
+		let money = {};
+		let infl = {};
+
+		money.onhand = [];
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
-			money[plNum] = this.players[plNum].money;
-			infl[plNum] = this.players[plNum].influence;
+			money.onhand[plNum] = this.players[plNum].money;
 		}
 
 		// column majorities
+		money.columns = [];
+		for (let plNum=0; plNum < this.numPlayers; plNum++) {
+			money.columns[plNum] = 0;
+		}
 		const majorityBonus = [[6,3,1],[10,6,3],[15,10,6]];
 		for (let col=0; col < 3; col++) {
 			if (this.numPlayers < 3 && col===1) continue;
@@ -3321,7 +3334,7 @@ class GameServer extends Game {
 				for (let plNum=0; plNum < this.numPlayers; plNum++) {
 					if (numAsstInCol[plNum] === maxAssts) {
 						// this player gets bonus
-						money[plNum] += colBonus;
+						money.columns[plNum] += colBonus;
 						if (!forLiveScore) this.logMsg("COLBONUS",plNum,colBonus,col+1);
 						// remove this player from further consideration
 						numAsstInCol[plNum] = 0;
@@ -3335,6 +3348,12 @@ class GameServer extends Game {
 		}
 
 		// repTiles
+		money.repTiles = [];
+		infl.repTiles = [];
+		for (let plNum=0; plNum < this.numPlayers; plNum++) {
+			money.repTiles[plNum] = 0;
+			infl.repTiles[plNum] = 0;
+		}
 		// note: normally reptiles can be scored in any order BUT rep tile 0 MUST be scored before others for that plaayer
 		// To simplify, loop all reptiles starting from 0 and score in that order
 		for (let i=0; i < 20; i++) {
@@ -3437,11 +3456,11 @@ class GameServer extends Game {
 						break;
 				}
 				if (money2add) {
-					money[tile.location.plNum] += money2add;
+					money.repTiles[tile.location.plNum] += money2add;
 					if (!forLiveScore) this.logMsg("TILEMONEY",tile.location.plNum,money2add,i);
 				}
 				if (infl2add) {
-					infl[tile.location.plNum] += infl2add;
+					infl.repTiles[tile.location.plNum] += infl2add;
 					if (!forLiveScore) this.logMsg("TILEINFL",tile.location.plNum,infl2add,i);
 				}
 				
@@ -3449,33 +3468,43 @@ class GameServer extends Game {
 		}
 
 		// sale value of exhibitted art
-		{
-			let exhibitArt = this.art.filter((a) => a.location.type === ARTLOC.DISPLAY);
-			for (let art of exhibitArt) {
-				let val = this.artists[art.byArtist].getValue();
-				money[art.location.plNum] += val;
-				if (!forLiveScore) this.logMsg("EXART",art.location.plNum,val,art.byArtist);
-			}
+		money.exhibitted = [];
+
+		for (let plNum=0; plNum < this.numPlayers; plNum++) {
+			money.exhibitted[plNum] = 0;
 		}
+			let exhibitArt = this.art.filter((a) => a.location.type === ARTLOC.DISPLAY);
+		for (let art of exhibitArt) {
+			let val = this.artists[art.byArtist].getValue();
+			money.exhibitted[art.location.plNum] += val;
+			if (!forLiveScore) this.logMsg("EXART",art.location.plNum,val,art.byArtist);
+		}
+
 
 		// auction works
+		money.auction = [];
 		let plAuctionType = [null,null,null,null];
-		{
-			let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.TOPLAYER);
-			for (let art of auctionWorks) {
-				// remember art type won for later
-				plAuctionType[art.location.plNum] = art.type;
-
-				// player who won art rcvs its value
-				let av = this.auctionValue(art);
-				money[art.location.plNum] += av.value;
-				if (!forLiveScore) this.logMsg("AUCTIONART",art.location.plNum,av.value,av.artistIdx);
-			}
+		
+		for (let plNum=0; plNum < this.numPlayers; plNum++) {
+			money.auction[plNum] = 0;
 		}
+		let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.TOPLAYER);
+		for (let art of auctionWorks) {
+			// remember art type won for later
+			plAuctionType[art.location.plNum] = art.type;
+
+			// player who won art rcvs its value
+			let av = this.auctionValue(art);
+			money.auction[art.location.plNum] += av.value;
+			if (!forLiveScore) this.logMsg("AUCTIONART",art.location.plNum,av.value,av.artistIdx);
+		}
+		
 
 		// curator
 		// dealer
+		money.secretCards = [];
 		for (let plNum = 0; plNum < this.numPlayers; plNum++) {
+			money.secretCards[plNum] = 0;
 			// for each player, compute value of curator and dealer cards without auction
 			let cVal = this.curatorValue(plNum);
 			let dVal = this.dealerValue(plNum);
@@ -3492,28 +3521,47 @@ class GameServer extends Game {
 					if (!forLiveScore) this.logMsg("TODISPLAY",plNum);
 				}
 			}
-			money[plNum] += cVal;
+			money.secretCards[plNum] += cVal;
 			if (!forLiveScore) this.logMsg("DISPLAYBONUS",plNum,cVal);
 
-			money[plNum] += dVal;
+			money.secretCards[plNum] += dVal;
 			if (!forLiveScore) this.logMsg("SOLDBONUS",plNum,dVal);
 		}
 
+		let gainedInfl = [0,0,0,0];
+		for (let stype in infl) {
+			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
+				gainedInfl[plNum] += infl[stype][plNum];
+			}
+		}
+
 		// infl track
+		money.infl = [];
 		for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-			let val = this.infl2money(infl[plNum]);
-			money[plNum] += val;
+			let val = this.infl2money(gainedInfl[plNum] + this.players[plNum].influence);
+			money.infl[plNum] = val;
 			if (!forLiveScore) this.logMsg("INFLBONUS",plNum,val);
 		}
 
-		// actually add money/influence if it's not for live score
-		if (!forLiveScore) {
+		
+		let ret = [0,0,0,0];
+		for (let stype in money) {
+			if (stype == "onhand") continue;
 			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-				this.players[plNum].money = money[plNum];
-				this.players[plNum].influence - infl[plNum];
+				ret[plNum] += money[stype][plNum];
 			}
 		}
-		return money;
+		if (forLiveScore) {
+			return ret;
+		} else {
+			// actually add money/influence if it's not for live score
+			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
+				this.players[plNum].addMoney(ret[plNum]);
+				this.players[plNum].addInfluence(gainedInfl[plNum]);
+			}
+			// save money for as stats
+			this.stats.scoring = money;
+		}
 	}
 
 	finalResults() {
@@ -3872,6 +3920,7 @@ class GameServer extends Game {
 				case "tickets":
 				case "thumbs":
 				case "results":
+				case "stats":
 				case "log":
 					// these are straightforward to stringify
 					obj[k] = this[k];

@@ -3483,15 +3483,15 @@ class GameServer extends Game {
 
 		// auction works
 		money.auction = [];
-		let plAuctionType = [null,null,null,null];
+		let plAuctionArt = [null,null,null,null];
 		
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
 			money.auction[plNum] = 0;
 		}
 		let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.TOPLAYER);
 		for (let art of auctionWorks) {
-			// remember art type won for later
-			plAuctionType[art.location.plNum] = art.type;
+			// remember art won for later
+			plAuctionArt[art.location.plNum] = art;
 
 			// player who won art rcvs its value
 			let av = this.auctionValue(art);
@@ -3509,16 +3509,22 @@ class GameServer extends Game {
 			let cVal = this.curatorValue(plNum);
 			let dVal = this.dealerValue(plNum);
 			// if player has won auction determine which card gains more
-			if (plAuctionType[plNum]) {
-				let dValWith = this.dealerValue(plNum, plAuctionType[plNum]);
-				let cValWith = this.curatorValue(plNum, plAuctionType[plNum]);
+			if (plAuctionArt[plNum] && plAuctionArt[plNum].type) {
+				let dValWith = this.dealerValue(plNum, plAuctionArt[plNum].type);
+				let cValWith = this.curatorValue(plNum, plAuctionArt[plNum].type);
 				if ((cVal + dValWith) > (cValWith + dVal)) {
 					// it is better to move auction work to sell pile
 					dVal = dValWith;
-					if (!forLiveScore) this.logMsg("TOSOLD",plNum);
+					if (!forLiveScore) {
+						this.logMsg("TOSOLD",plNum);
+						plAuctionArt[plNum].moveArtTo({type:ARTLOC.SOLD, plNum:plNum});
+					}
 				} else {
 					cVal = cValWith;
-					if (!forLiveScore) this.logMsg("TODISPLAY",plNum);
+					if (!forLiveScore) {
+						this.logMsg("TODISPLAY",plNum);
+						plAuctionArt[plNum].moveArtTo({type:ARTLOC.DISPLAY, plNum:plNum});
+					}
 				}
 			}
 			money.secretCards[plNum] += cVal;
@@ -3546,7 +3552,7 @@ class GameServer extends Game {
 		
 		let ret = [0,0,0,0];
 		for (let stype in money) {
-			if (stype == "onhand") continue;
+			if (!forLiveScore && stype == "onhand") continue;
 			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
 				ret[plNum] += money[stype][plNum];
 			}
@@ -3640,32 +3646,6 @@ class GameServer extends Game {
 		}
 		return totalBonus;
 
-	}
-
-	auctionValue(art) {
-		let redArtistIdx = this.artists.findIndex((a) => a.type === art.type && a.color === ARTISTCOLOR.RED);
-		let blueArtistIdx = this.artists.findIndex((a) => a.type === art.type && a.color === ARTISTCOLOR.BLUE);
-		let redArtist = this.artists[redArtistIdx];
-		let blueArtist = this.artists[blueArtistIdx];
-		let ret = {value: 0, artistIdx:0};
-		// if both artists are discovered or undiscovered, value of auction is max
-		// otherwise value is whichever is discovered
-		if (redArtist.discovered === blueArtist.discovered) {
-			if (redArtist.getValue() >= blueArtist.getValue()) {
-				ret.value = redArtist.getValue();
-				ret.artistIdx = redArtistIdx;
-			} else {
-				ret.value = blueArtist.getValue();
-				ret.artistIdx = blueArtistIdx;
-			}
-		} else if (redArtist.discovered) {
-			ret.value = redArtist.getValue();
-			ret.artistIdx = redArtistIdx;
-		} else {
-			ret.value = blueArtist.getValue();
-			ret.artistIdx = blueArtistIdx;
-		}
-		return ret;
 	}
 
 	bagEmpty() {

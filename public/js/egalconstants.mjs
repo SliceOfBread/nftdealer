@@ -295,7 +295,7 @@ const PROMPT = {
 	EN: {
 		DOLLAR:"&dollar;",
 		CHOOSE:"Choose:",
-		TAKINGTURN:" is taking their turn",
+		TAKINGTURN:" is playing",
 		WAITING:"Waiting for server",
 		ACTION:"an action location",
 		EACTION: "an Exec Action",

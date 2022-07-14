@@ -107,8 +107,17 @@ class ArtClient extends Art {
 
 				break;
 			case ARTLOC.DISPLAY:
-				offset = boardOffset(playerBoardDom.getElementsByClassName("pbartspace")[this.posNum]);
-				offset.top += .3;
+				if (this.posNum > 3) {
+					// must be auction piece and display full
+					// show it below other art
+					offset = boardOffset(playerBoardDom.getElementsByClassName("pbartspace")[1]);
+					offset.left += 2.6;
+					offset.top += 5.5;
+					this.dom.style.zIndex = 4;
+				} else {
+					offset = boardOffset(playerBoardDom.getElementsByClassName("pbartspace")[this.posNum]);
+					offset.top += .3;	
+				}
 
 				// this.dom.style.left = offset.left + 54 + 100 * this.posNum + "px";
 				// this.dom.style.top = offset.top + 5 + "px";
@@ -277,7 +286,10 @@ class ArtistClient extends Artist {
 			}
 
 			// update promo level
-			this.dom.getElementsByClassName("artistpromo")[0].innerHTML = `<p>${this.thumb}&nbsp;&nbsp;&UpperRightArrow;</p>`
+			this.dom.getElementsByClassName("artistpromo")[0].innerHTML = `<p>${this.thumb}&nbsp;&nbsp;&UpperRightArrow;</p>`;
+
+			// update value
+			this.dom.getElementsByClassName("artistvalue")[0].innerHTML = PROMPT.EN.DOLLAR.concat(this.getValue());
 
 			// this.bonusDom = document.createElement("IMG");
 			// this.bonusDom.src = "res/artistBonus" + Object.values(ARTBONUSTYPE).indexOf(this.bonus) + ".png";
@@ -1253,11 +1265,13 @@ class GameClient extends Game {
 		}
 		for (let pl=0; pl < this.numPlayers; pl++) {
 			let artDisplay = this.playerHasDisplayed(pl);
+			artDisplay.forEach((a) => a.value = a.byArtist ? this.artists[a.byArtist].getValue() : this.auctionValue(a).value + 64);
 			if (artDisplay.length > 1) {
-				artDisplay.sort((a,b) => this.artists[a.byArtist].fame - this.artists[b.byArtist].fame);
+				artDisplay.sort((a,b) => a.value - b.value);
 			}
 			for (let i=0; i < artDisplay.length; i++) {
-				artDisplay[i].updateArtInfo(i, this.players[pl].boardDom, this.artists[artDisplay[i].byArtist].getValue());
+				// let val = artDisplay[i].byArtist ? this.artists[artDisplay[i].byArtist].getValue() : this.auctionValue(artDisplay[i]);
+				artDisplay[i].updateArtInfo(i, this.players[pl].boardDom, artDisplay[i].value % 64);
 			}
 		}
 
@@ -1442,11 +1456,13 @@ class GameClient extends Game {
 		if (this.state == GAMESTATE.FINALSCORE) {
 			let txt = PROMPT.EN.FINALSCORE;
 			let place = 0;
+			let playerPlace = [0,0,0,0];
 			for (let i = 0; i < this.results.length; i++) {
 				if (i) {
 					if (this.results[i].score != this.results[i-1].score) place = i;
 				}
-				txt += `<br>${PROMPT.EN.PLACE[place]}-${this.decodeMsg("PLNAME".concat(':',this.results[i].player))}-${this.results[i].money}`;
+				playerPlace[this.results[i].player] = place;
+				// txt += `<br>${PROMPT.EN.PLACE[place]}-${this.decodeMsg("PLNAME".concat(':',this.results[i].player))}-${this.results[i].money}`;
 			}
 			this.actionMsg(txt);
 			// show final stats
@@ -1454,7 +1470,14 @@ class GameClient extends Game {
 			let rowDoms = document.getElementById("statsplayers").getElementsByClassName("stats");
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
 				rowDoms[plNum].classList.remove('invis');
+				rowDoms[plNum].classList.add('color'.concat(this.players[plNum].color));
 				rowDoms[plNum].innerHTML = this.players[plNum].name;
+				//rowDoms[plNum].innerHTML = this.decodeMsg("PLNAME".concat(':',plNum)); //this.players[plNum].name;
+			}
+			rowDoms = document.getElementById("statsplace").getElementsByClassName("stats");
+			for (let plNum=0; plNum < this.numPlayers; plNum++) {
+				rowDoms[plNum].classList.remove('invis');
+				rowDoms[plNum].innerHTML = PROMPT.EN.PLACE[playerPlace[plNum]];
 			}
 			rowDoms = document.getElementById("statsfinalscore").getElementsByClassName("stats");
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
@@ -1473,6 +1496,11 @@ class GameClient extends Game {
 			}
 		} else if (this.activePlayer == this.iAmPlNum) {
 			if (msg) {
+				// TODO won't ding if same player plays next (i.e player has KO, then turn or player plays then chooses in Auction)
+				if (!alertSoundPlayed) {
+					document.getElementById("playsound").play();
+					alertSoundPlayed = true;
+				}
 				for (let cl of msg.clickables) {
 					try {
 						document.getElementById(cl).classList.remove("invis");
@@ -1511,6 +1539,7 @@ class GameClient extends Game {
 				} 
 			}
 		} else {
+			alertSoundPlayed = false;
 			this.actionMsg(this.players[this.activePlayer].name + PROMPT.EN.TAKINGTURN);
 		}
 
@@ -1704,6 +1733,7 @@ function main() {
 
 var playerId = null;
 var gameId = null;
+var alertSoundPlayed = true;
 
 window.onload = function() {
 	main();
@@ -1737,3 +1767,5 @@ var socket = io();
 // https://thenounproject.com/denimao
 // sculture
 // // https://thenounproject.com/vigorn
+// doorbell sound
+// https://mixkit.co/free-sound-effects/doorbell/

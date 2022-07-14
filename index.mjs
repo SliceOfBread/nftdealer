@@ -112,7 +112,7 @@ class PostgreS extends GameList {
 	}
   
 	async findAllGames() { // TODO
-		const result = await this.pool.query('SELECT game_id, last_used FROM games');
+		const result = await this.pool.query('SELECT game_id, last_used FROM games ORDER BY last_used DESC');
 
 	  	return result.rows;
 	}

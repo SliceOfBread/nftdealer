@@ -1,5 +1,6 @@
 import {
 	ARTLOC,
+	ARTISTCOLOR,
 	ASSTLOC,
 	BONUSTYPE,
 	CONTRACTLOC,
@@ -484,6 +485,32 @@ class Game {
 
 	getFlag(bitMask) {
 		return this.flags & (bitMask);
+	}
+
+	auctionValue(art) {
+		let redArtistIdx = this.artists.findIndex((a) => a.type === art.type && a.color === ARTISTCOLOR.RED);
+		let blueArtistIdx = this.artists.findIndex((a) => a.type === art.type && a.color === ARTISTCOLOR.BLUE);
+		let redArtist = this.artists[redArtistIdx];
+		let blueArtist = this.artists[blueArtistIdx];
+		let ret = {value: 0, artistIdx:0};
+		// if both artists are discovered or undiscovered, value of auction is max
+		// otherwise value is whichever is discovered
+		if (redArtist.discovered === blueArtist.discovered) {
+			if (redArtist.getValue() >= blueArtist.getValue()) {
+				ret.value = redArtist.getValue();
+				ret.artistIdx = redArtistIdx;
+			} else {
+				ret.value = blueArtist.getValue();
+				ret.artistIdx = blueArtistIdx;
+			}
+		} else if (redArtist.discovered) {
+			ret.value = redArtist.getValue();
+			ret.artistIdx = redArtistIdx;
+		} else {
+			ret.value = blueArtist.getValue();
+			ret.artistIdx = blueArtistIdx;
+		}
+		return ret;
 	}
 
 

@@ -45,6 +45,15 @@ table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
 }
+th, td {
+    padding: .4vw;
+}
+th {
+    text-align: center;
+}
+td {
+    text-align: right;
+}
 
 .everything {
     display: grid;
@@ -160,6 +169,12 @@ table, th, td {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.artistvalue {
+    position: absolute;
+    top: 55%;
+    font-size: 150%;
+    left:50%;
 }
 .artistlower {
     width:100%;
@@ -958,12 +973,16 @@ transform: rotate(180deg);
     border-width: 0.05vw 0.05vw 0 0.05vw;
     border-style:   solid ;
     border-color: var(--boardcolor) ;
-    display: grid;
-    grid-template-rows: auto auto;
+    /* display: grid;
+    grid-template-columns: auto auto; */
 }
 .pbasstcost {
-    height: 0.6vw;
-    width: 0.6vw;
+    position: absolute;
+    left:55%;
+    top:30%;
+    z-index: 5;
+    height: .8vw;
+    width: .8vw;
     background: url('res/money.png') center no-repeat;
     background-size: contain;
     font-size: 50%;
@@ -973,8 +992,11 @@ transform: rotate(180deg);
     align-items: center;
 }
 .pbasstbonus {
-    height: .7vw;
-    width: .7vw;
+    position: absolute;
+    left:0%;
+    top:20%;
+    height: .8vw;
+    width: .8vw;
 
 }
 .pbdisplay {
@@ -985,6 +1007,9 @@ transform: rotate(180deg);
     margin-top: 0.35vw;
     display: grid;
     grid-template-columns: 5.15vw 5.15vw 5.15vw 5.15vw;
+}
+.pbdisplayextra {
+    grid-template-columns: 4.12vw 4.12vw 4.12vw 4.12vw 4.12vw;
 }
 .pbartspace {
     border-style: solid;

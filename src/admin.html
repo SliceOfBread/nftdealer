@@ -70,7 +70,8 @@
                     for (let i=0; i < msg.length; i++) {
                         let userLink = document.createElement("a");
                         let gid = msg[i].game_id || msg[i].gameid;
-                        userLink.innerText = gid;
+                        let lu = msg[i].last_used || msg[i].lastused;
+                        userLink.innerText = gid.concat(" ", lu);
                         userLink.href = "/admin?ac=" + params.get('ac') + "&gid=" + gid;
                         let item = document.createElement('li');
                         item.appendChild(userLink);

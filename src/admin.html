@@ -34,21 +34,24 @@
             }
 
             function adjustMoveList(amt) {
-                if (amt < 0) {
+                let cnt = amt;
+                while (cnt < 0) {
                     // change first visible to invisible
                     let domList = document.getElementById('moves').getElementsByClassName('vis');
                     if (domList.length) {
                         domList[0].classList.add('invis');
                         domList[0].classList.remove('vis');
                     }
-                } else if (amt > 0) {
+                    cnt++;
+                }  
+                while (cnt > 0) {
                     // change last invis to vis
                     let domList = document.getElementById('moves').getElementsByClassName('invis');
                     if (domList.length) {
                         domList[domList.length-1].classList.add('vis');
                         domList[domList.length-1].classList.remove('invis');
                     }
-
+                    cnt--;
                 }
             }
 
@@ -98,6 +101,7 @@
       <button class="invis" onclick="getGameList()">Game List</button>
       <button class="invis" onclick="adjustMoveList(1)">Add move</button>
       <button class="invis" onclick="adjustMoveList(-1)">Delete move</button>
+      <button class="invis" onclick="adjustMoveList(-10)">Delete 10 moves</button>
       <button class="invis" onclick="sendGameUpdate()">Update Game on Server</button>
       <ul id="games"></ul>
       <ul id="moves"></ul>

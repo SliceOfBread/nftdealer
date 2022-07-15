@@ -1349,6 +1349,10 @@ class GameServer extends Game {
 					this.moves.push(moves[i]);
 				} else if (moves[i].location) {
 					// moves without location are just UNDO markers
+					if (i==721) {
+						let xx = 3;
+					}
+
 					this.processClick(moves[i]);
 				}
 					
@@ -1441,9 +1445,8 @@ class GameServer extends Game {
 					// this.state unchanged
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
-					if (this.getFlag(FLAG.NOTHING_TURN)) {
-						this.playerDidNothing();
-					}
+					this.playerDidNothing();
+
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else {
@@ -1625,9 +1628,7 @@ class GameServer extends Game {
 				let clickedArtist = this.artists[clickedArtistIdx];
 				if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
-					if (this.getFlag(FLAG.NOTHING_TURN)) {
-						this.playerDidNothing();
-					}
+					this.playerDidNothing();
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else if (clickedArtist.discovered) {
@@ -1808,9 +1809,7 @@ class GameServer extends Game {
 					}
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
-					if (this.getFlag(FLAG.NOTHING_TURN)) {
-						this.playerDidNothing();
-					}
+					this.playerDidNothing();
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				}
@@ -1875,9 +1874,7 @@ class GameServer extends Game {
 					
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
-					if (this.getFlag(FLAG.NOTHING_TURN)) {
-						this.playerDidNothing();
-					}
+					this.playerDidNothing();
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else {
@@ -2742,7 +2739,6 @@ class GameServer extends Game {
 		if (tmpVisitor) {
 			tmpVisitor.moveVisitorTo({type:VISITORLOC.PLAZA});
 			this.logMsg("VISITOR2PLAZA", tmpVisitor.color);
-			// TODO add playerDidNothing to code
 		}
 		
 	}

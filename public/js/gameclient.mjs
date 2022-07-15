@@ -1497,7 +1497,7 @@ class GameClient extends Game {
 		} else if (this.activePlayer == this.iAmPlNum) {
 			if (msg) {
 				// TODO won't ding if same player plays next (i.e player has KO, then turn or player plays then chooses in Auction)
-				if (!alertSoundPlayed) {
+				if (!alertSoundPlayed && !this.players[msg.playerNum].name.startsWith("Robot")) {
 					document.getElementById("playsound").play();
 					alertSoundPlayed = true;
 				}
@@ -1552,6 +1552,12 @@ class GameClient extends Game {
 					action = msg.clickables[Math.floor(Math.random() * msg.clickables.length)];
 				} while (action == CLICKITEM.REDOBUTTON);
 				// add more robot code here 
+				////////////////////////////////////////////
+				// if state is SALES_MAIN priority contract that matches unmatched display art or sale that helps secret
+				// if state is ART_MAIN priority is art/artist that matches contract w/o art
+				// if state is MEDIA_MAIN priority is ?
+				// if state is MARKET_MAIN priority is col with asst ?
+				////////////////////////////////////////////
 				// if action is not changed, it will be random from above
 				this.sendMove({
 					playerId:playerId,

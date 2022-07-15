@@ -89,7 +89,7 @@
                     moveDom.innerHTML = null;
                     for (let i=msg.game.state.moves.length-1; i >= 0; i--) {
                         let item = document.createElement('li');
-                        item.innerText = JSON.stringify(msg.game.state.moves[i]);
+                        item.innerText = `${i} - ${JSON.stringify(msg.game.state.moves[i])}`;
                         item.classList.add('vis');
                         moveDom.appendChild(item);
                     }

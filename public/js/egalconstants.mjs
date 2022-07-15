@@ -430,6 +430,8 @@ const PROMPT = {
 		USEDCOMM:"$13 used a commission for this art",
 		THUMBSUP:"$13 promotes $22 to level $3",
 		INCRFAME:"$13 increases $22's fame to $3",
+		DISCARDTIX:"ticket discarded (no action performed)",
+		VISITOR2PLAZA:"$1 visitor moved from bag to plaza (no action performed)",
 		AUCTIONPICK:"$13 selects $21 from auction",
 		STARTPOS:"$13 starts in $24, taking reputation tile $3",
 		TAKESTURN:"$13 to do their turn",

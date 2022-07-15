@@ -1551,6 +1551,8 @@ class GameClient extends Game {
 				do {
 					action = msg.clickables[Math.floor(Math.random() * msg.clickables.length)];
 				} while (action == CLICKITEM.REDOBUTTON);
+				// add more robot code here 
+				// if action is not changed, it will be random from above
 				this.sendMove({
 					playerId:playerId,
 					gameId:gameId,

@@ -480,7 +480,12 @@ class GameServer extends Game {
 		}
 		if (tixIndex != -1) {
 			let plStr = "player" + plNum;
-			this.logMsg("GETSTIX", this.activePlayer, tixColor);
+			if (plNum < 0) {
+				plStr = TIXLOC.DISCARD;
+				this.logMsg("DISCARDTIX");
+			} else {
+				this.logMsg("GETSTIX", this.activePlayer, tixColor);
+			}
 			this.tickets[tixColor][tixIndex] = plStr;
 			if (!this.getFlag(FLAG.MID_TRIGGERED)) {
 				// haven't triggered mid-game scoring yet, check if we should
@@ -500,9 +505,13 @@ class GameServer extends Game {
 					this.checkEndGame();
 				}
 			}
+			return true;
 		} else {
-			// error
-			// no tix on BOARD or DISCARD???
+			// no tix on BOARD or DISCARD??? If plNum == -1 return false (no tix left)
+			// otherwise it is an error (maybe bots hoarding tix) TODO ensure this can't happen by
+			//   getting rid of most tix doms. use doms when moving tix but keep at most 2 in any pile
+			//   maybe get rid of playerboard piles and put them in playerInfo
+			return false;
 		}
 	} 
 
@@ -1432,6 +1441,9 @@ class GameServer extends Game {
 					// this.state unchanged
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
+					if (this.getFlag(FLAG.NOTHING_TURN)) {
+						this.playerDidNothing();
+					}
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else {
@@ -1612,6 +1624,10 @@ class GameServer extends Game {
 				let clickedArtistIdx = this.artists.findIndex((a) => (a.type === loc[2] && a.color === loc[1]));
 				let clickedArtist = this.artists[clickedArtistIdx];
 				if (clicked === CLICKITEM.ENDBUTTON) {
+					this.logMsg("DOESNOTHING", this.activePlayer);
+					if (this.getFlag(FLAG.NOTHING_TURN)) {
+						this.playerDidNothing();
+					}
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else if (clickedArtist.discovered) {
@@ -1791,6 +1807,10 @@ class GameServer extends Game {
 						this.state = GAMESTATE.DECRPRICE;
 					}
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
+					this.logMsg("DOESNOTHING", this.activePlayer);
+					if (this.getFlag(FLAG.NOTHING_TURN)) {
+						this.playerDidNothing();
+					}
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				}
@@ -1854,6 +1874,10 @@ class GameServer extends Game {
 					this.state = GAMESTATE.DECRPRICE;
 					
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
+					this.logMsg("DOESNOTHING", this.activePlayer);
+					if (this.getFlag(FLAG.NOTHING_TURN)) {
+						this.playerDidNothing();
+					}
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else {
@@ -2699,6 +2723,28 @@ class GameServer extends Game {
 
 	thisIsKO() {
 		return this.activePlayer != this.currentPlayer;
+	}
+
+	playerDidNothing() {
+		// if player can't do anything then
+		//   if there are any tickets, discard one
+		//   else if there are any visitors in the bag, draw one to the plaza
+		// WHY?
+		// It is possible, especially with bots, to get into a situation where
+		// no player can do anything, leading to an infinite loop. Using the above
+		// forces the game to end (tix done and bag empty -> game over)
+
+		// any tix left
+		if (this.playerGetsTix(-1, TIXCOLOR.BROWN)) return;
+
+		// no tix left, any visitors in bag?
+		let tmpVisitor = this.getRandomFromBag();	// null if bag empty
+		if (tmpVisitor) {
+			tmpVisitor.moveVisitorTo({type:VISITORLOC.PLAZA});
+			this.logMsg("VISITOR2PLAZA", tmpVisitor.color);
+			// TODO add playerDidNothing to code
+		}
+		
 	}
 
 	getActionClicks() {

@@ -434,7 +434,7 @@ const PROMPT = {
 		VISITOR2PLAZA:"$1 visitor moved from bag to plaza (no action performed)",
 		AUCTIONPICK:"$13 selects $21 from auction",
 		STARTPOS:"$13 starts in $24, taking reputation tile $3",
-		TAKESTURN:"$13 to do their turn",
+		TAKESTURN:"$13 turn #$2",
 		DOESKO:"$13 to do KO action",
 		MIDALERT:"Mid-game scoring upcoming",
 		ENDALERT:"End game triggered",

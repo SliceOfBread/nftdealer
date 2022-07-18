@@ -451,6 +451,7 @@ class Visitor {
 class Game {
 	constructor() {
 		this.numPlayers = 0;
+		this.turnNum = 0;
 		this.currentPlayer = null;
 		this.activePlayer = null;
 		this.options = {};
@@ -563,6 +564,7 @@ class Game {
 				case "options":
 				case "activePlayer":
 				case "numPlayers":
+				case "turnNum":
 				case "state":
 				case "tickets":
 				case "thumbs":

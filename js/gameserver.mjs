@@ -676,7 +676,10 @@ class GameServer extends Game {
 					this.activePlayer = this.currentPlayer;
 					this.checkLastRound();
 					this.resetRoundFlags();
-					if (this.state === GAMESTATE.PICKACTION) this.logMsg("TAKESTURN", this.activePlayer);
+					if (this.state === GAMESTATE.PICKACTION) {
+						this.turnNum++;
+						this.logMsg("TAKESTURN", this.activePlayer, this.turnNum);
+					}
 				} else {
 					// if there was a kickout, that player is next
 					// unless it was active player, then asst goes home (this already done in EAorEndTurn)
@@ -696,24 +699,6 @@ class GameServer extends Game {
 						this.sendHome(koPiece.asst);
 						koPiece.asst = null;
 					}
-					// let tmpPiece = this.players.findIndex((p) => p.location.type === PLAYERLOC.KO);
-					// if (tmpPiece === -1) {
-					// 	// no player piece kicked out, check assistants for each player
-					// 	for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-					// 		tmpPiece = this.players[plNum].assistants.find((a) => a.location.type === ASSTLOC.KO);
-					// 		if (tmpPiece) {
-					// 			// note - player's own asst dealt with in EAorEndTurn
-					// 			this.activePlayer = plNum;
-					// 			checkKO = true;
-					// 			this.logMsg("DOESKO", this.activePlayer);
-					// 		}
-					// 	}
-					// } else {
-					// 	// other player piece kicked out
-					// 	this.activePlayer = tmpPiece;
-					// 	checkKO = true;
-					// 	this.logMsg("DOESKO", this.activePlayer);
-					// }
 					
 					this.resetTurnFlags();
 					// if above did not find another player/asst in ko loc
@@ -736,7 +721,10 @@ class GameServer extends Game {
 	
 						this.checkLastRound();
 						this.resetRoundFlags();
-						if (this.state === GAMESTATE.PICKACTION) this.logMsg("TAKESTURN", this.activePlayer);
+						if (this.state === GAMESTATE.PICKACTION) {
+							this.turnNum++;
+							this.logMsg("TAKESTURN", this.activePlayer, this.turnNum);
+						}
 					} else {
 						// this.setPlayerDealtContracts(0);
 						// this.setPlayerDidEA(0);
@@ -772,7 +760,9 @@ class GameServer extends Game {
 					for (let tile of leftovers) {
 						tile.moveRepTileTo({type:REPTILELOC.DISCARD});
 					}
-					return;
+					this.turnNum++;
+					this.logMsg("TAKESTURN", this.activePlayer, this.turnNum);
+			return;
 				}
 				this.activePlayer--;
 				break;
@@ -818,6 +808,7 @@ class GameServer extends Game {
 		for (let pn=0; pn < this.numPlayers; pn++) {
 			this.players[pn].playerId = players[pn].id; 
 		}
+		this.turnNum = 0;
 
 		// init bonus tiles
 		let tmpBonusTile = [];
@@ -3938,6 +3929,7 @@ class GameServer extends Game {
 				case "options":
 				case "activePlayer":
 				case "numPlayers":
+				case "turnNum":
 				case "state":
 				case "tickets":
 				case "thumbs":
@@ -3947,11 +3939,7 @@ class GameServer extends Game {
 					// these are straightforward to stringify
 					obj[k] = this[k];
 					break;
-				// case "log":
-					// let logSendSize = Math.min(logsize, this.log.length);
-					// if (logsize === 0) logSendSize = this.log.length;
-					// obj[k] = this[k].slice(this.log.length - logSendSize);
-					// break;
+				// following are complicated to stringify
 				case "artists":
 				case "art":
 				case "contracts":

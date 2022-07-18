@@ -109,6 +109,22 @@
 		
 	</div>
 	<div id="allplayerinfo">
+		<div id="menuall">
+			<div id="menutop">
+				<input class="menu-btn" type="checkbox" id="menu-btn" />
+				<label class="menu-icon" for="menu-btn">
+				  	<span class="navicon"></span>
+				</label>
+
+				<ul class="menu">
+					<li>Sound<input type="range" min="0" max="10" value="10" class="slider" id="soundrange"></li>
+					<li><span onclick="(function(){
+						window.open('./gamerules.html');
+						return false;
+					})();return false;">Rules</span></li>
+				</ul>
+			</div>
+		</div>
 		<div id="playerinfox0" class="playerinfo">
 			<div class="playername">Name</div><div class="playertime">-:--</div>
 			<div class="playermoney">$10</div><div class="playerscore">15</div>
@@ -756,19 +772,6 @@
 				<img id="sold-2-0" class="endgameitem endgame1" src="res/abstract.png"><span class="missing"></span><div class="endgameitem endbonusamt center">10</div>
 				<img id="sold-2-1" class="endgameitem endgame1" src="res/abstract.png"><span class="missing"></span>
 			</div>
-			<!-- <div id="playerbrdx0" class="playerbrdback"><img src="res/playerBoard.png" class="playerbrd"></img>
-				<div id="sp_reptile-0" class="selectable reptileloc"></div>
-				<div id="sp_reptile-1" class="selectable reptileloc"></div>
-				<div id="sp_reptile-2" class="selectable reptileloc"></div>
-				<div id="sp_reptile-3" class="selectable reptileloc"></div>
-				<div id="sp_reptile-4" class="selectable reptileloc"></div>
-				<div id="sp_reptile-5" class="selectable reptileloc"></div>
-				<div id="sp_contract-0" class="selectable plcontractloc contractsize"></div>
-				<div id="sp_contract-1" class="selectable plcontractloc contractsize"></div>
-				<div id="sp_contract-2" class="selectable plcontractloc contractsize"></div>
-			</div> -->
-			<!-- <img id="curatorcard" class="dccard invis" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" alt="" />
-			<img id="dealercard" class="dccard invis" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" alt="" /> -->
 			<div id="playerbrdx1" class="playerboard">
 				<div class="pbassts">
 					<div class="pbassttop"></div>

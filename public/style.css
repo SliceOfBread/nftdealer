@@ -18,9 +18,9 @@
     /* 0% {opacity: 1.0;}
     50% {opacity: .4;}
     100% {opacity: 1.0;} */
-    0%   {border-color: black;}
-    40%  {border-color: red;}
-    100% {border-color: black;}
+    0%   {outline-color: black;}
+    40%  {outline-color: red;}
+    100% {outline-color: black;}
 }
 
 body {
@@ -405,6 +405,15 @@ td {
     display: inline-block;
     position: absolute;
     font-size: 50%;
+}
+.tiledef {
+    height: 4.8vw;
+    width: 4.8vw;
+    background-image: linear-gradient(#ccefef, #628a8a);
+    border-radius: 0.15vw;
+    box-shadow: 0.05vw 0.05vw 0.15vw;
+    display: inline-block;
+    position: relative;
 }
 .tilebenefit {
     height: 40%;
@@ -805,6 +814,9 @@ margin-bottom: 1vw;
     align-items: center;
     flex-grow: 1;
 }
+.left {
+    justify-content: left;
+}
 .tixarea {
     grid-area: 3/3/4/4;
     height: 5.5vw;
@@ -1204,9 +1216,9 @@ div .selectable {
 }
 
 div .clickable, img .clickable {
-    border-style: dashed;
-    border-width: 0.20vw;
-    border-color: red;
+    outline-style: dashed;
+    outline-width: 0.20vw;
+    outline-color: red;
     animation-name: pulse;
     animation-duration: 1s;
     animation-iteration-count: infinite;
@@ -1328,6 +1340,7 @@ div .clickable, img .clickable {
     height: 1.2vw;
 }
 
+#menuall,
 .gameinfo,
 .logbox,
 .playerinfo {
@@ -1362,6 +1375,10 @@ div .clickable, img .clickable {
 
 .logodd {
     background-color: rgb(187, 155, 112);
+}
+
+.logturn {
+    background-color:#ffce99;
 }
 
 .playername {
@@ -1650,6 +1667,64 @@ background-image: url('res/ticket_brown.png');
     left:53vw;
 background-image: url('res/ticket_white.png');
 }  */
+
+#menu-btn {
+    visibility: hidden;
+    position: absolute;
+}
+
+.menu-icon {
+    grid-area: hamburger;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    padding: 10px;
+    position: relative;
+    user-select: none;
+    visibility: visible;
+}
+
+.navicon {
+    background-color: black;
+    display: block;
+    position: relative;
+    width: 18px;
+    height: 2px;
+}
+
+.navicon:before {
+    top: 5px;
+}
+
+.navicon:after {
+    top: -5px;
+}
+
+.navicon:before, .navicon:after {
+    background: #333;
+    display: block;
+    width: 100%;
+    height: 100%;
+    content: '';
+    position: absolute;
+}
+
+.menu {
+    max-height: 0;
+    overflow: hidden;
+    margin: 0;
+    list-style-type: none;
+    padding-left: .5vw;
+}
+
+.menu > li {
+    cursor: pointer;
+}
+
+.menu-btn:checked ~ .menu {
+    max-height: 10vw;
+}
 
 .invis {
     display: none;

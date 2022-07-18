@@ -1445,7 +1445,11 @@ class GameClient extends Game {
 			let line = document.createElement("LI");
 			line.innerHTML = this.decodeMsg(this.log[i]);
 			line.classList.add("logline");
-			if (i % 2) line.classList.add("logodd");
+			if (this.log[i].startsWith("TAKESTURN".concat(':'))) {
+				line.classList.add("logturn");
+			} else if (i % 2) {
+				line.classList.add("logodd");
+			}
 			logDom.appendChild(line);
 			logDom.scrollIntoView(false);
 		}
@@ -1743,10 +1747,17 @@ var playerId = null;
 var gameId = null;
 var alertSoundPlayed = true;
 
+function soundAdj() {
+	let  audioDom = document.getElementById("playsound");
+	audioDom.volume = document.getElementById("soundrange").value / 10;
+	audioDom.play();
+}
+
 window.onload = function() {
 	main();
 	getServerUpdate();
-	
+
+	document.getElementById("soundrange").addEventListener("change", soundAdj);
 }
 
 function getServerUpdate() {

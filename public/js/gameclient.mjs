@@ -1437,9 +1437,8 @@ class GameClient extends Game {
 		// update log
 		let logLines = document.getElementsByClassName("logline");
 		while (logLines.length > this.log.length) {
-			// note: logLines is magical, as [0] is deleted things shift automatically
 			// this is for UNDO
-			logLines[0].remove();
+			logLines[logLines.length-1].remove();
 		}
 		let logDom = document.getElementById("loglist");
 		for (let i=logLines.length; i < this.log.length; i++) {
@@ -1447,7 +1446,8 @@ class GameClient extends Game {
 			line.innerHTML = this.decodeMsg(this.log[i]);
 			line.classList.add("logline");
 			if (i % 2) line.classList.add("logodd");
-			logDom.insertBefore(line, logDom.children[0]);
+			logDom.appendChild(line);
+			logDom.scrollIntoView(false);
 		}
 
 		// update clickable spaces

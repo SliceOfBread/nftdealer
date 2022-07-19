@@ -275,21 +275,19 @@ class ArtistClient extends Artist {
 				}
 			}
 			let iVal = this.getValue(this.initFame);
-			for (let f=this.initFame; f < 15; f++) {
+			for (let f=this.initFame; f < 19; f++) {
 				let newVal = this.getValue(f);
-				if (newVal != iVal) {
-					this.dom.getElementsByClassName(`fame${f}`)[0].classList.add('artistvaluebump');
-					iVal = newVal;
-				} else {
-					this.dom.getElementsByClassName(`fame${f}`)[0].classList.remove('artistvaluebump');
-				}
+				this.dom.getElementsByClassName(`fame${f}`)[0].classList.add('artistval'.concat(newVal));
+				// if (newVal != iVal) {
+				// 	this.dom.getElementsByClassName(`fame${f}`)[0].classList.add('artistvaluebump');
+				// 	iVal = newVal;
+				// } else {
+				// 	this.dom.getElementsByClassName(`fame${f}`)[0].classList.remove('artistvaluebump');
+				// }
 			}
 
 			// update promo level
 			this.dom.getElementsByClassName("artistpromo")[0].innerHTML = `<p>${this.thumb}&nbsp;&nbsp;&UpperRightArrow;</p>`;
-
-			// update value
-			this.dom.getElementsByClassName("artistvalue")[0].innerHTML = PROMPT.EN.DOLLAR.concat(this.getValue());
 
 			// this.bonusDom = document.createElement("IMG");
 			// this.bonusDom.src = "res/artistBonus" + Object.values(ARTBONUSTYPE).indexOf(this.bonus) + ".png";
@@ -344,6 +342,9 @@ class ArtistClient extends Artist {
 			this.bonusDom.classList.remove("invis");
 			this.fameDom.classList.add("invis");
 		}
+
+		// update sale value
+		this.dom.getElementsByClassName("artistvalue")[0].innerHTML = ''; // PROMPT.EN.DOLLAR.concat(this.getValue());
 		
 		// update sigTokens
 		for (let i in this.sigTokens) {

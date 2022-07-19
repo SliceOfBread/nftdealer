@@ -8,14 +8,15 @@
     <body>
         <h1>NFT Dealer Rules</h1>
         <div id="actions">
-            <a href="#top">Top</a>|
-            <a href="#sales">Sales Actions</a>|
-            <a href="#art">Art Actions</a>|
-            <a href="#promo">Media Actions</a>|
-            <a href="#market">Market Actions</a>|
-            <a href="#exec">Exec Actions</a>|
-            <a href="#ko">KO Actions</a>|
-            <a href="#misc">Misc.</a>|
+            <a href="#top">Top</a> |
+            <a href="#sales">Sales Actions</a> |
+            <a href="#art">Art Actions</a> |
+            <a href="#promo">Media Actions</a> |
+            <a href="#market">Market Actions</a> |
+            <a href="#exec">Exec Actions</a> |
+            <a href="#ko">KO Actions</a> |
+            <a href="#score">Scoring</a> |
+            <a href="#misc">Misc.</a> |
             <a href="#bonus">Bonus Icons</a>
         </div>
         <div id="main" style="width: 50vw;">
@@ -110,10 +111,41 @@
             <p>Regardless of your choice (Exec Action, KO Action, do nothing) your piece at the location goes home.</p>
             <h3 id="score">Scoring</h3>
             <p>The first time a ticket pile of any color runs out, there is Money Boney and an Influence Bonus given to each player at the end of the turn.</p>
+            <p>At game end, scoring is done in this order:
+                <ul>
+                    <li>Your current money counts</li>
+                    <li>Majority bonuses for columns in the Market Center are awarded. Ties are the combined places divided by the number of players tied. No assistants in a column = no bonus.</li>
+                    <li>Reputation tiles are scored. See <a href="#bonus">Bonus Icons</a> </li>
+                    <li>You gain the sale value of art on your board</li>
+                    <li>You gain the value of any art you won in the auction. This value is equal to the highest value of art of this type. If no artist of this type is discovered, pretend they are both dicovered.</li>
+                    <li>You gain the money for completed secret exhibitted and sold cards. If you won an auction piece, it will automatically count for one card (whereever it is more valuable)</li>
+                    <li>You gain the money indicated on the influence track</li>
+                </ul>
+                Most money wins! Tie breakers:
+                <ol>
+                    <li>Most art purchased</li>
+                    <li>Most gallery visitors</li>
+                    <li>Most assistants in play (not unemployed or discarded)</li>
+                </ol>
+            </p>
             <h3 id="misc">Miscellaneous</h3>
             <ul>
                 <li>Available assistant - an assistant of yours at a desk or on an action or ko space.</li>
             </ul>
+            <table>
+                <tr>
+                    <th colspan="7">Sell Art Value</th>
+                </tr>
+                <tr>
+                    <td class="artistval0">&dollar;0</td>
+                    <td class="artistval5">&dollar;5</td>
+                    <td class="artistval8">&dollar;8</td>
+                    <td class="artistval11">&dollar;11</td>
+                    <td class="artistval14">&dollar;14</td>
+                    <td class="artistval17">&dollar;17</td>
+                    <td class="artistval20"><img src="res/celeb.png" style="width: 1vw;"> &dollar;20</td>
+                </tr>
+            </table>
 
 
             <h3 id="bonus">Bonus Icons</h3>

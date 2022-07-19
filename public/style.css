@@ -211,10 +211,26 @@ td {
 .fame6 {
     border-radius: 0 0 .5em 0;
 }
-.artistvaluebump {
-    background-color: rgba(0, 0 , 0, 0.5);
-    color: white;
-    /* font-weight: bolder; */
+.artistval20 {
+    background-color: white;
+}
+.artistval17 {
+    background-color:violet;
+}
+.artistval14 {
+    background-color:#8aaddb;
+}
+.artistval11 {
+    background-color:#00b300;
+}
+.artistval8 {
+    background-color:#e6e600;
+}
+.artistval5 {
+    background-color:orange;
+}
+.artistval0 {
+    background-color:red;
 }
 
 .art {

@@ -2,7 +2,10 @@ import {
 	ARTLOC,
 	ARTISTCOLOR,
 	ASSTLOC,
+	AVAILASSTLOCS,
 	BONUSTYPE,
+	CLICKITEM,
+	CLICKSPACE,
 	CONTRACTLOC,
 	GAMESTATE,
 	PLAYERLOC,
@@ -596,6 +599,56 @@ class Game {
 
 	activeColor() {
 		return this.players[this.activePlayer].color;
+	}
+
+	obj2Str(o) {
+		switch (o.type) {
+			case CLICKITEM.EATIX:
+			case CLICKITEM.EABONUS:
+			case CLICKITEM.CONTINUE:
+			case CLICKITEM.DONOTHING:
+			case CLICKITEM.REDOBUTTON:
+			case CLICKITEM.ENDBUTTON:
+			case CLICKSPACE.DEALCONTRACTS:
+				return o.type;
+			case CLICKITEM.ART:
+				return o.type + "-" + o.artType + "-" + o.num;
+			case CLICKITEM.ARTIST:
+				return o.type + "-" + o.color + "-" + o.artType;
+			case CLICKITEM.ASSISTANT:
+				return o.type + "-" + this.activePlayer + "-" + o.num;
+			case CLICKITEM.THUMB:
+				return o.type +  "-" + o.level + "-" + o.num;
+			case CLICKITEM.HIREASST:
+			case CLICKITEM.CONTRACT:
+			case CLICKITEM.VISITOR:
+			case CLICKITEM.REPTILE:
+			case CLICKSPACE.CONTRACT:
+			case CLICKSPACE.INFLUENCE:
+			case CLICKSPACE.REPTILE:
+				return o.type + "-" + o.num;
+			case CLICKITEM.ORIENTATION:
+			case CLICKITEM.TIX:
+				return o.type + "-" + o.color;
+			case CLICKSPACE.ACTION:
+				return o.type + "-" + o.loc;
+			case CLICKSPACE.AUCTION:
+				return o.type + "-" + o.row + "-" + o.col;
+		
+			default:
+				// error
+				console.log('obj2str did not find ' + o.type);
+				break;
+		}
+	}
+
+	getAvailableAssistants() {
+		// available assts are at desks, on action spaces or kospaces
+		return this.players[this.activePlayer].assistants.filter((a) => Object.values(AVAILASSTLOCS).includes(a.location.type));
+	}
+
+	getUnemployed() {
+		return this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.UNEMPLOYED);
 	}
 
 }

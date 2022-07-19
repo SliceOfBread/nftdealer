@@ -1551,19 +1551,8 @@ class GameClient extends Game {
 		if (this.players[msg.playerNum].name.startsWith("Robot") && this.state != GAMESTATE.FINALSCORE) {
 			if (msg.playerNum == this.activePlayer) {
 				// this is a robot player
-				// randomly choose an action and send it
-				let action;
-				do {
-					action = msg.clickables[Math.floor(Math.random() * msg.clickables.length)];
-				} while (action == CLICKITEM.REDOBUTTON);
-				// add more robot code here 
-				////////////////////////////////////////////
-				// if state is SALES_MAIN priority contract that matches unmatched display art or sale that helps secret
-				// if state is ART_MAIN priority is art/artist that matches contract w/o art
-				// if state is MEDIA_MAIN priority is ?
-				// if state is MARKET_MAIN priority is col with asst ?
-				////////////////////////////////////////////
-				// if action is not changed, it will be random from above
+				// choose an action and send it
+				let action = this.lessRandomBot(msg);
 				this.sendMove({
 					playerId:playerId,
 					gameId:gameId,
@@ -1600,6 +1589,148 @@ class GameClient extends Game {
 			}	
 		}
 
+	}
+
+	randomBot(msg) {
+		let action;
+		do {
+			action = msg.clickables[Math.floor(Math.random() * msg.clickables.length)];
+		} while (action == CLICKITEM.REDOBUTTON);
+
+		return action;
+	}
+
+	lessRandomBot(msg) {
+		let action = this.randomBot(msg);
+		// add more robot code here 
+		////////////////////////////////////////////
+		// if state if PICKACTION priority is art if need art to match contract, contract if needed to match art
+		//			asst if available and none free, market if turn > numplayers*2 && > 1 asst free && not in all cols && free tile space
+		function neededArtTypes(game) {
+			let playerFaceUpContracts = game.contracts.filter((c) => c.location.type === CONTRACTLOC.PLAYER && c.location.plNum === game.activePlayer && c.faceUp);
+			let playerArt = game.playerHasDisplayed();
+			let contractsInNeed = [];
+			for (let c of playerFaceUpContracts) {
+				let idx = playerArt.findIndex((a) => a.type === c.artType);
+				if (idx == -1) {
+					// we have no art for this contract
+					contractsInNeed.push(c.artType);
+				}
+			}
+			return contractsInNeed;
+		}
+		function neededContractTypes(game) {
+			let playerFaceUpContracts = game.contracts.filter((c) => c.location.type === CONTRACTLOC.PLAYER && c.location.plNum === game.activePlayer && c.faceUp);
+			let playerArt = game.playerHasDisplayed();
+			let artInNeed = [];
+			if (playerFaceUpContracts.length < 3) {
+				for (let a of playerArt) {
+					let idx = playerFaceUpContracts.findIndex((c) => c.artType === a.type);
+					if (idx == -1) {
+						// no contract for this art
+						artInNeed.push(a.type);
+					}
+				}
+			}
+			return artInNeed;
+
+		}
+		if (this.state === GAMESTATE.PICKACTION) {
+			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.ART}))) {
+				// get art/discover is a possible action
+				// what art could we get that matches a contract we have
+				// remove contracts that already match art
+				if (neededArtTypes(this).length) {
+					// is any of this art available and affordable?
+					// above is getArtClicks in server
+					// for now, do we have a space is enough
+					if (this.playerHasDisplayed().length < 3) {
+						return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.ART});
+					}
+				}
+			}  
+			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES}))) {
+				// sales action possible
+				let artInNeed = neededContractTypes(this);
+				if (artInNeed.length) {
+					// got some art in need of a contract
+					if (this.contracts.filter((c) => c.location.type === CONTRACTLOC.DEALT && artInNeed.includes(c.artType))) {
+						return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES});
+					}
+				}
+				if (artInNeed.length < this.playerHasDisplayed().length && this.players[this.iAmPlNum].money < 6) {
+					// if have sellable art and have less than $6 on hand, sell
+					return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES});
+				}
+				
+			}  
+			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MEDIA}))) {
+				// media action available
+				if (this.getAvailableAssistants().length < 1 && this.getUnemployed().length) {
+					return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MEDIA});
+				} 
+
+			} 
+			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MARKET}))) {
+				// if turn > numplayers*2 && > 1 asst free && not in all cols && free tile space
+				if (this.turnNum > this.numPlayers*2 && 
+					this.getAvailableAssistants().length > 1 && 
+					this.repTiles.filter((t) => t.location.type == REPTILELOC.PLAYER && t.location.plNum == this.iAmPlNum).length < 6) {
+
+					// let asstInLobby = this.visitors.filter((v) => v.location.type === VISITORLOC.LOBBY && v.location.plNum === this.iAmPlNum);
+					// col free is essentially getMarketClicks. add later TODO
+					return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MARKET});
+				}
+				
+			}
+		} else if (this.state == GAMESTATE.SALES_MAIN || this.state == GAMESTATE.KOSALES) {
+			// if state is SALES_MAIN priority is contract that matches unmatched display art or sale that helps secret
+			let typesNeeded = neededContractTypes(this);
+			if (typesNeeded.length) {
+				let contractNumsAvail = [];
+				for (let c of msg.clickables) {
+					if (c.startsWith(CLICKITEM.CONTRACT)) {
+						contractNumsAvail.push(c.slice(c.search('-')+1));
+					}
+				}
+				let usefulContracts = this.contracts.filter((c) => typesNeeded.includes(c.artType) && contractNumsAvail.includes(c.num));
+				if (usefulContracts.length && msg.clickables.includes()) {
+					let tmpSearch = this.obj2Str({type:CLICKITEM.CONTRACT,num:usefulContracts[0].num});
+					let tmpClick = msg.clickables.find((c) => c == tmpSearch);
+					if (tmpClick) return tmpClick;
+				}				
+			}
+		} else if (this.state == GAMESTATE.ART_MAIN || this.state == GAMESTATE.KOART) {
+			// if state is ART_MAIN priority is art/artist that matches contract w/o art
+			let typesNeeded = neededArtTypes(this);
+			if (typesNeeded.length) {
+				for (let t of typesNeeded) {
+					let firstArtist = msg.clickables.find((c) => c.endsWith(t));
+					if (firstArtist) {
+						return firstArtist;
+					}
+				}
+			}
+			
+		} else if (this.state == GAMESTATE.MEDIA_MAIN || this.state == GAMESTATE.KOMEDIA) {
+			// if state is MEDIA_MAIN priority is get asst if 0 free
+			if (this.getAvailableAssistants().length < 1 && 
+				this.getUnemployed().length) {
+				if (msg.clickables.includes(this.obj2Str({type:CLICKITEM.HIREASST, num:2}))) {
+					return this.obj2Str({type:CLICKITEM.HIREASST, num:2});
+				}
+				if (msg.clickables.includes(this.obj2Str({type:CLICKITEM.HIREASST, num:1}))) {
+					return this.obj2Str({type:CLICKITEM.HIREASST, num:1});
+				}
+			} 
+		} else if (this.state == GAMESTATE.MARKET_MAIN || this.state == GAMESTATE.KOMARKET) {
+			// if state is MARKET_MAIN priority is col without asst ?
+			// needs getMarketClicks TODO
+		}
+
+		////////////////////////////////////////////
+		// if action is not changed, it will be random from above
+		return action;
 	}
 
 	decodeMsg(msg) {

@@ -1636,6 +1636,15 @@ div .clickable, img .clickable {
     margin: 1%;
 }
 
+#finalstats {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--backboard);
+    box-shadow: 1vw 1vw 1vw rgba(0, 0 , 0, 0.3), -1vw -1vw 1vw rgba(0, 0 , 0, 0.3) ;
+
+}
 /* #sp_action-sales {
     left:22vw;
     top:3.75vw;
@@ -1683,6 +1692,9 @@ background-image: url('res/ticket_brown.png');
     left:53vw;
 background-image: url('res/ticket_white.png');
 }  */
+.switch {
+    width:15%;
+}
 
 #menu-btn {
     visibility: hidden;
@@ -1690,7 +1702,6 @@ background-image: url('res/ticket_white.png');
 }
 
 .menu-icon {
-    grid-area: hamburger;
     cursor: pointer;
     display: flex;
     justify-content: flex-end;
@@ -1727,7 +1738,7 @@ background-image: url('res/ticket_white.png');
 }
 
 .menu {
-    max-height: 0;
+    display: none;
     overflow: hidden;
     margin: 0;
     list-style-type: none;
@@ -1736,10 +1747,19 @@ background-image: url('res/ticket_white.png');
 
 .menu > li {
     cursor: pointer;
+    border-width: 1px 0 0 0;
+    border-style: solid;
+    border-color:  chocolate;
+    width: 95%;
+}
+
+.menu > li > input {
+    position: absolute;
+    right:1vw;
 }
 
 .menu-btn:checked ~ .menu {
-    max-height: 10vw;
+    display: initial;
 }
 
 .invis {

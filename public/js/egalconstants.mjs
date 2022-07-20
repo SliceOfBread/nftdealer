@@ -367,7 +367,7 @@ const PROMPT = {
 		ENDCOND:"end game condition reached",
 		ENDTRIG:"End game triggered. Complete this round and then one final turn.",
 		FINALTURN:"Final turn. (No KO actions)",
-		FINALSCORE:"Final scoring",
+		FINALSCORE:"Show Final Scoring",
 		// note: for replacements $n3 means replace nth $ with playerName
 		PLNAME:"$13",
 		// $n4 means replace with decoded msg

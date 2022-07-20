@@ -31,7 +31,7 @@
 				<button id="b_orient-pink" class="querypink">Influence Side Up</button>
 				<button id="b_orient-brown" class="querybrown">Money Side Up</button>
 			</div>
-			<div id="finalstats" class="invis">
+			<div id="finalstats" class="invis" onclick="this.style.visibility='hidden'">
 				<table>
 					<tr id="statsplayers">
 						<th></th>
@@ -117,11 +117,12 @@
 				</label>
 
 				<ul class="menu">
-					<li>Sound<input type="range" min="0" max="10" value="10" class="slider" id="soundrange"></li>
+					<li>Sound<input type="range" min="0" max="10" value="10" id="soundrange"></li>
 					<li><span onclick="(function(){
 						window.open('./gamerules.html');
 						return false;
-					})();return false;">Rules</span></li>
+					})();return false;">Rules (open in new window)</span></li>
+					<li>Auto-play<input type="range" min="0" max="1" value="0" class="switch" id="autoplay"></li>
 				</ul>
 			</div>
 		</div>

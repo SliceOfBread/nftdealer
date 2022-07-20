@@ -1163,6 +1163,12 @@ class GameClient extends Game {
 	actionMsg(msg) {
 		// update 'action' section with message
 		document.getElementById("actionmsg").innerHTML = msg;
+		if (msg == PROMPT.EN.FINALSCORE) {
+			document.getElementById("actionmsg").style.cursor = 'pointer';
+			document.getElementById("actionmsg").onclick = function() {
+				document.getElementById("finalstats").style.visibility = "visible";
+			};
+		}
 	}
 	clearClickables() {
 		// remove all clickables
@@ -1502,7 +1508,7 @@ class GameClient extends Game {
 		} else if (this.activePlayer == this.iAmPlNum) {
 			if (msg) {
 				// TODO won't ding if same player plays next (i.e player has KO, then turn or player plays then chooses in Auction)
-				if (!alertSoundPlayed && !this.players[msg.playerNum].name.startsWith("Robot")) {
+				if (!alertSoundPlayed && !Number(document.getElementById("autoplay").value)) {
 					document.getElementById("playsound").play();
 					alertSoundPlayed = true;
 				}
@@ -1548,7 +1554,7 @@ class GameClient extends Game {
 			this.actionMsg(this.players[this.activePlayer].name + PROMPT.EN.TAKINGTURN);
 		}
 
-		if (this.players[msg.playerNum].name.startsWith("Robot") && this.state != GAMESTATE.FINALSCORE) {
+		if (Number(document.getElementById("autoplay").value) && this.state != GAMESTATE.FINALSCORE) {
 			if (msg.playerNum == this.activePlayer) {
 				// this is a robot player
 				// choose an action and send it
@@ -1833,6 +1839,8 @@ function main() {
 		game.gotClicked(el);
 
 	}
+
+	document.getElementById("autoplay").onchange = function() {getServerUpdate()};
 
 	socket.on('game update', function(msg) {
 		waitingForServer = false;

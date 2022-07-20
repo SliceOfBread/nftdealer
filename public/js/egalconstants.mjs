@@ -363,7 +363,7 @@ const PROMPT = {
 		},
 		// LOG stuff
 		SHUFFLE:"Contract deck shuffled",
-		CELEB:"$12 becomes a celebrity", // : artistIdx
+		CELEB:"$13 makes $22 a celebrity and gains &dollar;$3", // :plnum, artistIdx, amt
 		ENDCOND:"end game condition reached",
 		ENDTRIG:"End game triggered. Complete this round and then one final turn.",
 		FINALTURN:"Final turn. (No KO actions)",
@@ -413,6 +413,7 @@ const PROMPT = {
 		FORHIREBONUS:" for hiring bonus",
 		FORPROMO:" for promotion",
 		FORMID:" for intermediate scoring",
+		FORCELEB:" for making a celebrity",
 		RCVSINFL:"$13 receives $2 influence$34",
 		RCVSMONEY:"$13 receives &dollar;$2$34",
 		RCVSFAME:"$13 gets fame bonus",

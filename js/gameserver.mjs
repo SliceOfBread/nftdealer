@@ -516,7 +516,7 @@ class GameServer extends Game {
 	} 
 
 	playerMadeCelebrity(artistIdx) {
-		this.logMsg("CELEB", artistIdx);
+		this.logMsg("CELEB", this.activePlayer, artistIdx, 5);
 		this.players[this.activePlayer].addMoney(5);
 		if (!this.getFlag(FLAG.TWO_CELEBRITY)) {
 			if (this.artists.filter((a) => a.fame > 18).length > 1) {

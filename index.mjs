@@ -375,7 +375,7 @@ io.on('connection', (socket) => {
 			} else if (!game.getActiveSpaces().clickables.includes(msg.move.location)) {
 				// what was clicked was not allowed to be clicked
 				errorFlag = true;
-				console.log("Clicked item not in allowed moves");
+				console.log(`Clicked item (${msg.move.location}) not in allowed moves`);
 			} else {
 				// allowed move from correct player
 				// add move to move list // moved to processClick

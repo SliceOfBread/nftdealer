@@ -668,7 +668,7 @@ class PlayerClient extends Player {
 					// }
 					break;
 				case "playertime":
-					e.innerText = "-:--";
+					e.innerText = '#'.concat(plNum+1);
 					break;
 				case "playermoney":
 					e.innerText = "$" + this.money;
@@ -1891,13 +1891,22 @@ function soundAdj() {
 	let  audioDom = document.getElementById("playsound");
 	audioDom.volume = document.getElementById("soundrange").value / 10;
 	audioDom.play();
+	sessionStorage.setItem("nftdealer", JSON.stringify({soundrange:document.getElementById("soundrange").value}));
+	
+
 }
 
 window.onload = function() {
 	main();
 	getServerUpdate();
-
 	document.getElementById("soundrange").addEventListener("change", soundAdj);
+	let tmp = sessionStorage.getItem("nftdealer");
+	let oldInfo;
+	if (tmp) oldInfo = JSON.parse(tmp);
+	if (oldInfo && oldInfo.soundrange) {
+		document.getElementById("soundrange").value = oldInfo.soundrange;
+	}
+
 }
 
 function getServerUpdate() {

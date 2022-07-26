@@ -1893,13 +1893,3 @@ function getServerUpdate() {
 }
 
 var socket = io();
-
-// credits
-// abstract
-// https://thenounproject.com/everydaytemplate
-// camera
-// https://thenounproject.com/denimao
-// sculture
-// // https://thenounproject.com/vigorn
-// doorbell sound
-// https://mixkit.co/free-sound-effects/doorbell/

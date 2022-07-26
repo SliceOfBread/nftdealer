@@ -1,17 +1,17 @@
 // FILE constants
 
-const DEBUG = true;
+const DEBUG = false;
 
 const ACTIONLOC = {
     SALES: "sales",	//"",
-    ART: "art",		//"",
+    NFT: "nft",		//"",
     MEDIA: "media",	//"",
     MARKET: "market" //""
 };
 
 const KOLOC = {
     KOSALES:  "ko_sales",
-    KOART:    "ko_art",
+    KOART:    "ko_nft",
     KOMEDIA:  "ko_media",
     KOMARKET: "ko_market"
 };
@@ -22,7 +22,7 @@ const PLAYERLOC = {
 	KO:"ko"
 };
 
-const ASSTLOC = {
+const HELPERLOC = {
 	INTLMARKET:"intlMarket",
 	AUCTION: "auction",
 	CONTRACTBONUS: "contractbonus",
@@ -34,32 +34,32 @@ const ASSTLOC = {
 	KO:"ko"
 };
 
-const AVAILASSTLOCS = {
+const AVAILHELPERLOCS = {
 	DESK:"desks",
 	ACTION:"sp_action",
 	KO:"ko"
 };
 
-const ARTISTCOLOR = {
+const NFTISTCOLOR = {
 	BLUE:"blue",
 	RED:"red"
 }
 
-const ARTLOC = {
+const NFTLOC = {
 	PILE: "pile",
 	PILETOP: "piletop",
 	AUCTION: "auction",
-	TOPLAYER: "toplayer",	// at game end, auction -> toplayer -> sold/display
-	DISPLAY: "display",
+	TOPLAYER: "toplayer",	// at game end, auction -> toplayer -> sold/wallet
+	WALLET: "wallet",
 	SOLD: "sold",
 	DISCARD: "discard"
 }
 
-const ARTTYPE = {
+const NFTTYPE = {
 	ABSTRACT:"abstract",
-	PAINT:"paint",
-	SKETCH:"sketch",
-	PHOTO:"photo"
+	GALAXY:"galaxy",
+	DEJACAT:"dejacat",
+	PHAKELAND:"phakeland"
 }
 
 const AUCTIONVAL = {
@@ -68,22 +68,22 @@ const AUCTIONVAL = {
 	SIX:6
 }
 
-const ARTBONUSTYPE = {
-	INFLUENCE: "incrCred",
+const NFTBONUSTYPE = {
+	CRED: "incrCred",
 	MONEY: "incrMoney",
 	TWOTIX: "2tixbonus",
 	PLAZAVISITOR: "visitor_any",
-	FAME: "incrFame"
+	REKNOWN: "incrReknown"
 }
 
 const BONUSTYPE = Object.assign(
 	{
 		CONTRACT: "contract",
-		ASSISTANT: "assistant",
+		HELPER: "helper",
 		PLAZAPINKBROWN: "plaza pink or brown",
 		BAG: "visitor from bag"
 	},
-	ARTBONUSTYPE,
+	NFTBONUSTYPE,
 	{
 		ONETIX: "any ticket",
 		PINKTIX: "pink ticket",
@@ -94,9 +94,9 @@ const BONUSTYPE = Object.assign(
 );
 
 const CLICKITEM = {
-	ART:"i_art",
-	ARTIST:"i_artist",
-	ASSISTANT:"i_asst",
+	NFT:"i_nft",
+	NFTIST:"i_nftist",
+	HELPER:"i_helper",
 	CONTRACT:"i_contract",
 	ORIENTATION:"b_orient",
 	REPTILE:"i_reptile",
@@ -109,7 +109,7 @@ const CLICKITEM = {
 	DONOTHING:"b_nothing",
 	ENDBUTTON:"b_end",
 	REDOBUTTON:"b_redo",
-	HIREASST:"b_hire"
+	HIREHELPER:"b_hire"
 }
 
 const CLICKSPACE = {
@@ -117,16 +117,16 @@ const CLICKSPACE = {
 	AUCTION:"sp_auction",
 	CONTRACT:"sp_contract",
 	DEALCONTRACTS:"sp_deal",
-	INFLUENCE:"sp_infl",
+	CRED:"sp_cred",
 	REPTILE:"sp_reptile"
 }
 
 const CONTRACTBONUS = {
 	CONTRACT: "contract",
-	ASSISTANT: "helper",
+	HELPER: "helper",
 	PLAZAPINKBROWN: "visitor_brownpink",
 	BAG: "fromBag",
-	INFLUENCE: "incrCred",
+	CRED: "incrCred",
 	MONEY: "incrMoney"
 }
 
@@ -142,7 +142,7 @@ const FLAG = {
 	DID_ACTION:0x2,
 	DID_KO:0x4,
 	DEALT_CONTRACTS:0x8,
-	ART_BOUGHT:0x10,
+	NFT_BOUGHT:0x10,
 	UPDATE_CONTRACTS:0x20,
 	MID_TRIGGERED:0x40,
 	MID_DONE:0x80,
@@ -150,7 +150,7 @@ const FLAG = {
 	FINAL_ROUND:0x200,
 	TIX_EMPTY:0x400,
 	BAG_EMPTY:0x800,
-	TWO_CELEBRITY:0x1000,
+	TWO_MAGNATE:0x1000,
 	NOTHING_TURN:0x2000
 }
 
@@ -159,7 +159,7 @@ const GAMESTATE = {
 	PICKACTION: 1, 
 	EAONLY: 4, 
 	ENDTURN: 7,
-	LEAVEASST:8,
+	LEAVEHELPER:8,
 	EAOREND:9,
 	KOSALES:24,
 	KOART:25,
@@ -169,52 +169,53 @@ const GAMESTATE = {
 	KOEABONUS:29,
 	FINALAUCTION:30,
 	FINALSCORE:31,
+	KO_GETCONTRACT:32,
 	
 	// sales states
 	SALES_MAIN:128,
 	SALES_DEALT:129,	// dealt 4 new contracts
 	SALES_GETCONTRACT:130,	// picked contract to get
-	SALES_SELLART:131,	// selected art to sell
+	SALES_SELLART:131,	// selected nft to sell
 	SALES_VISITOR: 132,
 	SALES_BONUSUP:133,
 	SALES_GETTIX: 134,
-	// ART states
-	ART_MAIN:160,
-	ART_BTIX: 161,
-	ART_BVISITOR: 162,
-	ART_BFAME: 163,
-	ART_BUY:164,	// picked art to buy (use infl for $?)
-	ART_BUYFAME:165,
-	ART_DISC:166,	// picked artist to discover
+	// NFT states
+	NFT_MAIN:160,
+	NFT_BTIX: 161,
+	NFT_BVISITOR: 162,
+	NFT_BREKNOWN: 163,
+	NFT_BUY:164,	// picked nft to buy (use cred for $?)
+	NFT_BUYREKNOWN:165,
+	NFT_DISC:166,	// picked nftist to discover
 	// MEDIA
 	MEDIA_MAIN:192,
-	MEDIA_ASSTS:193,
+	MEDIA_HELPERS:193,
 	// MARKET
 	MARKET_MAIN:224,
-	MARKET_ASST:225,
+	MARKET_HELPER:225,
 	AUCTION_BONUS:226,
 	// EATIX
 	EATIX_MAIN:288,
 	// eabonus states
 	EABONUS_MAIN:256,
-	EABONUS_ASST:257,
+	EABONUS_HELPER:257,
 	EABONUS_CONTRACT:258,
 	// EADONE:263,
 	// General bonuses
 	VISITOR2GALLERY:512,
 	TIXCHOICE:513,
-	INCRFAME:514,
+	INCRREKNOWN:514,
 	DECRPRICE:515,
 	PLACEREPTILE:516,
 	TWOCHOICE:517,
-	FAMEARTIST:518,
+	REKNOWNARTIST:518,
 	VISITOR2PLAZA:519,
 	THUMBARTIST:520
 }
 
 const LOC2STATE = {
 	"sales" :GAMESTATE.SALES_MAIN,
-    "art" :GAMESTATE.ART_MAIN,
+    "nft" :GAMESTATE.NFT_MAIN,
     "media" :GAMESTATE.MEDIA_MAIN,
     "market" :GAMESTATE.MARKET_MAIN
 }
@@ -235,9 +236,9 @@ const REPTILELOC = {
 }
 
 const SIGLOC = {
-	ARTIST: "artist",
+	NFTIST: "nftist",
 	COMMISSION: "comm",
-	ART: "art"
+	NFT: "nft"
 }
 
 const MARKETCOL = {
@@ -246,18 +247,18 @@ const MARKETCOL = {
 	ADD1COL:"ADD1COL"
 }
 
-const MARKETCOL2INFL = {
+const MARKETCOL2CRED = {
 	ADD3COL:3,
 	ADD2COL:2,
 	ADD1COL:1
 }
 
 const MAXREPTILES = 16;
-const MAXINFLUENCE = 35;
+const MAXCRED = 35;
 
 const MEDIALOC = {
 	THUMB:"thumb",
-	ASST:"asst"
+	HELPER:"helper"
 }
 
 const VISITORCOLOR = {
@@ -279,11 +280,11 @@ const TIXLOC = {
 
 const VISITORLOC = {
 	PLAZA:"plaza",
-	ART:"art",
+	NFT:"nft",
 	BAG:"bag",
 	LOBBY:"lobby",
 	GALLERY:"gallery",
-	ARTIST:"artist",
+	NFTIST:"nftist",
 	DISCARD:"discard"
 }
 
@@ -296,20 +297,20 @@ const PROMPT = {
 		ACTION:"an action location",
 		EACTION: "an Exec Action",
 		EAORNONE: "an Exec Action (or nothing)",
-		ASSTLEAVE:"an assistant to leave behind",
-		CONTART:"Continue to update Art",
+		HELPERLEAVE:"a helper to leave behind",
+		CONTART:"Continue to update NFTs",
 		CONTCONTRACTS:"Continue to update Contracts",
 		CONT2PAY:"CONTINUE to pay &dollar;$1", 
-		CONT2NOFAME:"DONE increasing fame",
+		CONT2NOREKNOWN:"DONE increasing reknown",
 		CONTINUE:"Continue",
 		DONOTHING:"Do nothing",
 		SKIPKO:"Don't do KO",
 		DONE:"Done",
-		DONTASST:"Don't leave an assistant behind",
+		DONTHELPER:"Don't leave a helper behind",
 		DEALMORE:"deal new contracts",
 		GETCONTRACT:"contract to get",
 		CONTRACTBONUS:"a contract bonus",
-		SELLART:"art to sell",
+		SELLART:"nft to sell",
 		PLACECONTRACT:"space to place contract",
 		GETTIX:"ticket to get",
 		GETFIRSTTIX:"first of two tickets",
@@ -318,24 +319,24 @@ const PROMPT = {
 		GALVISITOR:"a visitor to move to your gallery",
 		TIXVISITOR:"a visitor to move toward your gallery",
 		BONUSUP:"bonus you want available",
-		BUYARTIST:"artist to buy from",
-		DISCARTIST:"artist to discover",
-		PROMOARTIST:"an artist to promote",
+		BUYARTIST:"nftist to buy from",
+		DISCARTIST:"nftist to discover",
+		PROMOARTIST:"an nftist to promote",
 		PROMOLEVEL:"promotion level",
-		FAMEARTIST:"an artist to increase their fame",
-		ASST:"an assistant",
+		REKNOWNARTIST:"an nftist to increase their reknown",
+		HELPER:"a helper",
 		AUCTIONSPACE:"an auction space",
 		TILE2GET:"a reputation tile",
 		TILEBONUS:"a location/bonus for tile",
 		TILEDISC:"tile will be discarded",
 		TURNEND:"END turn",
 		TURNREDO:"REDO turn",
-		// note: for replacements $n1 means replace nth $ with artType[val]
-		// also: for replacements $n2 means replace nth $ with artist[val]
-		INFL4COST:"use influence to reduce cost to &dollar;$1",
-		INFL4FAME:"use influence to increase $12 fame by 1",
-		REDUCINFL:"$14 (reduce influence to $2)",
-		HIREKOMSG:"Hire (reduce influence to $1)",
+		// note: for replacements $n1 means replace nth $ with nftType[val]
+		// also: for replacements $n2 means replace nth $ with nftist[val]
+		CRED4COST:"use cred to reduce cost to &dollar;$1",
+		CRED4REKNOWN:"use cred to increase $12 reknown by 1",
+		REDUCCRED:"$14 (reduce cred to $2)",
+		HIREKOMSG:"Hire (reduce cred to $1)",
 		STARTLOC:"a starting location/tile",
 		WORKWORTH:"$11 worth &dollar;$2",
 		FINALAUCTION:"Auction participants to choose works",
@@ -346,24 +347,24 @@ const PROMPT = {
 		brown:"brown",
 		white:"white",
 		sales:"contracts/sales",
-		art:"art/artists",
+		nft:"NFTs/NFTists",
 		media:"promotion/hire",
 		market:"market/auction",
-		ART2ARTIST: {
-			"abstract":"abstract artist",
-			"photo":"photographer",
-			"sketch":"sculptor",
-			"paint":"painter"
+		NFT2NFTIST: {
+			"abstract":"abstract NFTist",
+			"phakeland":"Phakeland Agent",
+			"dejacat":"Bored Cat Club",
+			"galaxy":"galaxy seller"
 		},
-		ARTTYPE: {
-			"abstract":"abstract art",
-			"paint":"painting",
-			"sketch":"sculpture",
-			"photo":"photo"
+		NFTTYPE: {
+			"abstract":"abstract NFT",
+			"galaxy":"galaxy",
+			"dejacat":"deja cat",
+			"phakeland":"phakeland"
 		},
 		// LOG stuff
 		SHUFFLE:"Contract deck shuffled",
-		CELEB:"$13 makes $22 a celebrity and gains &dollar;$3", // :plnum, artistIdx, amt
+		CELEB:"$13 makes $22 a magnate and gains &dollar;$3", // :plnum, nftistIdx, amt
 		ENDCOND:"end game condition reached",
 		ENDTRIG:"End game triggered. Complete this round and then one final turn.",
 		FINALTURN:"Final turn. (No KO actions)",
@@ -373,14 +374,14 @@ const PROMPT = {
 		// $n4 means replace with decoded msg
 		COLBONUS:"$13 receives &dollar;$2 bonus for column $3", // : plNum : bonus amt : col num
 		TILEMONEY:"$13 receives &dollar;$2 for tile $3", // : plnum : amt : tile#
-		TILEINFL:"$13 receives $2 influence for tile $3", // : plnum : amt : tile#
-		EXART:"$13 receives &dollar;$2 for exhibited art by $32", // : plnum : amt : artist#
-		AUCTIONART:"$13 receives &dollar;$2 for winning $32 art at auction", // : plnum : amt : artist#
-		TODISPLAY:"$13 places auction art on display", // : plnum
-		TOSOLD:"$13 places auction art with sold", // : plnum
-		DISPLAYBONUS:"$13 receives &dollar;$2 from display bonus card", // : plnum : amt
+		TILECRED:"$13 receives $2 cred for tile $3", // : plnum : amt : tile#
+		EXART:"$13 receives &dollar;$2 for NFT by $32 in wallet", // : plnum : amt : nftist#
+		AUCTIONART:"$13 receives &dollar;$2 for winning $32 NFT at auction", // : plnum : amt : nftist#
+		TOWALLET:"$13 places auction NFT in wallet", // : plnum
+		TOSOLD:"$13 places auction NFT with sold", // : plnum
+		WALLETBONUS:"$13 receives &dollar;$2 from wallet bonus card", // : plnum : amt
 		SOLDBONUS:"$13 receives &dollar;$2 from sold bonus card", // : plnum : amt
-		INFLBONUS:"$13 receives &dollar;$2 from influence track", // : plnum : amt
+		CREDBONUS:"$13 receives &dollar;$2 from cred track", // : plnum : amt
 		PLEATIX:"$13 is doing ticket executive action",
 		PLEACBON:"$13 is doing contract bonus executive action",
 		PLKOTIX:"$13 is doing ticket executive action for KO",
@@ -397,14 +398,14 @@ const PROMPT = {
 		PLGALLERY:"their gallery",
 		PLAZA:"the plaza",
 		USESTIX:"$13 uses a ticket to move a $24 visitor to $34",
-		USESINFL4M:"$13 uses influence to reduce cost by &dollar;1",
-		USESINFL4F:"$13 uses influence to increase fame by 1",
+		USESCRED4M:"$13 uses cred to reduce cost by &dollar;1",
+		USESCRED4F:"$13 uses cred to increase reknown by 1",
 		GETSCONTRACT:"$13 gets contract",
 		SENTHOME:"is sent home",
 		SENTDISC:"is discarded",
 		HIRED:"is hired",
 		SENTCONT:"is placed on contract bonus",
-		ASST2:"$13 assistant $24",
+		HELPER2:"$13 helper $24",
 		GETSTIX:"$13 gets $24 ticket",
 		BUYSART:"$13 buys $22 piece for &dollar;$3",
 		DISCOVERS:"$13 discovers $22",
@@ -413,20 +414,20 @@ const PROMPT = {
 		FORHIREBONUS:" for hiring bonus",
 		FORPROMO:" for promotion",
 		FORMID:" for intermediate scoring",
-		FORCELEB:" for making a celebrity",
-		RCVSINFL:"$13 receives $2 influence$34",
+		FORCELEB:" for making a magnate",
+		RCVSCRED:"$13 receives $2 cred$34",
 		RCVSMONEY:"$13 receives &dollar;$2$34",
-		RCVSFAME:"$13 gets fame bonus",
+		RCVSREKNOWN:"$13 gets reknown bonus",
 		GETSTILE:"$13 gets reputation tile $2",
 		// GETSART:"$13 gets $21 piece from $32",
-		DOESTHUMB:"$13 uses $2 influence to promote artist",
+		DOESTHUMB:"$13 uses $2 cred to promote NFTist",
 		PLACESTILE:"$13 places reputation tile $2",
 		PLACEAUCTION:"$13 pays &dollar;$2 for auction space",
 		RCVSCONT:"$13 gets bonus contract action",
 		GETVISITOR:"$13 moves a $24 vistor to their gallery",
-		USEDCOMM:"$13 used a commission for this art",
+		USEDCOMM:"$13 used a commission for this NFT",
 		THUMBSUP:"$13 promotes $22 to level $3",
-		INCRFAME:"$13 increases $22's fame to $3",
+		INCRREKNOWN:"$13 increases $22's reknown to $3",
 		DISCARDTIX:"ticket discarded (no action performed)",
 		VISITOR2PLAZA:"$1 visitor moved from bag to plaza (no action performed)",
 		AUCTIONPICK:"$13 selects $21 from auction",
@@ -443,12 +444,12 @@ const PROMPT = {
 export {
 	DEBUG,
 	ACTIONLOC,
-	ARTBONUSTYPE,
-	ARTISTCOLOR,
-	ARTLOC,
-	ARTTYPE,
-	ASSTLOC,
-	AVAILASSTLOCS,
+	NFTBONUSTYPE,
+	NFTISTCOLOR,
+	NFTLOC,
+	NFTTYPE,
+	HELPERLOC,
+	AVAILHELPERLOCS,
 	AUCTIONVAL,
 	BONUSTYPE,
 	CLICKITEM,
@@ -460,8 +461,8 @@ export {
 	KOLOC,
 	LOC2STATE,
 	MARKETCOL,
-	MARKETCOL2INFL,
-	MAXINFLUENCE,
+	MARKETCOL2CRED,
+	MAXCRED,
 	MAXREPTILES,
 	MEDIALOC,
 	PLAYERCOLOR,

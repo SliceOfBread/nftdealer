@@ -8,176 +8,72 @@
     <body>
         <h1>NFT Dealer Rules</h1>
         <div id="actions">
-            <a href="#top">Top</a> |
-            <a href="#sales">Sales Actions</a> |
-            <a href="#art">Art Actions</a> |
-            <a href="#promo">Media Actions</a> |
-            <a href="#market">Market Actions</a> |
-            <a href="#exec">Exec Actions</a> |
-            <a href="#ko">KO Actions</a> |
-            <a href="#score">Scoring</a> |
             <a href="#misc">Misc.</a> |
-            <a href="#bonus">Bonus Icons</a>
+            <a href="#bonus">Bonus Icons</a> |
+            <a href="#credits">Credits</a>
         </div>
         <div id="main" style="width: 50vw;">
-            <h2 id="top">Overview</h2>
-            <p>Play starts with one player and each player takes their turn in order (all players taking their turn is a round). On their their a player MUST move to an action location and take an action there.
-                If there are no possible moves, the player just moves to a location and ends their turn.
-                Before OR after a player's action, they MAY perform an exec. action.
-            </p>
-            <p>Play continues until 2 of 3 end game conditions are met. The 3 conditions are: 
-                <ul>
-                    <li>The bag is empty.</li>
-                    <li>The ticket counter is at 0.</li>
-                    <li>At least 2 artists have reached maximum fame.</li>
-                </ul>
-                After this occurs, all turns in the round will finish and there will be one final round.
-            </p>
-            <p>The player with the most money at the end wins.</p>
-            <h2>Actions</h2>
-            <h3 id="sales">Sales Center</h3>
-            <p>Here you can either: get a contract OR sell art.</p>
-            <p>To get a contract, you must have either an empty contract location on your board or a fulfilled contract.
-                Pick a contract from the display (or deal 4 more if playing with that option) and place it into an available location. 
-                If placing on a fulfilled contract, that contract will be discarded and any assistant on it will be sent to the home to the office (if there are no empty desks, it will be discarded).
-                If placing on an empty location, you gain the ticket indicated.
-            </p>
-            <p>To sell art, you must have a contract on your board that matches the type of art you own and want to sell. (The sell value is shown on the art.) 
-                Choose the art to sell, then the contract to use for the sale. After selling, if you have a visitor in your gallery, choose one to leave (sent to the plaza). 
-                If you send a brown visitor, the money bonus becomes available. 
-                If you send a pink visitor, the influence bonus becomes available. 
-                For white visitors or no visitors, you choose the bonus to become available.
-            </p>
-            <h3 id="art">Art Center</h3>
-            <p>Here you can either: buy art OR get a commission.</p>
-            <p>To buy art, you must have space for it and be able to afford it. Your board can always hold 3 pieces of art. It can hold a 4th if any is from a celebrity artist (max fame). 
-                Pay for the art (fame=cost, you cannot buy from a <img style="width: 20px;" src="./res/celeb.png">). The visitors on the art move to the plaza. 
-                The fame of the artist increases based on the formula on the lower left of the art, generally 0, 1 or 2 fame plus the number of white visitors in your gallery.
-                You receive the tickets indicated.
-            </p>
-            <p>To get a commission, you must not already have one.
-                Select an artist and receive the indicated bonus immediately.
-                If it's a red artist, the white visitor on it moves to the plaza.
-                The next time you buy art from this artist, the price will be the initial fame of the artist, regardless of its current fame.
-            </p>
-            <h3 id="promo">Media Center</h3>
-            <p>Here you can promote an artist OR hire assistants.</p>
-            <p>To promote an artist, the artist must be discovered and not at promo level 5, the promo tile must be available and you must have the required influence (1-5). 
-                You may only promote an artist to the level above their current level (0 to 1, 2 to 3, etc.).
-                Select the level you want to promote to.
-                Select the artist to promote.
-                Pay your influence.
-                Gain the promotion bonus.
-                The fame of the artist selected increases by 1 plus the number of white visitors in you gallery.
-            </p>
-            <p>To hire assistants, you must be able to afford them and have desk space for them.</p>
-            <p>Pay the cost and gain any bonus(es) associated with the hired assistants.
-            </p>
-            <h3 id="market">Market Center</h3>
-            <p>Here you can gain a reputation tile OR bid in the auction.</p>
-            <p>You MUST have an available assistant and have the required visitor(s) in your LOBBY as shown at the tops of the columns in the market.</p>
-            <p>To gain a tile, you must have a space available on your player board and you must own or have sold art of the type indicated for the row you want the tile from.
-                Choose the tile you want.
-                Gain influence as indicated at the top of the column.
-                Choose an assistant to place on the market space.
-                Place the tile on your player board and gain the indicated bonus.
-                Choose a visitor to leave your lobby (back to the plaza).
-            </p>
-            <p>To bid in the auction, you must be able to afford it.
-                Choose a location in the auction. The row determines your bid (1, 3 or 6).
-                Choose an assistant to place in the auction.
-                Pay for your bid.
-                Gain the indicated bonus.
-                (Note: Unlike placing a reputation tile, you do NOT send a vistor from your lobby to the plaza).
-            </p>
-            <h3 id="exec">Exec Actions</h3>
-            <p>For an Exec Action, you either: use tickets OR use a contract bonus.</p>
-            <p>Each ticket you use moves a visitor of that color one space toward your gallery (opponent lobby -> plaza -> your lobby -> your gallery). 
-                You may not move visitors out of opponents galleries.
-                You may use as many tickets as you have (assuming their is a visitor to move) as a single Exec Action.
-            </p>
-            <p>To use a contract bonus, you place an available assistant on the contract and gain the bonus immediately.
-                You may only use 1 contract bonus as your Exec Action.
-            </p>
-            <h3 id="ko">KO Action</h3>
-            <p>When you move from one action space to another, you leave behind an assitant (if available).
-                If another player moves to an action where you or your assistant is, you get an optional KO Action after they perform their part of the turn.
-            </p>
-            <p>As a KO Action, you can take an Exec Action OR pay influence to perform the location action where the KO occurred.</p>
-            <p>The amount of influence required to perform the location action is moving down to the next lowest multiple of 5.
-                Note: This is in addition to any influence required for the action (see <a href="#promo">Media Center</a>).
-                Pay the influence and perform the rest of the action as usual.
-            </p>
-            <p>Regardless of your choice (Exec Action, KO Action, do nothing) your piece at the location goes home.</p>
-            <h3 id="score">Scoring</h3>
-            <p>The first time a ticket pile of any color runs out, there is Money Boney and an Influence Bonus given to each player at the end of the turn.</p>
-            <p>At game end, scoring is done in this order:
-                <ul>
-                    <li>Your current money counts</li>
-                    <li>Majority bonuses for columns in the Market Center are awarded. Ties are the combined places divided by the number of players tied. No assistants in a column = no bonus.</li>
-                    <li>Reputation tiles are scored. See <a href="#bonus">Bonus Icons</a> </li>
-                    <li>You gain the sale value of art on your board</li>
-                    <li>You gain the value of any art you won in the auction. This value is equal to the highest value of art of this type. If no artist of this type is discovered, pretend they are both dicovered.</li>
-                    <li>You gain the money for completed secret exhibitted and sold cards. If you won an auction piece, it will automatically count for one card (whereever it is more valuable)</li>
-                    <li>You gain the money indicated on the influence track</li>
-                </ul>
-                Most money wins! Tie breakers:
-                <ol>
-                    <li>Most art purchased</li>
-                    <li>Most gallery visitors</li>
-                    <li>Most assistants in play (not unemployed or discarded)</li>
-                </ol>
-            </p>
             <h3 id="misc">Miscellaneous</h3>
-            <ul>
-                <li>Available assistant - an assistant of yours at a desk or on an action or ko space.</li>
-            </ul>
+            <p>Rule differences versus The Gallerist:
+                <ul>
+                    <li>There is an option to play with more than 4 contracts on display (and I suggest using 8).
+                        When using this option, there is no option to 'deal more contracts'. What you see is what you can get.
+                        If you choose one of the contracts in the four leftmost locations, one contract will be added on the right (everything else moved left) when refilled.
+                        If you choose one of the other contracts, all four contracts on the left are discarded, everything else is then moved left and all spaces refilled.
+                    </li>
+                    <li>In the case where the player cannot perform any action, 
+                        the player will move to a location and a brown ticket is discarded.
+                        If there are no more brown tickets, then a different color is discarded (the color does not matter).
+                        If there are no more tickets of any color, then a random visitor is drawn from the bag and move to the plaza.
+                        This rule change assures that the game will end eventually.
+                    </li>
+                </ul>
+            </p>
             <table>
                 <tr>
-                    <th colspan="7">Sell Art Value</th>
+                    <th colspan="7">Sell NFT Value</th>
                 </tr>
                 <tr>
-                    <td class="artistval0">&dollar;0</td>
-                    <td class="artistval5">&dollar;5</td>
-                    <td class="artistval8">&dollar;8</td>
-                    <td class="artistval11">&dollar;11</td>
-                    <td class="artistval14">&dollar;14</td>
-                    <td class="artistval17">&dollar;17</td>
-                    <td class="artistval20"><img src="res/celeb.png" style="width: 1vw;"> &dollar;20</td>
+                    <td class="nftistval0">&dollar;0</td>
+                    <td class="nftistval5">&dollar;5</td>
+                    <td class="nftistval8">&dollar;8</td>
+                    <td class="nftistval11">&dollar;11</td>
+                    <td class="nftistval14">&dollar;14</td>
+                    <td class="nftistval17">&dollar;17</td>
+                    <td class="nftistval20"><img src="res/magnate.png" style="width: 1vw;"> &dollar;20</td>
                 </tr>
             </table>
 
-
             <h3 id="bonus">Bonus Icons</h3>
             <div style="display: grid; grid-template-columns:5vw auto; grid-gap: .2vw;">
-                <img src="res/incrCred.png"><div class="center left">Influence Bonus - influence you gain for visitors in your GALLERY (2 per pink, 1 per white)</div>
+                <img src="res/incrCred.png"><div class="center left">Cred Bonus - cred you gain for visitors in your GALLERY (2 per pink, 1 per white)</div>
                 <img src="res/incrMoney.png"><div class="center left">Money Bonus - money you gain for visitors in your GALLERY (2 per brown, 1 per white)</div>
                 <img src="res/fromBag.png"><div class="center left">Choose visitor from bag (if bag is empty, you get nothing)</div>
-                <img src="res/helper.png"><div class="center left">Hire assistant for free.</div>
+                <img src="res/helper.png"><div class="center left">Hire helper for free.</div>
                 <img src="res/contract.png"><div class="center left">Take the 'Get Contract' Action</div>
                 <img src="res/visitor_brownpink.png"><div class="center left">Choose a brown or pink visitor in the plaza and move to your gallery. If neither is in plaza, you may take from the bag.</div>
-                <img src="res/celeb.png"><div class="center left">Indicates a celebrity (at max fame) artist.</div>
+                <img src="res/magnate.png"><div class="center left">Indicates a magnate (at max reknown) nftist.</div>
                 <img src="res/ticket_any.png"><div class="center left">Choose any color ticket.</div>
                 <img src="res/2tixbonus.png"><div class="center left">Choose any two different color tickets.</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilemoney"><p>1</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/cred.png"></div>
-                </div><div class="center left">1 money per 3 influence (rounded down) (score before any other tile)</div>
+                </div><div class="center left">1 money per 3 cred (rounded down) (score before any other tile)</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_white.png"></div>
-                </div><div class="center left">1 influence + 3 money per white visitor</div>
+                </div><div class="center left">1 cred + 3 money per white visitor</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>2</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_pink.png"></div>
-                </div><div class="center left">1 influence + 2 money per pink visitor</div>
+                </div><div class="center left">1 cred + 2 money per pink visitor</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>2</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_brown.png"></div>
-                </div><div class="center left">1 influence + 2 money per brown visitor</div>
+                </div><div class="center left">1 cred + 2 money per brown visitor</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilemoney"><p>1</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/visitor_any.png"></div>
@@ -194,78 +90,101 @@
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>2</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/tile.png"></div>
-                </div><div class="center left">1 influence + 2 money per reputation tile</div>
+                </div><div class="center left">1 cred + 2 money per reputation tile</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/auction.png"></div>
-                </div><div class="center left">1 influence + 3 money per assistant in the auction</div>
+                </div><div class="center left">1 cred + 3 money per helper in the auction</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>1</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/helper.png"></div>
-                </div><div class="center left">1 influence + 1 money per assistant not unemployed</div>
-                <div class="tiledef">
-                    <div class="tilebenefit tilemoney"><p>2</p></div>
-                    <div class="thumbtile"><div class=""><p>4&nbsp;&nbsp;&UpperRightArrow;</p></div></div>
-                </div><div class="center left">2 money per artist with promo level of 4 or more</div>
+                </div><div class="center left">1 cred + 1 money per helper not unemployed</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilemoney"><p>2</p></div>
                     <div class="tilereq2">
                         <div><img style="height:100%; width:100%;" src="./res/sold.png"></div>
                         <div><img style="height:100%; width:100%;" src="./res/hung.png"></div>
                     </div>
-                </div><div class="center left">2 money per your art piece acquired</div>
+                </div><div class="center left">2 money per your nft piece acquired</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
                     <div class="tilereq"><img style=" width:100%;" src="./res/sold.png"></div>
-                </div><div class="center left">1 influence + 3 money per your art piece sold</div>
+                </div><div class="center left">1 cred + 3 money per your nft piece sold</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
                     <div class="tilereq"><img style="width:100%;" src="./res/hung.png"></div>
-                </div><div class="center left">1 influence + 3 money per your art piece on exhibit</div>
+                </div><div class="center left">1 cred + 3 money per your nft piece in your wallet</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>2</p></div>
                     <div class="tilereq4">
                         <div><img style="height:100%; width:100%;" src="./res/abstract.png"></div>
-                        <div><img style="height:100%; width:100%;" src="./res/sketch.png"><img style="height:100%; width:100%;" src="./res/photo.png"></div>
-                        <div><img style="height:100%; width:100%;" src="./res/paint.png"></div>
+                        <div><img style="height:100%; width:100%;" src="./res/dejacat.png"><img style="height:100%; width:100%;" src="./res/phakeland.png"></div>
+                        <div><img style="height:100%; width:100%;" src="./res/galaxy.png"></div>
                     </div>
-                </div><div class="center left">1 influence + 2 money per art type you acquired</div>
+                </div><div class="center left">1 cred + 2 money per different nft type you acquired</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
-                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/photo.png"></div>
-                </div><div class="center left">1 influence + 3 money per photo you acquired</div>
+                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/phakeland.png"></div>
+                </div><div class="center left">1 cred + 3 money per phakeland you acquired</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
-                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/paint.png"></div>
-                </div><div class="center left">1 influence + 3 money per painting you acquired</div>
+                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/galaxy.png"></div>
+                </div><div class="center left">1 cred + 3 money per galaxy you acquired</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/abstract.png"></div>
-                </div><div class="center left">1 influence + 3 money per abstract piece you acquired</div>
+                </div><div class="center left">1 cred + 3 money per abstract piece you acquired</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>3</p></div>
-                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/sketch.png"></div>
-                </div><div class="center left">1 influence + 3 money per sculpture you acquired</div>
+                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/dejacat.png"></div>
+                </div><div class="center left">1 cred + 3 money per deja cat you acquired</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>1</p></div>
                     <div class="tilebenefit tilemoney"><p>2</p></div>
                     <div class="tilereq"><img style="height:100%; width:100%;" src="./res/star.png"><p style="font-size: 80%;">15+</p></div>
-                </div><div class="center left">1 influence + 2 money per artist with fame of 15 or more</div>
+                </div><div class="center left">1 cred + 2 money per nftist with reknown of 15 or more</div>
+                <div class="tiledef">
+                    <div class="tilebenefit tilemoney"><p>2</p></div>
+                    <div class="thumbtile"><div class=""><p>4&nbsp;&nbsp;&UpperRightArrow;</p></div></div>
+                </div><div class="center left">2 money per nftist with promo level of 4 or more</div>
                 <div class="tiledef">
                     <div class="tilebenefit tilecred"><p>2</p></div>
                     <div class="tilebenefit tilemoney"><p>4</p></div>
-                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/celeb.png"></div>
-                </div><div class="center left">2 influence + 4 money per artisit that is a celebrity</div>
+                    <div class="tilereq"><img style="height:100%; width:100%;" src="./res/magnate.png"></div>
+                </div><div class="center left">2 cred + 4 money per nftist that is a magnate</div>
             </div>
+            <h3 id="credits">Credits</h3>
+            <p>This game is based on the rules of the game The Gallerist by Vital Lacerda. It is one of my favorite games and I strongly encourage you to <a href="https://www.eaglegames.net/">buy a copy (here).</a>
+            My game is not affiliated with Vital or Eagle-Gryphon Games in any way.
+            </p>
+
+            <ul>
+                <li>Galaxy icon from <a href="http://www.clker.com/clipart-spiral-galaxy-1.html">http://www.clker.com/clipart-spiral-galaxy-1.html</a></li>
+                <li>Galaxy pics from NASA:
+                    <ul>
+                        <li><a href="https://images.nasa.gov/details-PIA17247">https://images.nasa.gov/details-PIA17247</a></li>
+                        <li><a href="https://images.nasa.gov/details-GSFC_20171208_Archive_e001956">https://images.nasa.gov/details-GSFC_20171208_Archive_e001956</a></li>
+                        <li><a href="https://images.nasa.gov/details-a-hubble-view-of-starburst-galaxy-messier-94_22411319925_o">https://images.nasa.gov/details-a-hubble-view-of-starburst-galaxy-messier-94_22411319925_o</a></li>
+                        <li><a href="https://images.nasa.gov/details-hubble-peers-into-the-heart-of-a-galactic-maelstrom_20949846630_o">https://images.nasa.gov/details-hubble-peers-into-the-heart-of-a-galactic-maelstrom_20949846630_o</a></li>
+                        <li><a href="https://images.nasa.gov/details-0700064">https://images.nasa.gov/details-0700064</a></li>
+                        <li><a href="https://images.nasa.gov/details-GSFC_20171208_Archive_e000825">https://images.nasa.gov/details-GSFC_20171208_Archive_e000825</a></li>
+                        <li><a href="https://images.nasa.gov/details-PIA04213">https://images.nasa.gov/details-PIA04213</a></li>
+                        <li><a href="https://images.nasa.gov/details-GSFC_20171208_Archive_e001913">https://images.nasa.gov/details-GSFC_20171208_Archive_e001913</a></li>
+                    </ul>
+                </li>
+                <li>Cat pics graciously created for me by my girlfriend.</li>
+                <li>Abstract pieces created by me or my girlfriend.</li>
+                <li>I am solely to blame for all the Phakeland pics.</li>
+            </ul>
 
             <hr>
       

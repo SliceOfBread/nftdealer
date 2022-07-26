@@ -30,6 +30,7 @@ class GameList {
 	async createGame(id, info) {}
 	async saveGame(id, info) {}
 	async findAllGames() {}
+	async purgeGamesOldThan(numDays) {}
 }
 
 class PostgreS extends GameList {
@@ -111,10 +112,17 @@ class PostgreS extends GameList {
 		});
 	}
   
-	async findAllGames() { // TODO
+	async findAllGames() {
 		const result = await this.pool.query('SELECT game_id, last_used FROM games ORDER BY last_used DESC');
 
 	  	return result.rows;
+	}
+
+	async purgeGamesOldThan(numDays) {
+		const qString = `DELETE FROM games WHERE last_used < NOW() - INTERVAL '${numDays} day'`;
+		// const result = await this.pool.query("DELETE FROM games WHERE last_used < NOW() - INTERVAL '10 day'");
+		const result = await this.pool.query(qString);
+		return result.rows;
 	}
 
 }
@@ -146,10 +154,13 @@ class InMemoryGameList extends GameList {
 	async findAllGames() {
 	  return [...this.games.values()];
 	}
+
+	async purgeGamesOldThan(numDays) {
+		return [];
+	}
 }
 
 // TODO redo following to use Postgres if available or InMemory if not
-// also TODO, rewrite gamesData access to use callback/promise/await
 // const gamesData = new InMemoryGameList();
 const gamesData = new PostgreS();
 
@@ -158,10 +169,6 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
 });
-
-// app.get('/game.html', (req, res) => {
-//     res.sendFile(path.resolve('./public/game.html'));
-// });
 
 
 app.get('/player', (req, res) => {
@@ -173,7 +180,8 @@ app.get('/player', (req, res) => {
 	}	
 });
 
-const adminCode = process.env.ADMINCODE || "temporary"; // TODO change this to random
+const adminCode = process.env.ADMINCODE || "a".concat(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16));
+console.log(`Admin code: /admin?ac=${adminCode}`);
 
 app.get('/admin', (req, res) => {
 	if (req.query.ac && req.query.ac === adminCode) {
@@ -185,28 +193,11 @@ app.get('/admin', (req, res) => {
 	}
 });
  
-//  app.get('/game', (req, res) => {
-// 	if (req.query.gid) {
-// 		res.sendFile(path.resolve('./game.html'));
-// 	} else {
-// 		// send page that shows all games?
-// 		// TODO
-// 	}	
-//  });
- 
-// app.get('/style.css', (req, res) => {
-// 	res.sendFile(path.resolve('./public/style.css'));
-//  });
  
 var game = new GameServer();
 // var player2game = {};
  
 io.on('connection', (socket) => {
-	// *************************************
-	// NOTE: for now, only one game supported. Eventually, games should be
-	// stored/restored to/from a database
-	// *************************************
-
 	// see https://socket.io/get-started/private-messaging-part-2/
 	//  but we want to use playerID to associate with connection
 
@@ -247,53 +238,6 @@ io.on('connection', (socket) => {
 		} 
 	});
 
-	// function saveToFile(msg) {
-	// 	if (msg && msg.gameId) {
-	// 		const dir = './games/';
-	// 		let files = fs.readdirSync(dir);
-	// 		let fn = 'game' + msg.gameId + '.txt';
-	// 		// if (!files.includes(fn)) {
-	// 			// fetch game from storage
-	// 			let thisGame = gamesData.findGame(msg.gameId);
-	// 			if (!thisGame || !thisGame.ids) {
-	// 				console.log(`Did not find game in storage:${msg.gameId}:`);
-	// 				return;
-	// 			}
-
-	// 			try {
-	// 				fs.writeFileSync(dir + fn, JSON.stringify(thisGame));
-	// 			} catch (error) {
-	// 				let tmp = 0;
-
-	// 			}
-				
-	// 		// }
-			
-	// 	}
-	// }
-
-	// socket.on('save game', (msg) => saveToFile(msg));
-
-	// function loadGame(msg) {
-	// 	if (msg && msg.gameId) {
-	// 		const dir = './games/';
-	// 		let files = fs.readdirSync(dir);
-	// 		let fn = 'game' + msg.gameId + '.txt';
-	// 		if (files.includes(fn)) {
-	// 			try {
-	// 				let fileData = fs.readFileSync(dir + fn);
-	// 				let thisGame = JSON.parse(fileData);
-	// 				gamesData.saveGame(msg.gameId, thisGame);
-	// 			} catch (error) {
-	// 				let tmp = 0;
-	// 			}
-								
-	// 		}
-			
-	// 	}
-	// }
-
-	// socket.on('load game', (msg) => loadGame(msg));
 
 	socket.on('create game', (msg) => {
 		console.log('create game rcvd, sending game setup');
@@ -495,8 +439,6 @@ io.on('connection', (socket) => {
 
 			}
 		}
-		// NORMALLY above players/options  would be passed in
-
 
 		// decide player colors, if not already set
 		let playerOrder = [];

@@ -1,8 +1,8 @@
 import {
-	ARTLOC,
-	ARTISTCOLOR,
-	ASSTLOC,
-	AVAILASSTLOCS,
+	NFTLOC,
+	NFTISTCOLOR,
+	HELPERLOC,
+	AVAILHELPERLOCS,
 	BONUSTYPE,
 	CLICKITEM,
 	CLICKSPACE,
@@ -14,23 +14,23 @@ import {
 	VISITORLOC} from './egalconstants.mjs';
 
 
-// FILE art
-// Note: Art in client is limited to owned and top of piles
-class Art {
+// FILE nft
+// Note: Nft in client is limited to owned and top of piles
+class Nft {
 	constructor(type, num) {
 		this.type = type;
 		this.num = num;
-		// 	0; 0+ fame, pink tix
-		// 	1; 0+ fame, brown tix
-		// 	2; 0+ fame, any tix
-		// 	3; 0+ fame, any tix
-		// 	4; 1+ fame, pink + brown/white tix
-		// 	5; 1+ fame, brown + pink/white tix
-		// 	6; 1+ fame, any 2 tix
-		// 	7; 2+ fame, any 2 tix
-		this.tixBonus = [];	// buy art tix bonus
+		// 	0; 0+ reknown, pink tix
+		// 	1; 0+ reknown, brown tix
+		// 	2; 0+ reknown, any tix
+		// 	3; 0+ reknown, any tix
+		// 	4; 1+ reknown, pink + brown/white tix
+		// 	5; 1+ reknown, brown + pink/white tix
+		// 	6; 1+ reknown, any 2 tix
+		// 	7; 2+ reknown, any 2 tix
+		this.tixBonus = [];	// buy nft tix bonus
 		this.numTixBonus = 1;
-		this.fameBonus = {fixed:0, perWhite:1};
+		this.reknownBonus = {fixed:0, perWhite:1};
 		switch (num) {
 			case 0:
 				this.tixBonus.push(BONUSTYPE.PINKTIX);
@@ -46,19 +46,19 @@ class Art {
 				this.tixBonus.push(BONUSTYPE.PINKTIX);
 				this.tixBonus.push(BONUSTYPE.BROWNWHITE);
 				this.numTixBonus = 2;
-				this.fameBonus.fixed = 1;
+				this.reknownBonus.fixed = 1;
 				break;
 			case 5:
 				this.tixBonus.push(BONUSTYPE.BROWNTIX);
 				this.tixBonus.push(BONUSTYPE.PINKWHITE);
 				this.numTixBonus = 2;
-				this.fameBonus.fixed = 1;
+				this.reknownBonus.fixed = 1;
 				break;
 			case 6:
 			case 7:
 				this.tixBonus.push(BONUSTYPE.TWOTIX);
 				this.numTixBonus = 2;
-				this.fameBonus.fixed = num - 5;	// 1 for 6, 2 for 7
+				this.reknownBonus.fixed = num - 5;	// 1 for 6, 2 for 7
 				break;
 		
 			default:
@@ -66,7 +66,7 @@ class Art {
 		}
 		this.byArtist = null;
 		this.location = {};
-		this.location.type = ARTLOC.PILE;
+		this.location.type = NFTLOC.PILE;
 		this.dom = null;
 	}
 
@@ -108,7 +108,7 @@ class Art {
 
 
 // 
-class Assistant {
+class Helper {
 	constructor(num) {
 		this.location = null;
 		this.num = num;
@@ -143,21 +143,21 @@ class Assistant {
 		}
 		return;
 	}
-	moveAsstTo(location) {
+	moveHelperTo(location) {
 		this.location = Object.assign({}, location);
 	}
 }
 
 
-// FILE Artist
-class Artist {
+// FILE Nftist
+class Nftist {
 	constructor() {
 		this.type = null;
 		this.color = null;
-		this.initFame = 1;
+		this.initReknown = 1;
 		this.num = 1;
 		this.thumb = 1;
-		this.fame = 1;
+		this.reknown = 1;
 		this.discovered = false;
 		this.sigTokens = [{},{}]; 
 		this.bonus = null;
@@ -166,19 +166,19 @@ class Artist {
 	discover() {
 		this.discovered = true;
 	}
-	getValue(rLevel = this.fame) {
+	getValue(rLevel = this.reknown) {
 		switch (rLevel) {
 			case 1: return 0;
 			case 2: 
 			case 3: 
 			case 4: return 5;
-			case 5: if (this.initFame >= 4) return 5;
+			case 5: if (this.initReknown >= 4) return 5;
 			case 6:
 			case 7: return 8;
-			case 8: if (this.initFame >= 4) return 8;
+			case 8: if (this.initReknown >= 4) return 8;
 			case 9:
 			case 10: return 11;
-			case 11: if (this.initFame >= 4) return 11;
+			case 11: if (this.initReknown >= 4) return 11;
 			case 12:
 			case 13:
 			case 14: return 14;
@@ -200,8 +200,8 @@ class Artist {
 				case "num":
 				case "bonus":
 				case "thumb":
-				case "initFame":
-				case "fame":
+				case "initReknown":
+				case "reknown":
 				case "discovered":
 				case "sigTokens":
 					this[ak] = obj[ak];
@@ -223,16 +223,16 @@ class Board {
 
 // FILE contracts
 class Contract {
-	constructor(artType, bonusType, num) {
+	constructor(nftType, bonusType, num) {
 		// CHANGE TODO
 		// dom should have no info unless cards are face up
-		this.artType = artType;
+		this.nftType = nftType;
 		this.bonusType = bonusType;
 		this.num = num;
 		this.location = {type:CONTRACTLOC.DECK};
 		// NOTE: for location.type = DEALT, num=column and pos=position in stack (0 = top)
 		this.faceUp = false;	// show back or front?
-		this.moneyUp = false;	// if showing back, is money on top or infl?
+		this.moneyUp = false;	// if showing back, is money on top or cred?
 	}
 	moveContractTo(location) {
 		switch (location.type) {
@@ -255,7 +255,7 @@ class Contract {
 		let obj = {};
 		for (let ak of Object.keys(this)) {
 			switch (ak) {
-				case "artType":
+				case "nftType":
 				case "bonusType":
 				case "num":
 					if (this.location.type == CONTRACTLOC.DECK || this.location.type == CONTRACTLOC.DISCARD) break;
@@ -274,7 +274,7 @@ class Contract {
 	deserialize(obj) {
 		for (let ak of Object.keys(obj)) {
 			switch (ak) {
-				case "artType":
+				case "nftType":
 				case "bonusType":
 				case "num":
 				case "location":
@@ -303,10 +303,10 @@ class Player {
 		this.curator = null;
 		this.dealer = null;
 		this.money = 10;
-		this.influence = 10;
+		this.cred = 10;
 		this.location = {type:PLAYERLOC.HOME};
 
-		this.assistants = [];
+		this.helpers = [];
 
 	}
 	deserialize(obj) {
@@ -316,7 +316,7 @@ class Player {
 				case "color":
 				case "name":
 				case "money":
-				case "influence":
+				case "cred":
 				case "location":
 				case "curator":
 				case "dealer":
@@ -324,8 +324,8 @@ class Player {
 						this[pk] = obj[pk];
 					break;
 
-				case "assistants":
-					// deserialize each asst
+				case "helpers":
+					// deserialize each helper
 					for (let i=0; i < this[pk].length; i++) {
 						this[pk][i].deserialize(obj[pk][i]);
 					}
@@ -347,15 +347,15 @@ class Player {
 		this.curator = null;
 		this.dealer = null;
 		this.money = 10;
-		this.influence = 10;
+		this.cred = 10;
 		this.location = {type:PLAYERLOC.HOME};
 
 		for (let i=0; i < 10; i++) {
 			if (i<2) {
-				// move 2 assistants to desks
-				this.assistants[i].init(this, {type:ASSTLOC.DESK, num:i});
+				// move 2 helpers to desks
+				this.helpers[i].init(this, {type:HELPERLOC.DESK, num:i});
 			} else {
-				this.assistants[i].init(this, {type:ASSTLOC.UNEMPLOYED});
+				this.helpers[i].init(this, {type:HELPERLOC.UNEMPLOYED});
 			}
 		}
 		
@@ -463,10 +463,10 @@ class Game {
 		this.thumbs = [];
 		
 		// folowing done in client/server
-		this.artists = [];
+		this.nftists = [];
 		this.players = [];
 		this.board = {};
-		this.art = [];
+		this.nft = [];
 		this.repTiles = [];
 		this.contracts = [];
 		this.visitors = [];
@@ -476,43 +476,43 @@ class Game {
 	}
 
 	playerHasDisplayed(pl = this.activePlayer) {
-		return this.art.filter((c) => c.location.type == ARTLOC.DISPLAY && c.location.plNum == pl);
+		return this.nft.filter((c) => c.location.type == NFTLOC.WALLET && c.location.plNum == pl);
 	}
 
 	playerHasSold(pl = this.activePlayer) {
-		return this.art.filter((a) => a.location.type == ARTLOC.SOLD && a.location.plNum == pl);
+		return this.nft.filter((a) => a.location.type == NFTLOC.SOLD && a.location.plNum == pl);
 	}
 
-	numCelebrity() {
-		return this.artists.filter((artist) => artist.fame > 18).length;
+	numMagnate() {
+		return this.nftists.filter((nftist) => nftist.reknown > 18).length;
 	}
 
 	getFlag(bitMask) {
 		return this.flags & (bitMask);
 	}
 
-	auctionValue(art) {
-		let redArtistIdx = this.artists.findIndex((a) => a.type === art.type && a.color === ARTISTCOLOR.RED);
-		let blueArtistIdx = this.artists.findIndex((a) => a.type === art.type && a.color === ARTISTCOLOR.BLUE);
-		let redArtist = this.artists[redArtistIdx];
-		let blueArtist = this.artists[blueArtistIdx];
-		let ret = {value: 0, artistIdx:0};
-		// if both artists are discovered or undiscovered, value of auction is max
+	auctionValue(nft) {
+		let redArtistIdx = this.nftists.findIndex((a) => a.type === nft.type && a.color === NFTISTCOLOR.RED);
+		let blueArtistIdx = this.nftists.findIndex((a) => a.type === nft.type && a.color === NFTISTCOLOR.BLUE);
+		let redArtist = this.nftists[redArtistIdx];
+		let blueArtist = this.nftists[blueArtistIdx];
+		let ret = {value: 0, nftistIdx:0};
+		// if both nftists are discovered or undiscovered, value of auction is max
 		// otherwise value is whichever is discovered
 		if (redArtist.discovered === blueArtist.discovered) {
 			if (redArtist.getValue() >= blueArtist.getValue()) {
 				ret.value = redArtist.getValue();
-				ret.artistIdx = redArtistIdx;
+				ret.nftistIdx = redArtistIdx;
 			} else {
 				ret.value = blueArtist.getValue();
-				ret.artistIdx = blueArtistIdx;
+				ret.nftistIdx = blueArtistIdx;
 			}
 		} else if (redArtist.discovered) {
 			ret.value = redArtist.getValue();
-			ret.artistIdx = redArtistIdx;
+			ret.nftistIdx = redArtistIdx;
 		} else {
 			ret.value = blueArtist.getValue();
-			ret.artistIdx = blueArtistIdx;
+			ret.nftistIdx = blueArtistIdx;
 		}
 		return ret;
 	}
@@ -576,8 +576,8 @@ class Game {
 				case "log":
 					this[k] = rebuild[k];
 					break;
-				case "artists":
-				case "art":
+				case "nftists":
+				case "nft":
 				case "contracts":
 				case "repTiles":
 				case "players":
@@ -611,20 +611,20 @@ class Game {
 			case CLICKITEM.ENDBUTTON:
 			case CLICKSPACE.DEALCONTRACTS:
 				return o.type;
-			case CLICKITEM.ART:
-				return o.type + "-" + o.artType + "-" + o.num;
-			case CLICKITEM.ARTIST:
-				return o.type + "-" + o.color + "-" + o.artType;
-			case CLICKITEM.ASSISTANT:
+			case CLICKITEM.NFT:
+				return o.type + "-" + o.nftType + "-" + o.num;
+			case CLICKITEM.NFTIST:
+				return o.type + "-" + o.color + "-" + o.nftType;
+			case CLICKITEM.HELPER:
 				return o.type + "-" + this.activePlayer + "-" + o.num;
 			case CLICKITEM.THUMB:
 				return o.type +  "-" + o.level + "-" + o.num;
-			case CLICKITEM.HIREASST:
+			case CLICKITEM.HIREHELPER:
 			case CLICKITEM.CONTRACT:
 			case CLICKITEM.VISITOR:
 			case CLICKITEM.REPTILE:
 			case CLICKSPACE.CONTRACT:
-			case CLICKSPACE.INFLUENCE:
+			case CLICKSPACE.CRED:
 			case CLICKSPACE.REPTILE:
 				return o.type + "-" + o.num;
 			case CLICKITEM.ORIENTATION:
@@ -642,21 +642,21 @@ class Game {
 		}
 	}
 
-	getAvailableAssistants() {
-		// available assts are at desks, on action spaces or kospaces
-		return this.players[this.activePlayer].assistants.filter((a) => Object.values(AVAILASSTLOCS).includes(a.location.type));
+	getAvailableHelpers() {
+		// available helpers are at desks, on action spaces or kospaces
+		return this.players[this.activePlayer].helpers.filter((a) => Object.values(AVAILHELPERLOCS).includes(a.location.type));
 	}
 
 	getUnemployed() {
-		return this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.UNEMPLOYED);
+		return this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.UNEMPLOYED);
 	}
 
 }
 
 export {
-	Art,
-	Artist,
-	Assistant,
+	Nft,
+	Nftist,
+	Helper,
 	Board,
 	Contract,
 	Game,

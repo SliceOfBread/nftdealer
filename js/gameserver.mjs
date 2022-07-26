@@ -2,12 +2,12 @@
 import {
 	DEBUG,
 	ACTIONLOC,
-	ARTBONUSTYPE,
-	ARTISTCOLOR,
-	ARTLOC,
-	ARTTYPE,
-	ASSTLOC,
-	AVAILASSTLOCS,
+	NFTBONUSTYPE,
+	NFTISTCOLOR,
+	NFTLOC,
+	NFTTYPE,
+	HELPERLOC,
+	AVAILHELPERLOCS,
 	AUCTIONVAL,
 	BONUSTYPE,
 	CLICKITEM,
@@ -18,8 +18,8 @@ import {
 	GAMESTATE,
 	LOC2STATE,
 	MARKETCOL,
-	MARKETCOL2INFL,
-	MAXINFLUENCE,
+	MARKETCOL2CRED,
+	MAXCRED,
 	MAXREPTILES,
 	PLAYERCOLOR,
 	PLAYERLOC,
@@ -32,9 +32,9 @@ import {
 	VISITORLOC} from '../public/js/egalconstants.mjs';
 
 import {
-	Art,
-	Artist,
-	Assistant,
+	Nft,
+	Nftist,
+	Helper,
 	Contract,
 	Game,
 	Player,
@@ -71,7 +71,7 @@ class Random {
 }
 
 
-class ArtServer extends Art {
+class NftServer extends Nft {
 	constructor(type, num) {
 		super (type, num)
 	}
@@ -83,7 +83,7 @@ class ArtServer extends Art {
 
 }
 
-class ArtistServer extends Artist {
+class NftistServer extends Nftist {
 	constructor() {
 		super();
 	}
@@ -92,37 +92,37 @@ class ArtistServer extends Artist {
 		this.color = color;
 		this.num = num;
 		this.thumb = num;
-		if (type === ARTTYPE.PAINT || type === ARTTYPE.SKETCH) {
-			this.initFame = 3;
-			if (color === ARTISTCOLOR.BLUE) this.initFame -= num;
+		if (type === NFTTYPE.GALAXY || type === NFTTYPE.DEJACAT) {
+			this.initReknown = 3;
+			if (color === NFTISTCOLOR.BLUE) this.initReknown -= num;
 		}
-		if (color === ARTISTCOLOR.RED) {
-			this.initFame += 4;
+		if (color === NFTISTCOLOR.RED) {
+			this.initReknown += 4;
 			this.thumb += 2;
 			// let wv = Visitor.getColorFrom(game.visitors, VISITORCOLOR.WHITE,VISITORLOC.BAG);
 			let wv = game.visitors.find((v) => v.color === VISITORCOLOR.WHITE && v.location.type === VISITORLOC.BAG);
 			if (wv) {
-				wv.moveVisitorTo({type:VISITORLOC.ARTIST, artType:type});
+				wv.moveVisitorTo({type:VISITORLOC.NFTIST, nftType:type});
 			} else {
-				throw "Could not find a WHITE visitor for artist init";
+				throw "Could not find a WHITE visitor for nftist init";
 			}
 			
 		}
 		if (num) {
-			this.initFame += 3;
+			this.initReknown += 3;
 		}
-		this.fame = this.initFame;
+		this.reknown = this.initReknown;
 		this.bonus = bonus;
-		this.sigTokens[0] = {location:SIGLOC.ARTIST};
-		this.sigTokens[1] = {location:SIGLOC.ARTIST};
+		this.sigTokens[0] = {location:SIGLOC.NFTIST};
+		this.sigTokens[1] = {location:SIGLOC.NFTIST};
 	}
-	increaseFame() {
-		if (this.fame > 18) {
+	increaseReknown() {
+		if (this.reknown > 18) {
 			// TODO error
 			return;
 		}
-		this.fame++;
-		if (this.fame === 19) return true;
+		this.reknown++;
+		if (this.reknown === 19) return true;
 		return;
 	}
 	moveSigToken(loc, sigTokenIdx) {
@@ -137,8 +137,8 @@ class ArtistServer extends Artist {
 				case "num":
 				case "bonus":
 				case "thumb":
-				case "fame":
-				case "initFame":
+				case "reknown":
+				case "initReknown":
 				case "discovered":
 				case "sigTokens":
 					obj[ak] = this[ak];
@@ -154,8 +154,8 @@ class ArtistServer extends Artist {
 }
 
 class ContractServer extends Contract {
-	constructor(ARTTYPE, BONUSTYPE, num) {
-		super(ARTTYPE, BONUSTYPE, num)
+	constructor(NFTTYPE, BONUSTYPE, num) {
+		super(NFTTYPE, BONUSTYPE, num)
 	}
 }
 
@@ -179,7 +179,7 @@ class VisitorServer extends Visitor {
 		// 	case VISITORLOC.PLAZA:
 		// 	case VISITORLOC.LOBBY:
 		// 	case VISITORLOC.GALLERY:
-		// 	case VISITORLOC.ART:
+		// 	case VISITORLOC.NFT:
 		// 		updateLocs.push(toLocation);
 		// 		break;
 		// 	default:
@@ -214,7 +214,7 @@ class PlayerServer extends Player {
 		this.playerId = null;
 		this.board = new PlayerBoard(this);
 		for (let i=0; i < 10; i++) {
-				this.assistants.push(new Assistant(i));
+				this.helpers.push(new Helper(i));
 		}
 	}
 	serialize(playerId) {
@@ -230,13 +230,13 @@ class PlayerServer extends Player {
 				case "color":
 				case "name":
 				case "money":
-				case "influence":
+				case "cred":
 				case "location":
 					obj[pk] = this[pk];
 					break;
 
-				case "assistants":
-					// serialize each asst
+				case "helpers":
+					// serialize each helper
 					obj[pk] = [];
 					for (let i=0; i < this[pk].length; i++) {
 						obj[pk].push(this[pk][i].serialize());
@@ -252,15 +252,15 @@ class PlayerServer extends Player {
 	movePlayerTo(loc) {
 		this.location = Object.assign({}, loc);
 	}
-	addInfluence(val) {
+	addCred(val) {
 		let amt = val;
-		if (this.influence + amt > MAXINFLUENCE) {
-			amt = MAXINFLUENCE - this.influence;
-		} else if (this.influence + amt < 0) {
+		if (this.cred + amt > MAXCRED) {
+			amt = MAXCRED - this.cred;
+		} else if (this.cred + amt < 0) {
 			// error
-			console.log('error: influence went negative');
+			console.log('error: cred went negative');
 		}
-		this.influence += amt;
+		this.cred += amt;
 		return;
 	}
 	addMoney(val) {
@@ -284,12 +284,12 @@ class GameServer extends Game {
 		//this.remember = null;
 		this.substack = [];
 		for (let n=0; n<8; n++) {
-			let a = new ArtistServer();
-			this.artists.push(a);
+			let a = new NftistServer();
+			this.nftists.push(a);
 		}
-		for (let t of Object.values(ARTTYPE)) {
+		for (let t of Object.values(NFTTYPE)) {
 			for (let i=0; i < 8; i++) {
-				this.art.push(new ArtServer(t, i));
+				this.nft.push(new NftServer(t, i));
 			}
 		}
 		for (let p=0; p < 4; p++) {
@@ -308,10 +308,10 @@ class GameServer extends Game {
 			}
 		}
 		// 
-		for (let t of Object.values(ARTTYPE)) {
+		for (let t of Object.values(NFTTYPE)) {
 			for (let b of Object.values(CONTRACTBONUS)) {
-				if (b === CONTRACTBONUS.INFLUENCE && (t === ARTTYPE.PAINT || t === ARTTYPE.PHOTO)) continue;
-				if (b === CONTRACTBONUS.MONEY && (t === ARTTYPE.SKETCH || t === ARTTYPE.ABSTRACT)) continue;
+				if (b === CONTRACTBONUS.CRED && (t === NFTTYPE.GALAXY || t === NFTTYPE.PHAKELAND)) continue;
+				if (b === CONTRACTBONUS.MONEY && (t === NFTTYPE.DEJACAT || t === NFTTYPE.ABSTRACT)) continue;
 				this.contracts.push(new ContractServer(t, b, this.contracts.length));
 			}
 		}
@@ -382,25 +382,25 @@ class GameServer extends Game {
 	}
 
 	chooseArtPileTop(type) {
-		// filter array of art to include only type and only on pile
-		let artOfType = this.art.filter((a) => a.type === type);
-		if (artOfType.filter((a) => a.location.type === ARTLOC.PILETOP).length) {
+		// filter array of nft to include only type and only on pile
+		let nftOfType = this.nft.filter((a) => a.type === type);
+		if (nftOfType.filter((a) => a.location.type === NFTLOC.PILETOP).length) {
 			throw "Tried to set a second PILETOP!";
 			// TODO change this error
 		}
-		let artPile = artOfType.filter((a) => a.location.type === ARTLOC.PILE);
-		if (artPile.length) {
-			let a = this.randomArrayItem(artPile);
-			a.location.type = ARTLOC.PILETOP;
+		let nftPile = nftOfType.filter((a) => a.location.type === NFTLOC.PILE);
+		if (nftPile.length) {
+			let a = this.randomArrayItem(nftPile);
+			a.location.type = NFTLOC.PILETOP;
 			return a;
 		} else {
-			// TODO message? no more art of type?
+			// TODO message? no more nft of type?
 			return false;
 		}
 	}
 
 	topOfArtPile(type) {
-		return  this.art.find((a) => a.type === type && a.location.type === ARTLOC.PILETOP);
+		return  this.nft.find((a) => a.type === type && a.location.type === NFTLOC.PILETOP);
 	}
 
 	getRandomFromBag() {
@@ -445,21 +445,21 @@ class GameServer extends Game {
 	// 	return;
 	// }
 
-	infl2Next5(infl) {
-		return (infl % 5) ? (infl % 5) : 5;
+	cred2Next5(cred) {
+		return (cred % 5) ? (cred % 5) : 5;
 	}
 	
-	getUsableInfl() {
-		let plInf = this.players[this.activePlayer].influence;
+	getUsableCred() {
+		let plInf = this.players[this.activePlayer].cred;
 		if (this.thisIsKO())  {
-			// decrease players useful infl by amount player needs to spend to do KO
-			plInf -= this.infl2Next5(plInf);
+			// decrease players useful cred by amount player needs to spend to do KO
+			plInf -= this.cred2Next5(plInf);
 		}
 		return plInf;
 	}
 
-	playerCanAfford(canAffordAmount, addlInfl = 0) {
-		return this.players[this.activePlayer].money + this.infl4discount(this.getUsableInfl() + addlInfl) >= canAffordAmount;
+	playerCanAfford(canAffordAmount, addlCred = 0) {
+		return this.players[this.activePlayer].money + this.cred4discount(this.getUsableCred() + addlCred) >= canAffordAmount;
 	}
 
 	playerGetsTix(plNum, tixColor) {
@@ -515,19 +515,19 @@ class GameServer extends Game {
 		}
 	} 
 
-	playerMadeCelebrity(artistIdx) {
-		this.logMsg("CELEB", this.activePlayer, artistIdx, 5);
+	playerMadeMagnate(nftistIdx) {
+		this.logMsg("CELEB", this.activePlayer, nftistIdx, 5);
 		this.players[this.activePlayer].addMoney(5);
-		if (!this.getFlag(FLAG.TWO_CELEBRITY)) {
-			if (this.artists.filter((a) => a.fame > 18).length > 1) {
-				this.setFlag(FLAG.TWO_CELEBRITY);
+		if (!this.getFlag(FLAG.TWO_MAGNATE)) {
+			if (this.nftists.filter((a) => a.reknown > 18).length > 1) {
+				this.setFlag(FLAG.TWO_MAGNATE);
 				this.logMsg("ENDCOND");
 				this.checkEndGame();
 			}
 		}
 	}
 	// getEmptyDesk() {
-	// 	let aList = this.players[this.activePlayer].assistants.filter((a) => a.location.type === ASSTLOC.DESK);
+	// 	let aList = this.players[this.activePlayer].helpers.filter((a) => a.location.type === HELPERLOC.DESK);
 	// 	// No desks available?
 	// 	if (aList.length > 3) return null;
 	// 	// Find lowest unoccupied desk
@@ -536,19 +536,19 @@ class GameServer extends Game {
 	// 		return i;
 	// 	}
 	// 	// error
-	// 	// throw "Less than 4 assistants at desks but no desk available?";
+	// 	// throw "Less than 4 helpers at desks but no desk available?";
 	// 	// for now, return null
 	// 	return null;
 	// }
 
-	hireAsst() {
-		let asst = this.getUnemployed();
-		if (!asst) return;
-		this.logMsg("ASST2", this.activePlayer, "HIRED");
+	hireHelper() {
+		let helper = this.getUnemployed();
+		if (!helper) return;
+		this.logMsg("HELPER2", this.activePlayer, "HIRED");
 		// get hiring bonus 
-		// (0,brown,pink,infl,0,bpw*,0,money) 
+		// (0,brown,pink,cred,0,bpw*,0,money) 
 		//  2   3    4    5   6  7   8  9
-		switch (asst.num) {
+		switch (helper.num) {
 			case 3:
 				this.playerGetsTix(this.activePlayer, TIXCOLOR.BROWN);
 				break;
@@ -557,9 +557,9 @@ class GameServer extends Game {
 				break;
 			case 5:
 				{
-					let bonus = this.bonusInfluence();
-					this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORHIREBONUS");
-					this.players[this.activePlayer].addInfluence(bonus);	
+					let bonus = this.bonusCred();
+					this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORHIREBONUS");
+					this.players[this.activePlayer].addCred(bonus);	
 				}
 				break;
 			case 7:
@@ -578,47 +578,47 @@ class GameServer extends Game {
 			default:
 				break;
 		}
-		this.sendHome(asst);
+		this.sendHome(helper);
 
 	}
 
-	returnContractAsst(contract) {
-		this.sendHome(this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.CONTRACTBONUS && a.location.num === contract.num));
+	returnContractHelper(contract) {
+		this.sendHome(this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.CONTRACTBONUS && a.location.num === contract.num));
 	}
 
-	sendHome(asst) {
-		if (!asst) return;
+	sendHome(helper) {
+		if (!helper) return;
 
-		let numUsedDesks = this.players[this.activePlayer].assistants.filter((a) => a.location.type === ASSTLOC.DESK).length;
+		let numUsedDesks = this.players[this.activePlayer].helpers.filter((a) => a.location.type === HELPERLOC.DESK).length;
 
 		if (numUsedDesks < 4) {
-			asst.moveAsstTo({type:ASSTLOC.DESK});
-			this.logMsg("ASST2", this.activePlayer, "SENTHOME")
-			// asst.location = {type:ASSTLOC.DESK, num:ed};
+			helper.moveHelperTo({type:HELPERLOC.DESK});
+			this.logMsg("HELPER2", this.activePlayer, "SENTHOME")
+			// helper.location = {type:HELPERLOC.DESK, num:ed};
 		} else {
-			asst.moveAsstTo({type:ASSTLOC.DISCARD});
-			this.logMsg("ASST2", this.activePlayer, "SENTDISC")
-			// asst.location = {type:ASSTLOC.DISCARD};
+			helper.moveHelperTo({type:HELPERLOC.DISCARD});
+			this.logMsg("HELPER2", this.activePlayer, "SENTDISC")
+			// helper.location = {type:HELPERLOC.DISCARD};
 		}
 	}
 
-	infl4discount(infl) {
-		const inflDiscount = [0,1,2,2,2,3,3,3,3,4,4,4,4, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9,10,10,11,12,13,14,15,16,17,18,19];
-		return inflDiscount[infl];
+	cred4discount(cred) {
+		const credDiscount = [0,1,2,2,2,3,3,3,3,4,4,4,4, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9,10,10,11,12,13,14,15,16,17,18,19];
+		return credDiscount[cred];
 	}
 
-	infl2money(infl) {
-		const inflValue = [0,1,1,1,2,2,2,2,3,3,3,3,4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,10,11,12,13,14,15,16,17,18,20];
+	cred2money(cred) {
+		const credValue = [0,1,1,1,2,2,2,2,3,3,3,3,4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,10,11,12,13,14,15,16,17,18,20];
 
-		return (infl > inflValue.length-1) ? 20 : inflValue[infl];
+		return (cred > credValue.length-1) ? 20 : credValue[cred];
 
 	}
-	inflNextMark(infl) {
+	credNextMark(cred) {
 		const nextMark = [0,0,1,1,1,4,4,4,4,8,8,8,8,12,12,12,15,15,15,18,18,20,20,22,22,24,24,26,27,28,29,30,31,32,33,34];
-		return nextMark[infl];
+		return nextMark[cred];
 	}
 
-	bonusInfluence(plNum = this.activePlayer) {
+	bonusCred(plNum = this.activePlayer) {
 		// let plNum;
 		// if (typeof p === 'undefined') {
 		// 	plNum = this.activePlayer;
@@ -659,10 +659,10 @@ class GameServer extends Game {
 					if (koPiece.player) {
 						// send player piece home
 						koPiece.player.movePlayerTo({type:PLAYERLOC.HOME});
-					} else if (koPiece.asst) {
-						// send player asst home
-						this.sendHome(koPiece.asst);
-					} // else no KO piece, possible if asst was used in KO
+					} else if (koPiece.helper) {
+						// send player helper home
+						this.sendHome(koPiece.helper);
+					} // else no KO piece, possible if helper was used in KO
 					this.currentPlayer = this.nextPlNum(this.currentPlayer);
 					this.activePlayer = this.currentPlayer;
 					this.checkLastRound();
@@ -673,31 +673,31 @@ class GameServer extends Game {
 					}
 				} else {
 					// if there was a kickout, that player is next
-					// unless it was active player, then asst goes home (this already done in EAorEndTurn)
+					// unless it was active player, then helper goes home (this already done in EAorEndTurn)
 					let koPiece = this.getKOpiece();
 					if (koPiece.player) {
 						this.activePlayer = koPiece.playerIdx;
 						// checkKO = true;
 						this.logMsg("DOESKO", this.activePlayer);
 
-					} else if (koPiece.asst && koPiece.playerIdx != this.activePlayer) {
+					} else if (koPiece.helper && koPiece.playerIdx != this.activePlayer) {
 						this.activePlayer = koPiece.playerIdx;
 						// checkKO = true;
 						this.logMsg("DOESKO", this.activePlayer);
 
 					} else if (koPiece.playerIdx === this.activePlayer) {
 						// player's own ast KOed
-						this.sendHome(koPiece.asst);
-						koPiece.asst = null;
+						this.sendHome(koPiece.helper);
+						koPiece.helper = null;
 					}
 					
 					this.resetTurnFlags();
-					// if above did not find another player/asst in ko loc
+					// if above did not find another player/helper in ko loc
 					// OR if player cannot do any Ko action then turn is over, next player
 					// otherwise activePlayer does KOpickAction
 					// TODO if player WAS KOed but can't do anything, send them home!
 					// if (!checkKO || !this.getKoActionClicks(locationKO)) {
-					if (!(koPiece.player || koPiece.asst) || !this.getKoActionClicks(locationKO)) {
+					if (!(koPiece.player || koPiece.helper) || !this.getKoActionClicks(locationKO)) {
 						// if no kickout, then next player (unless game over)
 						this.currentPlayer = this.nextPlNum(this.currentPlayer);
 						this.activePlayer = this.currentPlayer;
@@ -705,9 +705,9 @@ class GameServer extends Game {
 						if (koPiece.player) {
 							// send player piece home
 							koPiece.player.movePlayerTo({type:PLAYERLOC.HOME});
-						} else if (koPiece.asst) {
-							// send player asst home
-							this.sendHome(koPiece.asst);
+						} else if (koPiece.helper) {
+							// send player helper home
+							this.sendHome(koPiece.helper);
 						} // else no KO piece
 	
 						this.checkLastRound();
@@ -723,7 +723,7 @@ class GameServer extends Game {
 							case ACTIONLOC.SALES:
 								this.state = GAMESTATE.KOSALES;
 								break;
-							case ACTIONLOC.ART :
+							case ACTIONLOC.NFT :
 								this.state = GAMESTATE.KOART;
 								break;
 							case ACTIONLOC.MEDIA :
@@ -769,11 +769,11 @@ class GameServer extends Game {
 		// check for mid game scoring
 		if (this.getFlag(FLAG.MID_TRIGGERED) && !this.getFlag(FLAG.MID_DONE)) {
 			// mid game scoring!
-			// https://boardgamegeek.com/thread/2114626/article/30757602#30757602
+			// https://boardgamegeek.com/thread/2114626/nfticle/30757602#30757602
 			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-				let bonus = this.bonusInfluence(plNum);
-				this.logMsg("RCVSINFL",plNum,bonus,"FORMID");
-				this.players[plNum].addInfluence(bonus);
+				let bonus = this.bonusCred(plNum);
+				this.logMsg("RCVSCRED",plNum,bonus,"FORMID");
+				this.players[plNum].addCred(bonus);
 
 				bonus = this.bonusMoney(plNum);
 				this.logMsg("RCVSMONEY",plNum,bonus,"FORMID");
@@ -804,28 +804,28 @@ class GameServer extends Game {
 		// init bonus tiles
 		let tmpBonusTile = [];
 		// there are ten bonus tiles (2 each of 5 types)
-		tmpBonusTile.push(BONUSTYPE.INFLUENCE);
+		tmpBonusTile.push(BONUSTYPE.CRED);
 		tmpBonusTile.push(BONUSTYPE.MONEY);
-		tmpBonusTile.push(BONUSTYPE.FAME);
+		tmpBonusTile.push(BONUSTYPE.REKNOWN);
 		tmpBonusTile.push(BONUSTYPE.TWOTIX);
 		tmpBonusTile.push(BONUSTYPE.PLAZAVISITOR);
-		tmpBonusTile.push(BONUSTYPE.INFLUENCE);
+		tmpBonusTile.push(BONUSTYPE.CRED);
 		tmpBonusTile.push(BONUSTYPE.MONEY);
-		tmpBonusTile.push(BONUSTYPE.FAME);
+		tmpBonusTile.push(BONUSTYPE.REKNOWN);
 		tmpBonusTile.push(BONUSTYPE.TWOTIX);
 		tmpBonusTile.push(BONUSTYPE.PLAZAVISITOR);
 
 
-		//init artists
+		//init nftists
 		for (let n=0; n<8; n++) {
-			let a = this.artists[n];
-			let artType = Object.values(ARTTYPE)[Math.floor(n/2)];
-			let artistColor = Object.values(ARTISTCOLOR)[n % 2];
-			a.init(this, artType, artistColor, this.randomInt(0,1), this.removeRandomItem(tmpBonusTile));
+			let a = this.nftists[n];
+			let nftType = Object.values(NFTTYPE)[Math.floor(n/2)];
+			let nftistColor = Object.values(NFTISTCOLOR)[n % 2];
+			a.init(this, nftType, nftistColor, this.randomInt(0,1), this.removeRandomItem(tmpBonusTile));
 		}
 
-		// select blue artist that starts discovered
-		this.randomArrayItem(this.artists.filter((a) => a.color === ARTISTCOLOR.BLUE)).discover();
+		// select blue nftist that starts discovered
+		this.randomArrayItem(this.nftists.filter((a) => a.color === NFTISTCOLOR.BLUE)).discover();
 		
 		// remove unused visitors
 		// for 3P game remove 2 of each
@@ -836,16 +836,16 @@ class GameServer extends Game {
 			}
 		}
 
-		// init art pile top
-		for (let t of Object.values(ARTTYPE)) {
+		// init nft pile top
+		for (let t of Object.values(NFTTYPE)) {
 			this.chooseArtPileTop(t);
 		}
 		// choose auction work(s)
 		{
-			// put pile top art piece of each type into auction
+			// put pile top nft piece of each type into auction
 			
-			for (let t of Object.values(ARTTYPE)) {
-				this.topOfArtPile(t).location.type = ARTLOC.AUCTION;
+			for (let t of Object.values(NFTTYPE)) {
+				this.topOfArtPile(t).location.type = NFTLOC.AUCTION;
 				// set new top of pile
 				this.chooseArtPileTop(t);
 			}
@@ -853,17 +853,17 @@ class GameServer extends Game {
 			// for 4P, choose 3 for auction
 			// for 3P, choose 2
 			// for 2P/1P, choose 1
-			let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.AUCTION);
+			let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.AUCTION);
 			while (true) {
-				// remove art from auction
+				// remove nft from auction
 				let a = this.removeRandomItem(auctionWorks);
-				a.location.type = ARTLOC.DISCARD;
+				a.location.type = NFTLOC.DISCARD;
 				if (auctionWorks.length < this.numPlayers) break;
 				if (auctionWorks.length === 1) break;
 			}
 		}
-		// move some visitors to new art
-		for (let t of Object.values(ARTTYPE)) {
+		// move some visitors to new nft
+		for (let t of Object.values(NFTTYPE)) {
 			// this.topOfArtPile(t).addVisitors(this.visitors);
 
 			let topOfPile = this.topOfArtPile(t);
@@ -887,10 +887,10 @@ class GameServer extends Game {
 			// pick random repTiles for intl market
 			for (let c in MARKETCOL) {
 				if (c=="ADD2COL" && this.numPlayers < 3) continue; // skip middle column when players < 3
-				for (let artType of Object.values(ARTTYPE)) {
+				for (let nftType of Object.values(NFTTYPE)) {
 					let t = this.repTiles[count];
 					t.init(this.removeRandomItem(rtNums));
-					t.moveRepTileTo({type:REPTILELOC.INTLMARKET, artType:artType, col:c});
+					t.moveRepTileTo({type:REPTILELOC.INTLMARKET, nftType:nftType, col:c});
 					count++;
 				}
 			}
@@ -966,9 +966,9 @@ class GameServer extends Game {
 				}
 				break;
 			case GAMESTATE.EAOREND:
-				if (this.getFlag(FLAG.ART_BOUGHT) || this.getFlag(FLAG.UPDATE_CONTRACTS)) {
+				if (this.getFlag(FLAG.NFT_BOUGHT) || this.getFlag(FLAG.UPDATE_CONTRACTS)) {
 					tmp.clickables.push(this.obj2Str({type:CLICKITEM.CONTINUE}));
-					if (this.getFlag(FLAG.ART_BOUGHT)) {
+					if (this.getFlag(FLAG.NFT_BOUGHT)) {
 						tmp.msgs.push("#".concat(CLICKITEM.CONTINUE, "#", "CONTART") );
 					} else {
 						tmp.msgs.push("#".concat(CLICKITEM.CONTINUE, "#", "CONTCONTRACTS") );
@@ -1040,15 +1040,15 @@ class GameServer extends Game {
 				tmp.clickables = this.getEABonusClicks(true);
 				tmp.msgs.push("CONTRACTBONUS");
 				break;
-			case GAMESTATE.MARKET_ASST:
-			case GAMESTATE.EABONUS_ASST:
+			case GAMESTATE.MARKET_HELPER:
+			case GAMESTATE.EABONUS_HELPER:
 				{
-					// player to choose asst
-					let plAssts = this.getAvailableAssistants();
-					for (let asst of plAssts) {
-						tmp.clickables.push(this.obj2Str({type:CLICKITEM.ASSISTANT, num:asst.num}));
+					// player to choose helper
+					let plHelpers = this.getAvailableHelpers();
+					for (let helper of plHelpers) {
+						tmp.clickables.push(this.obj2Str({type:CLICKITEM.HELPER, num:helper.num}));
 					}
-					tmp.msgs.push("ASST");
+					tmp.msgs.push("HELPER");
 				}
 				break;
 			case GAMESTATE.EABONUS_CONTRACT:
@@ -1057,6 +1057,7 @@ class GameServer extends Game {
 			case GAMESTATE.SALES_SELLART:
 			case GAMESTATE.SALES_VISITOR:
 			case GAMESTATE.SALES_BONUSUP:
+			case GAMESTATE.KO_GETCONTRACT:
 				tmp = this.getSalesClicks(true);
 				break;
 
@@ -1072,7 +1073,7 @@ class GameServer extends Game {
 				tmp.msgs.push("#".concat(CLICKITEM.DONOTHING,"#","SKIPKO"));
 				break;
 
-			case GAMESTATE.ART_MAIN:
+			case GAMESTATE.NFT_MAIN:
 				tmp = this.getArtClicks(true);
 				break;
 			case GAMESTATE.MEDIA_MAIN: 
@@ -1116,13 +1117,13 @@ class GameServer extends Game {
 				}
 				break;
 			case GAMESTATE.DECRPRICE:
-				// use infl to reduce price or done
+				// use cred to reduce price or done
 				{
-					let tmpInfl = this.players[this.activePlayer].influence;
-					if (tmpInfl && this.substackEnd()) {
-						// if player has influence and price (on substack) > 0, show next mark down to reduce price by 1
-						tmp.clickables.push(this.obj2Str({type:CLICKSPACE.INFLUENCE, num:this.inflNextMark(tmpInfl)}));
-						tmp.msgs.push("INFL4COST".concat(":",this.substackEnd()-1));
+					let tmpCred = this.players[this.activePlayer].cred;
+					if (tmpCred && this.substackEnd()) {
+						// if player has cred and price (on substack) > 0, show next mark down to reduce price by 1
+						tmp.clickables.push(this.obj2Str({type:CLICKSPACE.CRED, num:this.credNextMark(tmpCred)}));
+						tmp.msgs.push("CRED4COST".concat(":",this.substackEnd()-1));
 					}
 					// only allow done if affordable
 					if (this.substackEnd() <= this.players[this.activePlayer].money) {
@@ -1132,46 +1133,46 @@ class GameServer extends Game {
 					}
 				}
 				break;
-			case GAMESTATE.INCRFAME:
-				// use infl to incr artist fame
+			case GAMESTATE.INCRREKNOWN:
+				// use cred to incr nftist reknown
 				{
-					let artist = this.artists[this.substackEnd()];
-					if (this.players[this.activePlayer].influence && artist.fame < 19) {
-						// if player has infl and artist fame can be increased
-						tmp.clickables.push(this.obj2Str({type:CLICKSPACE.INFLUENCE, num:this.players[this.activePlayer].influence - this.infl2Next5(this.players[this.activePlayer].influence)}));
-						tmp.msgs.push("INFL4FAME".concat(":", this.substackEnd()));
+					let nftist = this.nftists[this.substackEnd()];
+					if (this.players[this.activePlayer].cred && nftist.reknown < 19) {
+						// if player has cred and nftist reknown can be increased
+						tmp.clickables.push(this.obj2Str({type:CLICKSPACE.CRED, num:this.players[this.activePlayer].cred - this.cred2Next5(this.players[this.activePlayer].cred)}));
+						tmp.msgs.push("CRED4REKNOWN".concat(":", this.substackEnd()));
 					}
-					if (this.substackEnd(1) != GAMESTATE.ART_BUY || this.playerHasDisplayed().length < 3 || this.playerHasMasterpiece() || (artist.fame > 18)) {
-						// only allow if not buying art OR
-						//   if space available for art (<3) OR
+					if (this.substackEnd(1) != GAMESTATE.NFT_BUY || this.playerHasDisplayed().length < 3 || this.playerHasMasterpiece() || (nftist.reknown > 18)) {
+						// only allow if not buying nft OR
+						//   if space available for nft (<3) OR
 						//   player has masterpiece or is now acquiring one
-						// NOTE: no need to check if <4 spaces as that is done before art can be bought
+						// NOTE: no need to check if <4 spaces as that is done before nft can be bought
 						tmp.clickables.push(CLICKITEM.CONTINUE);
-						tmp.msgs.push("#".concat(CLICKITEM.CONTINUE, "#", "CONT2NOFAME"));
+						tmp.msgs.push("#".concat(CLICKITEM.CONTINUE, "#", "CONT2NOREKNOWN"));
 					}
 				}
 				break;
 			case GAMESTATE.THUMBARTIST:
-				// let user choose an artist to increase fame
+				// let user choose an nftist to increase reknown
 				// i.e. any discovered with thumb level one less than thumb level chosen
 				{
-					let artistList = this.artists.filter((a) => a.discovered && a.thumb === this.substackEnd()-1);
-					for (let artist of artistList) {
-						tmp.clickables.push(this.obj2Str({type:CLICKITEM.ARTIST, artType:artist.type, color:artist.color}))
+					let nftistList = this.nftists.filter((a) => a.discovered && a.thumb === this.substackEnd()-1);
+					for (let nftist of nftistList) {
+						tmp.clickables.push(this.obj2Str({type:CLICKITEM.NFTIST, nftType:nftist.type, color:nftist.color}))
 					}
 					tmp.msgs.push("PROMOARTIST"); 
 				}
 				break;
-			case GAMESTATE.FAMEARTIST:
-				// let user choose an artist to increase fame
-				// i.e. any discovered, non-celebrity artist
+			case GAMESTATE.REKNOWNARTIST:
+				// let user choose an nftist to increase reknown
+				// i.e. any discovered, non-magnate nftist
 				{
-					let artistList = this.artists.filter((a) => a.discovered && a.fame < 19);
-					for (let artist of artistList) {
-						tmp.clickables.push(this.obj2Str({type:CLICKITEM.ARTIST, artType:artist.type, color:artist.color}))
+					let nftistList = this.nftists.filter((a) => a.discovered && a.reknown < 19);
+					for (let nftist of nftistList) {
+						tmp.clickables.push(this.obj2Str({type:CLICKITEM.NFTIST, nftType:nftist.type, color:nftist.color}))
 					}
 					if (tmp.clickables.length) {
-						tmp.msgs.push("FAMEARTIST");
+						tmp.msgs.push("REKNOWNARTIST");
 					} else {
 						tmp.clickables.push(CLICKITEM.DONOTHING);
 						tmp.msgs.push("#".concat(CLICKITEM.DONOTHING,"#","CONTINUE"));
@@ -1208,26 +1209,26 @@ class GameServer extends Game {
 				
 				break;
 
-			case GAMESTATE.LEAVEASST:
-				// get all players assts in action locs
-				let tmpAssts = this.players[this.activePlayer].assistants.filter((a) => a.location.type === ASSTLOC.ACTION);
-				for (let a of tmpAssts) {
-					tmp.clickables.push(this.obj2Str({type:CLICKITEM.ASSISTANT, plNum:this.activePlayer, num:a.num}));
+			case GAMESTATE.LEAVEHELPER:
+				// get all players helpers in action locs
+				let tmpHelpers = this.players[this.activePlayer].helpers.filter((a) => a.location.type === HELPERLOC.ACTION);
+				for (let a of tmpHelpers) {
+					tmp.clickables.push(this.obj2Str({type:CLICKITEM.HELPER, plNum:this.activePlayer, num:a.num}));
 				}
-				tmp.msgs.push("ASSTLEAVE");
+				tmp.msgs.push("HELPERLEAVE");
 				tmp.clickables.push(CLICKITEM.DONOTHING);
-				tmp.msgs.push("#".concat(CLICKITEM.DONOTHING,"#","DONTASST"));
+				tmp.msgs.push("#".concat(CLICKITEM.DONOTHING,"#","DONTHELPER"));
 				break;
 
 			case GAMESTATE.FINALAUCTION:
 				// auction off the auction works
-				let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.AUCTION);
+				let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.AUCTION);
 				// show player choice
-				for (let art of auctionWorks) {
-					tmp.clickables.push(this.obj2Str({type:CLICKITEM.ART, artType:art.type, num:art.num}));
+				for (let nft of auctionWorks) {
+					tmp.clickables.push(this.obj2Str({type:CLICKITEM.NFT, nftType:nft.type, num:nft.num}));
 					
-					let value = this.auctionValue(art).value;
-					tmp.msgs.push("WORKWORTH".concat(":", art.type, ":", value));
+					let value = this.auctionValue(nft).value;
+					tmp.msgs.push("WORKWORTH".concat(":", nft.type, ":", value));
 				}
 
 				break;
@@ -1284,25 +1285,25 @@ class GameServer extends Game {
 							}
 							break;
 	
-						case "art":
-							{	// {"test":1, "type":"art", "artType":"ARTTYPE.PHOTO", "byArtist":0, "location":{"type":"ARTLOC.SOLD", "plNum":0}}
-								let art = this.art.find((a) => a.type === moves[i].artType && a.location.type === ARTLOC.PILE);
-								art.moveArtTo(moves[i].location);
-								art.byArtist = moves[i].byArtist;
+						case "nft":
+							{	// {"test":1, "type":"nft", "nftType":"NFTTYPE.PHAKELAND", "byArtist":0, "location":{"type":"NFTLOC.SOLD", "plNum":0}}
+								let nft = this.nft.find((a) => a.type === moves[i].nftType && a.location.type === NFTLOC.PILE);
+								nft.moveArtTo(moves[i].location);
+								nft.byArtist = moves[i].byArtist;
 							}
 							break;
 	
-						case "artist":
-							{	// {"test":1, "type":"artist", "color":"ARTISTCOLOR.RED", "artType":"ARTTYPE.PHOTO", "fame":14}
-								let artist = this.artists.find((a) => a.type === moves[i].artType && a.color === moves[i].color);
-								artist.discover();
-								artist.fame = moves[i].fame;
+						case "nftist":
+							{	// {"test":1, "type":"nftist", "color":"NFTISTCOLOR.RED", "nftType":"NFTTYPE.PHAKELAND", "reknown":14}
+								let nftist = this.nftists.find((a) => a.type === moves[i].nftType && a.color === moves[i].color);
+								nftist.discover();
+								nftist.reknown = moves[i].reknown;
 							}
 							break;
 	
-						case "asst":
-							{	// {"test":1, "type":"asst", "player":0, "asstNum":2, "location":{"type":ASSTLOC.INTLMARKET, "artType":ARTTYPE.SKETCH, "col":0}}
-								this.players[moves[i].player].assistants[moves[i].asstNum].moveAsstTo(moves[i].location)
+						case "helper":
+							{	// {"test":1, "type":"helper", "player":0, "helperNum":2, "location":{"type":HELPERLOC.INTLMARKET, "nftType":NFTTYPE.DEJACAT, "col":0}}
+								this.players[moves[i].player].helpers[moves[i].helperNum].moveHelperTo(moves[i].location)
 							}
 							break;
 	
@@ -1318,8 +1319,8 @@ class GameServer extends Game {
 							}
 							break;
 	
-						case "infl":	// {"test":1, "type":"infl", "player":0, "infl":13}
-							this.players[moves[i].player].influence = moves[i].infl;
+						case "cred":	// {"test":1, "type":"cred", "player":0, "cred":13}
+							this.players[moves[i].player].cred = moves[i].cred;
 							break;
 						case "money":	// {"test":1, "type":"money", "player":0, "money":13}
 							this.players[moves[i].player].money = moves[i].money;
@@ -1368,9 +1369,9 @@ class GameServer extends Game {
 				return true;
 		
 			default:
-				// reduce infl 
-				this.players[this.activePlayer].influence = this.getUsableInfl();
-				// TODO log use of influence?				
+				// reduce cred 
+				this.players[this.activePlayer].cred = this.getUsableCred();
+				// TODO log use of cred?				
 				return false;
 		}
 
@@ -1381,9 +1382,9 @@ class GameServer extends Game {
 		this.moves.push(move);
 		let loc = move.location.split("-");
 		let clicked = loc[0];
-		let useAsst;
+		let useHelper;
 		let contractNum;
-		let extraFame = 0;
+		let extraReknown = 0;
 
 		// TODO add log msgs
 		// TODO add live scoring
@@ -1394,19 +1395,19 @@ class GameServer extends Game {
 				//  is it DONOTHING?
 				// this.setplayerDidKO(1);
 				// clickedEaOrNothing will alter state for EATIX EABONUS and NOTHING
-				// clickedEaOrNothing reduces infl (ensure it only does this once)
+				// clickedEaOrNothing reduces cred (ensure it only does this once)
 				//  as will happen when we show 4 more contracts
 				if (!this.getFlag(FLAG.DID_KO) && this.clickedEaOrNothing(clicked)) return;
 				//  must be sales action
 			case GAMESTATE.SALES_MAIN:
-				// this.setPlayerDidAction(1);	// if coming from KO (above) this must already be set
 				this.setFlag(FLAG.DID_ACTION);
+			case GAMESTATE.KO_GETCONTRACT:
 			case GAMESTATE.EABONUS_CONTRACT:
-				if (clicked === CLICKITEM.ART) {
-					// selling art, next get contract to use
+				if (clicked === CLICKITEM.NFT) {
+					// selling nft, next get contract to use
 					this.state = GAMESTATE.SALES_SELLART;
-					// remember art clicked
-					this.substack.push(this.art.findIndex((a) => a.type === loc[1] && a.num === Number(loc[2])));
+					// remember nft clicked
+					this.substack.push(this.nft.findIndex((a) => a.type === loc[1] && a.num === Number(loc[2])));
 				} else if (clicked === CLICKITEM.CONTRACT) {
 					// getting contract, next get location to place it
 					this.logMsg("GETSCONTRACT", this.activePlayer);
@@ -1423,11 +1424,17 @@ class GameServer extends Game {
 					this.setFlag(FLAG.DEALT_CONTRACTS);
 					this.moves.push({plNum:this.activePlayer}); // don't allow UNDO	
 					this.logMsg("DEALS4", this.activePlayer);
-
-					// this.state unchanged
+					if (this.state === GAMESTATE.KOSALES) {
+						this.state = GAMESTATE.KO_GETCONTRACT;
+					} // otherwise this.state unchanged
 				} else if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
 					this.playerDidNothing();
+
+					// change state to do EA or ENDTURN
+					this.EAorEndTurn();
+				} else if (clicked === CLICKITEM.DONOTHING) {
+					this.logMsg("DOESNOTHING", this.activePlayer);
 
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
@@ -1437,29 +1444,29 @@ class GameServer extends Game {
 				break;
 			case GAMESTATE.SALES_SELLART:
 				if (clicked === CLICKITEM.CONTRACT) {
-					// let art = this.art[this.remember.artIndex];
-					let artIdx = this.substack.pop();
-					let art = this.art[artIdx];
+					// let nft = this.nft[this.remember.nftIndex];
+					let nftIdx = this.substack.pop();
+					let nft = this.nft[nftIdx];
 					// this.remember.contractIndex = loc[1];
 					let contractIndex = Number(loc[1]);
 					this.substack.push(contractIndex);
-					let salePrice = this.artists[art.byArtist].getValue();
-					this.logMsg("SELLSART", this.activePlayer, art.byArtist, salePrice);
+					let salePrice = this.nftists[nft.byArtist].getValue();
+					this.logMsg("SELLSART", this.activePlayer, nft.byArtist, salePrice);
 					this.players[pl].money += salePrice;
 					// return signature
-					let artist =  this.artists[art.byArtist];
-					let sig = artist.sigTokens.find((s) => s.location === SIGLOC.ART && s.artNum === artIdx);
-					sig.location = SIGLOC.ARTIST; // TODO this failed (sig undefined)
-					// move art to "sold"
-					art.moveArtTo({type:ARTLOC.SOLD, plNum:pl});
-					// if asst on contract, send home
-					this.returnContractAsst(this.contracts[contractIndex]);
+					let nftist =  this.nftists[nft.byArtist];
+					let sig = nftist.sigTokens.find((s) => s.location === SIGLOC.NFT && s.nftNum === nftIdx);
+					sig.location = SIGLOC.NFTIST; // TODO this failed (sig undefined)
+					// move nft to "sold"
+					nft.moveArtTo({type:NFTLOC.SOLD, plNum:pl});
+					// if helper on contract, send home
+					this.returnContractHelper(this.contracts[contractIndex]);
 					// flip contract
 					this.contracts[contractIndex].faceUp = false;
 					// default contract to moneyUp (for better animation)
 					this.contracts[contractIndex].moneyUp = true;
 
-					// if player has visitor in gallery, player must choose a visitor to leave with art
+					// if player has visitor in gallery, player must choose a visitor to leave with nft
 					if (this.visitors.findIndex((v) => v.location.type === VISITORLOC.GALLERY && v.location.plNum === pl) != -1) {
 						this.state = GAMESTATE.SALES_VISITOR;
 					} else {
@@ -1518,8 +1525,8 @@ class GameServer extends Game {
 					// choose contract location, possibly get tix
 					if (clicked === CLICKITEM.CONTRACT) {
 						// contract replacing a contract, no tix
-						// send asst home, if any
-						this.returnContractAsst(this.contracts[loc[1]]);
+						// send helper home, if any
+						this.returnContractHelper(this.contracts[loc[1]]);
 						// move new contract to spot of old contract
 						this.contracts[contractIndex].moveContractTo({type:CONTRACTLOC.PLAYER, plNum:this.activePlayer, num:this.contracts[loc[1]].location.num});
 						// discard old contract
@@ -1599,70 +1606,70 @@ class GameServer extends Game {
 				//  is it DONOTHING?
 				// clickedEaOrNothing will alter state for EATIX EABONUS and NOTHING
 				if (this.clickedEaOrNothing(clicked)) return;
-				// must be art action
-			case GAMESTATE.ART_MAIN:
+				// must be nft action
+			case GAMESTATE.NFT_MAIN:
 				// this.setPlayerDidAction(1);
 				this.setFlag(FLAG.DID_ACTION);
 
-				// all clicks are artists
+				// all clicks are nftists
 				// determine if it was to buy or to discover
-				let clickedArtistIdx = this.artists.findIndex((a) => (a.type === loc[2] && a.color === loc[1]));
-				let clickedArtist = this.artists[clickedArtistIdx];
+				let clickedArtistIdx = this.nftists.findIndex((a) => (a.type === loc[2] && a.color === loc[1]));
+				let clickedArtist = this.nftists[clickedArtistIdx];
 				if (clicked === CLICKITEM.ENDBUTTON) {
 					this.logMsg("DOESNOTHING", this.activePlayer);
 					this.playerDidNothing();
 					// change state to do EA or ENDTURN
 					this.EAorEndTurn();
 				} else if (clickedArtist.discovered) {
-					// buy art
-					let artworkIdx = this.art.findIndex((a) => a.type === loc[2] && a.location.type === ARTLOC.PILETOP);
+					// buy nft
+					let nftworkIdx = this.nft.findIndex((a) => a.type === loc[2] && a.location.type === NFTLOC.PILETOP);
 					// get cost (different for commission)
-					let price = clickedArtist.fame;
+					let price = clickedArtist.reknown;
 					let commArtist = this.playerHasCommission();
 					if (commArtist === clickedArtist) {
-						price = commArtist.initFame;
+						price = commArtist.initReknown;
 					}
 					this.logMsg("BUYSART", this.activePlayer, clickedArtistIdx, price);
-					this.substack.push(artworkIdx);			// needed for moving art
-					this.substack.push(GAMESTATE.ART_BUY);	// state after both decrease price and incr fame
-					this.substack.push(clickedArtistIdx);	// needed for incr fame using influence
-					this.substack.push(GAMESTATE.INCRFAME);
-					this.substack.push(price);				// needed for dec price using influence
-					// get discounts from infl
+					this.substack.push(nftworkIdx);			// needed for moving nft
+					this.substack.push(GAMESTATE.NFT_BUY);	// state after both decrease price and incr reknown
+					this.substack.push(clickedArtistIdx);	// needed for incr reknown using cred
+					this.substack.push(GAMESTATE.INCRREKNOWN);
+					this.substack.push(price);				// needed for dec price using cred
+					// get discounts from cred
 					this.state = GAMESTATE.DECRPRICE;
-					// pay for art (done after DECRPRICE)
-					// increase artist fame (done at end of DECRPRICE)
-					// addl fame from infl (done during INCRFAME)
-					// visitors to plaza (done during INCRFAME)
-					// get tix from art (done during INCRFAME)
-					// move to gallery (possible reptile) (done during INCRFAME)
-					// get sig (done during INCRFAME)
-					// new art gets visitors (done during EAOREND)
+					// pay for nft (done after DECRPRICE)
+					// increase nftist reknown (done at end of DECRPRICE)
+					// addl reknown from cred (done during INCRREKNOWN)
+					// visitors to plaza (done during INCRREKNOWN)
+					// get tix from nft (done during INCRREKNOWN)
+					// move to gallery (possible reptile) (done during INCRREKNOWN)
+					// get sig (done during INCRREKNOWN)
+					// new nft gets visitors (done during EAOREND)
 				} else {
-					// discover artist
+					// discover nftist
 					this.logMsg("DISCOVERS", this.activePlayer,clickedArtistIdx);
-					// if red artist, move white visitor to plaza
-					if (clickedArtist.color === ARTISTCOLOR.RED) {
-						let artVisitor = this.visitors.find((v) => v.location.type === VISITORLOC.ARTIST && v.location.artType === clickedArtist.type);
-						if (artVisitor) {
-							artVisitor.moveVisitorTo({type:VISITORLOC.PLAZA});
+					// if red nftist, move white visitor to plaza
+					if (clickedArtist.color === NFTISTCOLOR.RED) {
+						let nftVisitor = this.visitors.find((v) => v.location.type === VISITORLOC.NFTIST && v.location.nftType === clickedArtist.type);
+						if (nftVisitor) {
+							nftVisitor.moveVisitorTo({type:VISITORLOC.PLAZA});
 						} else {
 							// TODO error
 						}
 					}
-					// flip artist and initialize
+					// flip nftist and initialize
 					clickedArtist.discover();
 					// move sig to player
 					clickedArtist.moveSigToken({location:SIGLOC.COMMISSION, plNum:this.activePlayer}, 0);
 					// gain bonus
 					this.state = GAMESTATE.EAOREND;
 					switch (clickedArtist.bonus) {
-						case BONUSTYPE.INFLUENCE:
-							// get influence bonus
+						case BONUSTYPE.CRED:
+							// get cred bonus
 							{
-								let bonus = this.bonusInfluence();
-								this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORBONUS");
-								this.players[this.activePlayer].addInfluence(bonus);	
+								let bonus = this.bonusCred();
+								this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORBONUS");
+								this.players[this.activePlayer].addCred(bonus);	
 							}
 							break;
 						case BONUSTYPE.MONEY:
@@ -1673,11 +1680,11 @@ class GameServer extends Game {
 								this.players[this.activePlayer].addMoney(bonus);
 							}
 							break;
-						case BONUSTYPE.FAME:
-							// have player choose an artist for fame increase
+						case BONUSTYPE.REKNOWN:
+							// have player choose an nftist for reknown increase
 							this.substack.push(this.state);
-							this.logMsg("RCVSFAME",this.activePlayer);
-							this.state = GAMESTATE.FAMEARTIST;
+							this.logMsg("RCVSREKNOWN",this.activePlayer);
+							this.state = GAMESTATE.REKNOWNARTIST;
 							break;
 						case BONUSTYPE.TWOTIX:
 							this.substack.push(this.state);
@@ -1709,11 +1716,11 @@ class GameServer extends Game {
 				// this.setPlayerDidAction(1);
 				this.setFlag(FLAG.DID_ACTION);
 				if (clicked === CLICKITEM.THUMB) {
-					// pay influence
+					// pay cred
 					let thumbLevel = Number(loc[1]) + 1;
 					this.logMsg("DOESTHUMB", this.activePlayer, thumbLevel);
-					this.players[this.activePlayer].addInfluence( -thumbLevel);
-					// next state will be to select an artist (unless a player choice comes before)
+					this.players[this.activePlayer].addCred( -thumbLevel);
+					// next state will be to select an nftist (unless a player choice comes before)
 					// and the state after will be EAOREND
 					this.substack.push(GAMESTATE.EAOREND);
 					this.substack.push(thumbLevel); 
@@ -1730,11 +1737,11 @@ class GameServer extends Game {
 							this.state = GAMESTATE.TIXCHOICE;
 							break;
 						case 2:
-							// infl
+							// cred
 							{
-								let bonus = this.bonusInfluence();
-								this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORPROMO");
-								this.players[this.activePlayer].addInfluence(bonus);	
+								let bonus = this.bonusCred();
+								this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORPROMO");
+								this.players[this.activePlayer].addCred(bonus);	
 							}
 							break;
 						case 3:
@@ -1770,21 +1777,21 @@ class GameServer extends Game {
 							break;
 					}
 
-				// } else if (clicked === CLICKITEM.ASSISTANT) {
-				} else if (clicked === CLICKITEM.HIREASST) {
+				// } else if (clicked === CLICKITEM.HELPER) {
+				} else if (clicked === CLICKITEM.HIREHELPER) {
 					{
-						// hiring assistant(s)
+						// hiring helper(s)
 						const hireCost = [0,0,1,2,2,3,3,4,5,6];
 						let totalCost = 0;
-						let asstNum = this.getUnemployed().num;
+						let helperNum = this.getUnemployed().num;
 						for (let i=0; i < Number(loc[1]); i++) {
-							totalCost += hireCost[asstNum];
-							asstNum++;
+							totalCost += hireCost[helperNum];
+							helperNum++;
 						}
-						// after paying, player will get assts/bonuses using hireAsst
-						// note: we never go into MEDIA_ASSTS state. It is used to determine where to go after DECRPRICE
+						// after paying, player will get helpers/bonuses using hireHelper
+						// note: we never go into MEDIA_HELPERS state. It is used to determine where to go after DECRPRICE
 						this.substack.push(Number(loc[1]));
-						this.substack.push(GAMESTATE.MEDIA_ASSTS);
+						this.substack.push(GAMESTATE.MEDIA_HELPERS);
 						// go to DECRRICE state
 						this.substack.push(totalCost);
 						this.state = GAMESTATE.DECRPRICE;
@@ -1809,11 +1816,11 @@ class GameServer extends Game {
 
 				if (clicked === CLICKITEM.REPTILE) {
 					let repTile = this.repTiles[Number(loc[1])];
-					// gain infl for col
+					// gain cred for col
 					let column = repTile.location.col;
-					this.logMsg("RCVSINFL", this.activePlayer, MARKETCOL2INFL[column], "FORCOL");
+					this.logMsg("RCVSCRED", this.activePlayer, MARKETCOL2CRED[column], "FORCOL");
 					this.logMsg("GETSTILE", this.activePlayer, repTile.tNum);
-					this.players[this.activePlayer].addInfluence(MARKETCOL2INFL[column]);
+					this.players[this.activePlayer].addCred(MARKETCOL2CRED[column]);
 
 					// move visitor from lobby to plaza (requires player choice)
 					// note: player must have visitor in lobby to do MARKET action 
@@ -1823,32 +1830,32 @@ class GameServer extends Game {
 					this.substack.push(Number(loc[1]));
 					this.substack.push(GAMESTATE.PLACEREPTILE);
 
-					// choose asst and move to space
-					let artType = repTile.location.artType;
-					this.substack.push({type:ASSTLOC.INTLMARKET, artType:artType, col:(3 - MARKETCOL2INFL[column])});
-					this.state = GAMESTATE.MARKET_ASST;
+					// choose helper and move to space
+					let nftType = repTile.location.nftType;
+					this.substack.push({type:HELPERLOC.INTLMARKET, nftType:nftType, col:(3 - MARKETCOL2CRED[column])});
+					this.state = GAMESTATE.MARKET_HELPER;
 					
 				} else if (clicked === CLICKSPACE.AUCTION) {
 					let row = Number(loc[1]);
 					let column = Number(loc[2]);
-					this.logMsg("RCVSINFL", this.activePlayer, 3-column, "FORCOL");
-					// gain infl for col
-					this.players[this.activePlayer].addInfluence(3-column);
+					this.logMsg("RCVSCRED", this.activePlayer, 3-column, "FORCOL");
+					// gain cred for col
+					this.players[this.activePlayer].addCred(3-column);
 
 					this.substack.push(GAMESTATE.EAOREND);
 					// gain bonus (do this last)
 					const bonuses = [
-						[BONUSTYPE.ONETIX, BONUSTYPE.ASSISTANT, BONUSTYPE.TWOTIX],
-						[BONUSTYPE.ASSISTANT, BONUSTYPE.INFLUENCE, BONUSTYPE.MONEY],
-						[BONUSTYPE.PLAZAVISITOR, BONUSTYPE.MONEY, BONUSTYPE.INFLUENCE]];
+						[BONUSTYPE.ONETIX, BONUSTYPE.HELPER, BONUSTYPE.TWOTIX],
+						[BONUSTYPE.HELPER, BONUSTYPE.CRED, BONUSTYPE.MONEY],
+						[BONUSTYPE.PLAZAVISITOR, BONUSTYPE.MONEY, BONUSTYPE.CRED]];
 					this.substack.push(bonuses[row][column]);
 					this.substack.push(GAMESTATE.AUCTION_BONUS);
 
-					// move asst to space
-					this.substack.push({type:ASSTLOC.AUCTION, row:row, col:column});
-					this.substack.push(GAMESTATE.MARKET_ASST);
+					// move helper to space
+					this.substack.push({type:HELPERLOC.AUCTION, row:row, col:column});
+					this.substack.push(GAMESTATE.MARKET_HELPER);
 
-					// pay cost (may use infl)
+					// pay cost (may use cred)
 					let cost = row===0 ? 1 : row*3;
 					this.logMsg("PLACEAUCTION",this.activePlayer, cost);
 					this.substack.push(cost); 
@@ -1863,10 +1870,10 @@ class GameServer extends Game {
 					// TODO error
 				}
 				break;
-			case GAMESTATE.MARKET_ASST:
-				// asst chosen, move to correct location
-				useAsst = this.players[this.activePlayer].assistants[loc[2]];
-				useAsst.moveAsstTo(this.substack.pop()); // note: assistant moveTo clones "to location"
+			case GAMESTATE.MARKET_HELPER:
+				// helper chosen, move to correct location
+				useHelper = this.players[this.activePlayer].helpers[loc[2]];
+				useHelper.moveHelperTo(this.substack.pop()); // note: helper moveTo clones "to location"
 
 				// goto state on stack
 				this.state = this.substack.pop();
@@ -1874,12 +1881,12 @@ class GameServer extends Game {
 				if (this.state != GAMESTATE.AUCTION_BONUS) break;
 			// case GAMESTATE.AUCTION_BONUS:	// NOTE: this state is only used temporarily
 				switch (this.substack.pop()) {
-					case BONUSTYPE.INFLUENCE:
-						// get influence bonus
+					case BONUSTYPE.CRED:
+						// get cred bonus
 						{
-							let bonus = this.bonusInfluence();
-							this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORBONUS");
-							this.players[this.activePlayer].addInfluence(bonus);	
+							let bonus = this.bonusCred();
+							this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORBONUS");
+							this.players[this.activePlayer].addCred(bonus);	
 						}
 						this.state = this.substack.pop();				
 						break;
@@ -1892,9 +1899,9 @@ class GameServer extends Game {
 						}
 						this.state = this.substack.pop();				
 						break;
-					case BONUSTYPE.ASSISTANT:
+					case BONUSTYPE.HELPER:
 						this.state = this.substack.pop();				
-						this.hireAsst(); // may change state
+						this.hireHelper(); // may change state
 						break;
 					case BONUSTYPE.ONETIX:
 						// get player choice of one any color tix
@@ -1965,59 +1972,59 @@ class GameServer extends Game {
 					
 				}
 				break;
-			case GAMESTATE.EABONUS_ASST:
+			case GAMESTATE.EABONUS_HELPER:
 			case GAMESTATE.EABONUS_MAIN:
 				// this.setPlayerDidEA(1);
 				this.setFlag(FLAG.DID_EA);
 	
 				// contract selected (for bonus)
-				// did player select asst already (EABONUS_ASST) OR
-				// asst at desk OR
-				// asst in KO space OR
-				// only one asst on board use one automatically
+				// did player select helper already (EABONUS_HELPER) OR
+				// helper at desk OR
+				// helper in KO space OR
+				// only one helper on board use one automatically
 				// if none of the above, it must be multiple on board
 				// give player choice of them
 				if (clicked === CLICKITEM.CONTRACT) {
-					// not coming from state===EABONUS_ASST
-					// check for assts at desk
-					// useAsst = this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.DESK);
+					// not coming from state===EABONUS_HELPER
+					// check for helpers at desk
+					// useHelper = this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.DESK);
 					// contractNum = loc[1];
 	
-					// if (!useAsst) {
-					// 	// no asst at desk, check KO locations
-					// 	useAsst = this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.KO);
-					// 	if (!useAsst) {
-					// 		// no asst in KO position, check action locations
-					// 		let plAssts = this.players[this.activePlayer].assistants.filter((a) => a.location.type === ASSTLOC.ACTION);					
-					// 		if (plAssts.length === 1) {
-					// 			// only one asst avail and on an action loc
-					// 			useAsst = plAssts[0];
+					// if (!useHelper) {
+					// 	// no helper at desk, check KO locations
+					// 	useHelper = this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.KO);
+					// 	if (!useHelper) {
+					// 		// no helper in KO position, check action locations
+					// 		let plHelpers = this.players[this.activePlayer].helpers.filter((a) => a.location.type === HELPERLOC.ACTION);					
+					// 		if (plHelpers.length === 1) {
+					// 			// only one helper avail and on an action loc
+					// 			useHelper = plHelpers[0];
 					// 		} else {
 								// need to remember contract that was selected
 								this.substack.push(Number(loc[1]));
-								// get asst choice from player
-								this.state = GAMESTATE.EABONUS_ASST;
+								// get helper choice from player
+								this.state = GAMESTATE.EABONUS_HELPER;
 								return;
 					// 		}
 					// 	} 
 					// }
 				} else {
-					// must be asst
-					useAsst = this.players[this.activePlayer].assistants[loc[2]];
+					// must be helper
+					useHelper = this.players[this.activePlayer].helpers[loc[2]];
 					contractNum = this.substack.pop();
 				}
 
-				// move asst to contract
-				this.logMsg("ASST2", this.activePlayer, "SENTCONT");
-				useAsst.moveAsstTo({type:ASSTLOC.CONTRACTBONUS, num:contractNum});
+				// move helper to contract
+				this.logMsg("HELPER2", this.activePlayer, "SENTCONT");
+				useHelper.moveHelperTo({type:HELPERLOC.CONTRACTBONUS, num:contractNum});
 
 				// do bonus (or change to state that will)
 				// NOTE: bonuses are optional meaning you don't have to use them
 				// the only case I can think of where it MIGHT make sense is you place
-				// and asst on a CONTRACT bonus, even though you can't or don't want contract OR
-				// use get ASST but you don't want it OR
+				// and helper on a CONTRACT bonus, even though you can't or don't want contract OR
+				// use get HELPER but you don't want it OR
 				// use one of the get visitor bonuses even though there is none to get because
-				// you would otherwise not have desk space for all assts
+				// you would otherwise not have desk space for all helpers
 				let vList;
 				if (this.contracts[contractNum].faceUp) {
 					switch (this.contracts[contractNum].bonusType) {
@@ -2027,10 +2034,10 @@ class GameServer extends Game {
 							this.logMsg("RCVSCONT",this.activePlayer)
 							this.state = GAMESTATE.EABONUS_CONTRACT; 
 							break;
-						case CONTRACTBONUS.ASSISTANT:
-							// get next asst (might trigger other tix sel sub)
+						case CONTRACTBONUS.HELPER:
+							// get next helper (might trigger other tix sel sub)
 							this.state = this.substack.pop();
-							this.hireAsst(); // may change state
+							this.hireHelper(); // may change state
 							break;
 						case CONTRACTBONUS.PLAZAPINKBROWN:
 							// state to go to after is already on stack
@@ -2051,12 +2058,12 @@ class GameServer extends Game {
 							// state to process selected visitor
 							this.state = GAMESTATE.VISITOR2GALLERY;
 							break;
-						case CONTRACTBONUS.INFLUENCE:
-							// get influence bonus
+						case CONTRACTBONUS.CRED:
+							// get cred bonus
 							{
-								let bonus = this.bonusInfluence();
-								this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORBONUS");
-								this.players[this.activePlayer].addInfluence(bonus);	
+								let bonus = this.bonusCred();
+								this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORBONUS");
+								this.players[this.activePlayer].addCred(bonus);	
 							}
 							this.state = this.substack.pop();
 							break;
@@ -2082,9 +2089,9 @@ class GameServer extends Game {
 						this.players[this.activePlayer].addMoney(bonus);
 
 					} else {
-						let bonus = this.bonusInfluence();
-						this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORBONUS");
-						this.players[this.activePlayer].addInfluence(bonus);	
+						let bonus = this.bonusCred();
+						this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORBONUS");
+						this.players[this.activePlayer].addCred(bonus);	
 
 					}
 					this.state = this.substack.pop();
@@ -2155,11 +2162,11 @@ class GameServer extends Game {
 
 					switch (bonusNum) {
 						case 0:
-							// gain infl
+							// gain cred
 							{
-								let bonus = this.bonusInfluence();
-								this.logMsg("RCVSINFL",this.activePlayer,bonus,"FORBONUS");
-								this.players[this.activePlayer].addInfluence(bonus);	
+								let bonus = this.bonusCred();
+								this.logMsg("RCVSCRED",this.activePlayer,bonus,"FORBONUS");
+								this.players[this.activePlayer].addCred(bonus);	
 							}
 							this.state = this.substack.pop();
 							break;
@@ -2173,9 +2180,9 @@ class GameServer extends Game {
 							this.state = this.substack.pop();
 							break;
 						case 2:
-							// any artist gains fame
-							this.state = GAMESTATE.FAMEARTIST;
-							this.logMsg("RCVSFAME",this.activePlayer);
+							// any nftist gains reknown
+							this.state = GAMESTATE.REKNOWNARTIST;
+							this.logMsg("RCVSREKNOWN",this.activePlayer);
 							break;
 						case 3:
 							// get any visitor from plaza
@@ -2190,9 +2197,9 @@ class GameServer extends Game {
 							this.state = GAMESTATE.TWOCHOICE;
 							break;
 						case 5:
-							// get free asst
+							// get free helper
 							this.state = this.substack.pop();
-							this.hireAsst(); // may change state							
+							this.hireHelper(); // may change state							
 							break;
 					
 						default:
@@ -2215,7 +2222,7 @@ class GameServer extends Game {
 
 				break;
 			case GAMESTATE.DECRPRICE:
-				// either used infl to reduce price or done
+				// either used cred to reduce price or done
 				if (clicked === CLICKITEM.CONTINUE) {
 					let price = this.substack.pop();
 					// spend price
@@ -2226,60 +2233,60 @@ class GameServer extends Game {
 						this.players[this.activePlayer].addMoney(-price);
 						// go to state on stack
 						this.state = this.substack.pop();
-						if (this.state === GAMESTATE.INCRFAME) {
-							// only get here by buying art
-							// we just paid for art, now incr fame based on art/white visitors
-							let artist = this.artists[this.substackEnd()];
-							if (artist.fame < 19) {
-								// note: can buy from celebrity but only as commission but fame already maxed
-								let art = this.art[this.substack[this.substack.length-3]];
+						if (this.state === GAMESTATE.INCRREKNOWN) {
+							// only get here by buying nft
+							// we just paid for nft, now incr reknown based on nft/white visitors
+							let nftist = this.nftists[this.substackEnd()];
+							if (nftist.reknown < 19) {
+								// note: can buy from magnate but only as commission but reknown already maxed
+								let nft = this.nft[this.substack[this.substack.length-3]];
 								let playerNumWhite = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, this.activePlayer);
-								artist.fame += art.fameBonus.fixed + art.fameBonus.perWhite * playerNumWhite;
-								if (artist.fame >= 19) {
-									artist.fame = 19;
-									this.playerMadeCelebrity(this.substackEnd());
+								nftist.reknown += nft.reknownBonus.fixed + nft.reknownBonus.perWhite * playerNumWhite;
+								if (nftist.reknown >= 19) {
+									nftist.reknown = 19;
+									this.playerMadeMagnate(this.substackEnd());
 								}
 							}
-						} else if (this.state === GAMESTATE.MEDIA_ASSTS) {
-							// came from hire assistants
+						} else if (this.state === GAMESTATE.MEDIA_HELPERS) {
+							// came from hire helpers
 							this.state = GAMESTATE.EAOREND; // next state unless subroutine for onetix
 							let num2hire = this.substack.pop();
 							for (let i=0; i < num2hire; i++) {
-								this.hireAsst();	// move next asst to desk and get bonus
+								this.hireHelper();	// move next helper to desk and get bonus
 							}
 						}
 					}
-				} else if (clicked === CLICKSPACE.INFLUENCE) {
-					// reduce infl to next mark
-					let infl = this.players[this.activePlayer].influence;
-					this.logMsg("USESINFL4M",this.activePlayer);
-					this.players[this.activePlayer].addInfluence(this.inflNextMark(infl) - infl);
-					// reduce price by 1 (note: we only send INFL space if price>0 and we check incoming msgs vs sent)
+				} else if (clicked === CLICKSPACE.CRED) {
+					// reduce cred to next mark
+					let cred = this.players[this.activePlayer].cred;
+					this.logMsg("USESCRED4M",this.activePlayer);
+					this.players[this.activePlayer].addCred(this.credNextMark(cred) - cred);
+					// reduce price by 1 (note: we only send CRED space if price>0 and we check incoming msgs vs sent)
 					this.substack[this.substack.length-1]--;
 				} else {
 					// error TODO
 				}
 				break;
-			case GAMESTATE.INCRFAME:
-				// either used infl to increase fame or done
+			case GAMESTATE.INCRREKNOWN:
+				// either used cred to increase reknown or done
 				if (clicked === CLICKITEM.CONTINUE) {
-					// pop artist idx
-					let artistIdx = this.substack.pop();
-					let artist = this.artists[artistIdx];
-					// we could be here from player buying art, disc artist bonus, reptile bonus
+					// pop nftist idx
+					let nftistIdx = this.substack.pop();
+					let nftist = this.nftists[nftistIdx];
+					// we could be here from player buying nft, disc nftist bonus, reptile bonus
 					let fromState = this.substack.pop();
-					if (fromState === GAMESTATE.ART_BUY) {
-						// art is paid and artist fame is increased
+					if (fromState === GAMESTATE.NFT_BUY) {
+						// nft is paid and nftist reknown is increased
 						// this.setArtWasBought(1);
-						this.setFlag(FLAG.ART_BOUGHT);
-						let artworkIdx = this.substack.pop();
-						let art = this.art[artworkIdx];
+						this.setFlag(FLAG.NFT_BOUGHT);
+						let nftworkIdx = this.substack.pop();
+						let nft = this.nft[nftworkIdx];
 						// move visitors to plaza
-						let visitorsOnArt = this.visitors.filter((v) => v.location.type === VISITORLOC.ART && v.location.artType === art.type);
+						let visitorsOnArt = this.visitors.filter((v) => v.location.type === VISITORLOC.NFT && v.location.nftType === nft.type);
 						for (let v of visitorsOnArt) {
 							v.moveVisitorTo({type:VISITORLOC.PLAZA});
 						}
-						// if player will get reptile (from 3rd art), go to that state next (maybe, see tix bonus)
+						// if player will get reptile (from 3rd nft), go to that state next (maybe, see tix bonus)
 						let plRepTileIdx = this.playerRepTileDisplayIdx();
 						if (this.playerHasDisplayed().length === 2 && plRepTileIdx != -1) {
 							if (this.visitors.find((v) => v.location.type === VISITORLOC.LOBBY && v.location.plNum === this.activePlayer)) {
@@ -2294,24 +2301,24 @@ class GameServer extends Game {
 						} else {
 							this.state = GAMESTATE.EAOREND;
 						}
-						// move art to gallery
-						art.moveArtTo({type:ARTLOC.DISPLAY, plNum:this.activePlayer});
-						// set which artist produced art
-						art.byArtist = artistIdx;
-						// this.logMsg("GETSART", this.activePlayer, art.type, artistIdx);
-						// move sig to art
+						// move nft to gallery
+						nft.moveArtTo({type:NFTLOC.WALLET, plNum:this.activePlayer});
+						// set which nftist produced nft
+						nft.byArtist = nftistIdx;
+						// this.logMsg("GETSART", this.activePlayer, nft.type, nftistIdx);
+						// move sig to nft
 						// if player has commission, use that token
-						let sigIdx = artist.sigTokens.findIndex((st) => st.location === SIGLOC.COMMISSION && st.plNum === this.activePlayer);
-						// if player did not have commsission, get artist token
+						let sigIdx = nftist.sigTokens.findIndex((st) => st.location === SIGLOC.COMMISSION && st.plNum === this.activePlayer);
+						// if player did not have commsission, get nftist token
 						if (sigIdx != -1) this.logMsg("USEDCOMM", this.activePlayer);
-						if (sigIdx === -1) sigIdx = artist.sigTokens.findIndex((st) => st.location === SIGLOC.ARTIST);
+						if (sigIdx === -1) sigIdx = nftist.sigTokens.findIndex((st) => st.location === SIGLOC.NFTIST);
 						if (sigIdx != -1) {
-							artist.moveSigToken({location:SIGLOC.ART, artNum:artworkIdx}, sigIdx);
+							nftist.moveSigToken({location:SIGLOC.NFT, nftNum:nftworkIdx}, sigIdx);
 						} else {
 							// TODO error
 						}
-						// get tix due to art (may need player interaction)
-						for (let tBonus of art.tixBonus) {
+						// get tix due to nft (may need player interaction)
+						for (let tBonus of nft.tixBonus) {
 							// while there can be multiple bonus tix, there will be a max one that needs choosing
 							switch (tBonus) {
 								case BONUSTYPE.PINKTIX:
@@ -2356,66 +2363,66 @@ class GameServer extends Game {
 									break;
 							}
 						}
-						// (after done) show new art and add visitors
+						// (after done) show new nft and add visitors
 					} else {
 						// go to state on stack
 						this.state = fromState;
 					}
-				} else if (clicked === CLICKSPACE.INFLUENCE) {
-					// reduce infl to next mod 5 space
-					let infl = this.players[this.activePlayer].influence;
-					this.logMsg("USESINFL4F",this.activePlayer);
-					this.players[this.activePlayer].addInfluence(-this.infl2Next5(infl));
-					// incr artist fame
-					if (this.artists[this.substackEnd()].increaseFame()) {
-						// if artist fame now 19 then celebrity, player gets 5
-						this.playerMadeCelebrity(this.substackEnd());
+				} else if (clicked === CLICKSPACE.CRED) {
+					// reduce cred to next mod 5 space
+					let cred = this.players[this.activePlayer].cred;
+					this.logMsg("USESCRED4F",this.activePlayer);
+					this.players[this.activePlayer].addCred(-this.cred2Next5(cred));
+					// incr nftist reknown
+					if (this.nftists[this.substackEnd()].increaseReknown()) {
+						// if nftist reknown now 19 then magnate, player gets 5
+						this.playerMadeMagnate(this.substackEnd());
 					}
 				} else {
 					// error TODO
 				}
 				break;
 			case GAMESTATE.THUMBARTIST:
-				extraFame = 1;
+				extraReknown = 1;
 				{
 					let thumbLevel = this.substack.pop(); // get new thumblevel from stack (1-5)
 					let thumbLevelIdx = thumbLevel - 1; (0-4)
-					let artistIdx = this.artists.findIndex((artist) => artist.color === loc[1] && artist.type === loc[2]); // clicked artist index
-					let artist = this.artists[artistIdx]; // clicked artist
-					// see if there's a thumb on artist already
+					let nftistIdx = this.nftists.findIndex((nftist) => nftist.color === loc[1] && nftist.type === loc[2]); // clicked nftist index
+					let nftist = this.nftists[nftistIdx]; // clicked nftist
+					// see if there's a thumb on nftist already
 					let thumbIndex = -1;
 					// don't check for previous level unless new thumb is 2 or more (there is no physical 0 thumb)
-					if (thumbLevelIdx) thumbIndex = this.thumbs[thumbLevelIdx-1].findIndex((thumb) => thumb.color && thumb.color === artist.color && thumb.artType === artist.type);
+					if (thumbLevelIdx) thumbIndex = this.thumbs[thumbLevelIdx-1].findIndex((thumb) => thumb.color && thumb.color === nftist.color && thumb.nftType === nftist.type);
 					if (thumbIndex != -1) {
 						// remove old thumb
 						this.thumbs[thumbLevelIdx-1][thumbIndex] = {};
 					}
-					// add new thumb to artist
+					// add new thumb to nftist
 					thumbIndex = this.thumbs[thumbLevelIdx].findIndex((t) => !t.color); // unused thumb of correct level
-					this.thumbs[thumbLevelIdx][thumbIndex] = {color:artist.color, artType:artist.type};
-					// update artist thumb level
-					artist.thumb = thumbLevel;
-					this.logMsg("THUMBSUP", this.activePlayer, artistIdx, thumbLevel);
+					this.thumbs[thumbLevelIdx][thumbIndex] = {color:nftist.color, nftType:nftist.type};
+					// update nftist thumb level
+					nftist.thumb = thumbLevel;
+					this.logMsg("THUMBSUP", this.activePlayer, nftistIdx, thumbLevel);
 				}
 
-			case GAMESTATE.FAMEARTIST:
-				if (clicked === CLICKITEM.ARTIST) {
-					// increase this artist's fame
-					let artistIdx = this.artists.findIndex((a) => a.color === loc[1] && a.type === loc[2]);
-					let artist = this.artists[artistIdx];
-					// note following is slightly different from buying art as there is no art bonus fame
-					if (artist.fame < 19) {
-						// note: can buy from celebrity but only as commission but fame already maxed
+			case GAMESTATE.REKNOWNARTIST:
+				if (clicked === CLICKITEM.NFTIST) {
+					// increase this nftist's reknown
+					let nftistIdx = this.nftists.findIndex((a) => a.color === loc[1] && a.type === loc[2]);
+					let nftist = this.nftists[nftistIdx];
+					// note following is slightly different from buying nft as there is no nft bonus reknown
+					if (nftist.reknown < 19) {
+						// note: can buy from magnate but only as commission but reknown already maxed
 						let playerNumWhite = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, this.activePlayer);
-						artist.fame += extraFame + playerNumWhite;	// extraFame only set by THUMBARTIST state
-						this.logMsg("INCRFAME", this.activePlayer, artistIdx, Math.min(artist.fame, 19));
-						if (artist.fame >= 19) {
-							artist.fame = 19;
-							this.playerMadeCelebrity(artistIdx);
+						nftist.reknown += extraReknown + playerNumWhite;	// extraReknown only set by THUMBARTIST state
+						this.logMsg("INCRREKNOWN", this.activePlayer, nftistIdx, Math.min(nftist.reknown, 19));
+						if (nftist.reknown >= 19) {
+							nftist.reknown = 19;
+							this.playerMadeMagnate(nftistIdx);
 						}
 					}
-					this.state = GAMESTATE.INCRFAME;
-					this.substack.push(artistIdx);
+					this.state = GAMESTATE.INCRREKNOWN;
+					this.substack.push(nftistIdx);
 				} else if (clicked = CLICKITEM.DONOTHING) {
 						// go to state on stack
 						this.state = this.substack.pop();
@@ -2449,25 +2456,25 @@ class GameServer extends Game {
 						this.state = GAMESTATE.ENDTURN;
 						break;
 						
-					// this case only if artWasBought or needContractsDealt
+					// this case only if nftWasBought or needContractsDealt
 					case CLICKITEM.CONTINUE:
 						this.endTurnRefill();
-						// if (this.getFlag(FLAG.ART_BOUGHT)) {
-						// 	// show new art and visitors
-						// 	for (let artType of Object.values(ARTTYPE)) {
-						// 		if (this.art.find((art) => art.location.type === ARTLOC.PILETOP && art.type === artType)) {
+						// if (this.getFlag(FLAG.NFT_BOUGHT)) {
+						// 	// show new nft and visitors
+						// 	for (let nftType of Object.values(NFTTYPE)) {
+						// 		if (this.nft.find((nft) => nft.location.type === NFTLOC.PILETOP && nft.type === nftType)) {
 						// 			// pile has top, do nothing
 						// 		} else {
 						// 			// pile has no top, make one
-						// 			let artTop = this.chooseArtPileTop(artType);
-						// 			if (artTop) {
+						// 			let nftTop = this.chooseArtPileTop(nftType);
+						// 			if (nftTop) {
 						// 				// a new piletop was selected, add visitors
-						// 				this.visitorsToArt(artTop, artType);
+						// 				this.visitorsToArt(nftTop, nftType);
 						// 			}
 						// 		}
 						// 	}
 						// 	// this.setArtWasBought(0);
-						// 	this.clearFlag(FLAG.ART_BOUGHT);
+						// 	this.clearFlag(FLAG.NFT_BOUGHT);
 						// 	this.moves.push({plNum:this.activePlayer}); // don't allow UNDO
 						// 	// state stays same
 						// } else if (this.getFlag(FLAG.UPDATE_CONTRACTS)) {
@@ -2511,7 +2518,7 @@ class GameServer extends Game {
 						return;
 					}
 					this.logMsg("PLTO", this.activePlayer, loc[1]);
-					let asstMoved = false;
+					let helperMoved = false;
 					// is there a piece on that location? if so, move to ko
 					let locPiece = this.players.find((p) => p.location.loc === loc[1]);
 					if (locPiece) {
@@ -2525,24 +2532,24 @@ class GameServer extends Game {
 							this.logMsg("PLKOED", this.players.findIndex((p) => p.location.loc === loc[1]));
 						}
 					} else {
-						// check if any assistants on location and move them to ko
+						// check if any helpers on location and move them to ko
 						for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-							locPiece = this.players[plNum].assistants.find((a) => a.location.type === ASSTLOC.ACTION && a.location.loc === loc[1]);
+							locPiece = this.players[plNum].helpers.find((a) => a.location.type === HELPERLOC.ACTION && a.location.loc === loc[1]);
 							if (locPiece) {
 								if (plNum === pl && this.players[pl].location.type != PLAYERLOC.HOME) {
-									// player's own asst on move to location
+									// player's own helper on move to location
 									// player not coming from home
-									// move asst to old location
-									locPiece.moveAsstTo(this.players[pl].location);
+									// move helper to old location
+									locPiece.moveHelperTo(this.players[pl].location);
 									// locPiece.location = Object.assign({}, this.players[pl].location); 
-									asstMoved = true;
+									helperMoved = true;
 								} else {
 									// if FINAL_ROUND, send home
 									if (this.getFlag(FLAG.FINAL_ROUND)) {
 										this.sendHome(locPiece);
 									} else {
 										this.logMsg("PLKOED", plNum);
-										locPiece.moveAsstTo({type:ASSTLOC.KO, loc:locPiece.location.loc}) ;
+										locPiece.moveHelperTo({type:HELPERLOC.KO, loc:locPiece.location.loc}) ;
 									}
 								}
 							}
@@ -2552,27 +2559,27 @@ class GameServer extends Game {
 					// next state to doAction
 					this.state = LOC2STATE[loc[1]];
 
-					// leave assistant behind
-					if (!asstMoved && (this.players[pl].location.type != PLAYERLOC.HOME) && !this.getFlag(FLAG.FINAL_ROUND)) {
-						// asst priority
-						// - if KO asst, use it (done above)
-						// - else if asst at desk, use it
-						// - else if any asst in action loc, allow player to choose 1 or none
-						let tmpAsst = this.players[pl].assistants.find((a) => a.location.type === ASSTLOC.DESK);
-						if (tmpAsst) {
-							// asst at desk
-							tmpAsst.moveAsstTo(this.players[pl].location);
+					// leave helper behind
+					if (!helperMoved && (this.players[pl].location.type != PLAYERLOC.HOME) && !this.getFlag(FLAG.FINAL_ROUND)) {
+						// helper priority
+						// - if KO helper, use it (done above)
+						// - else if helper at desk, use it
+						// - else if any helper in action loc, allow player to choose 1 or none
+						let tmpHelper = this.players[pl].helpers.find((a) => a.location.type === HELPERLOC.DESK);
+						if (tmpHelper) {
+							// helper at desk
+							tmpHelper.moveHelperTo(this.players[pl].location);
 						} else {
-							tmpAsst = this.players[pl].assistants.find((a) => a.location.type === ASSTLOC.ACTION);
-							if (tmpAsst) {
-								// have at least one asst on an action spot
-								// allow user to chose to move asst
+							tmpHelper = this.players[pl].helpers.find((a) => a.location.type === HELPERLOC.ACTION);
+							if (tmpHelper) {
+								// have at least one helper on an action spot
+								// allow user to chose to move helper
 								// this.remember = {state:this.state, location: Object.assign({}, this.players[pl].location)};
 								this.substack.push(this.state);
 								this.substack.push(this.players[pl].location);
-								this.state = GAMESTATE.LEAVEASST;
+								this.state = GAMESTATE.LEAVEHELPER;
 							}
-							// no assts on action locs, state set above
+							// no helpers on action locs, state set above
 						}
 					}
 
@@ -2582,12 +2589,12 @@ class GameServer extends Game {
 
 				}
 				break;
-			case GAMESTATE.LEAVEASST:
+			case GAMESTATE.LEAVEHELPER:
 				{
 					let plLoc = this.substack.pop();
 					if (clicked != CLICKITEM.DONOTHING) {
-						// move selected asst to old player location
-						this.players[loc[1]].assistants[loc[2]].moveAsstTo(plLoc);
+						// move selected helper to old player location
+						this.players[loc[1]].helpers[loc[2]].moveHelperTo(plLoc);
 					}
 					// go to remebered state
 					this.state = this.substack.pop();
@@ -2595,15 +2602,15 @@ class GameServer extends Game {
 				break;
 			case GAMESTATE.FINALAUCTION:
 				{
-					// player will have clicked art from auction
+					// player will have clicked nft from auction
 					// move it temporarily to "TOPLAYER"
-					let chosenArt = this.art.find((art) => art.type === loc[1] && art.num === Number(loc[2]));
-					chosenArt.moveArtTo({type:ARTLOC.TOPLAYER, plNum:this.activePlayer});
+					let chosenArt = this.nft.find((nft) => nft.type === loc[1] && nft.num === Number(loc[2]));
+					chosenArt.moveArtTo({type:NFTLOC.TOPLAYER, plNum:this.activePlayer});
 					this.logMsg("AUCTIONPICK", this.activePlayer, chosenArt.type);
 
-					// if more bidders and more art available, go to next player
+					// if more bidders and more nft available, go to next player
 					let playerBids = this.substack.pop();
-					let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.AUCTION);
+					let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.AUCTION);
 					if (playerBids.length && auctionWorks.length) {
 						this.activePlayer = playerBids.shift().plNum;
 						this.substack.push(playerBids);
@@ -2624,7 +2631,7 @@ class GameServer extends Game {
 					if (!tile) {
 						return false;
 					}
-					// move it to player's display
+					// move it to player's wallet
 					tile.moveRepTileTo({type:REPTILELOC.DISPLAY, plNum:pl}); 
 
 					// move player piece to selected location
@@ -2645,21 +2652,21 @@ class GameServer extends Game {
 	}
 	
 	endTurnRefill() {
-		if (this.getFlag(FLAG.ART_BOUGHT)) {
-			// show new art and visitors
-			for (let artType of Object.values(ARTTYPE)) {
-				if (this.art.find((art) => art.location.type === ARTLOC.PILETOP && art.type === artType)) {
+		if (this.getFlag(FLAG.NFT_BOUGHT)) {
+			// show new nft and visitors
+			for (let nftType of Object.values(NFTTYPE)) {
+				if (this.nft.find((nft) => nft.location.type === NFTLOC.PILETOP && nft.type === nftType)) {
 					// pile has top, do nothing
 				} else {
 					// pile has no top, make one
-					let artTop = this.chooseArtPileTop(artType);
-					if (artTop) {
+					let nftTop = this.chooseArtPileTop(nftType);
+					if (nftTop) {
 						// a new piletop was selected, add visitors
-						this.visitorsToArt(artTop, artType);
+						this.visitorsToArt(nftTop, nftType);
 					}
 				}
 			}
-			this.clearFlag(FLAG.ART_BOUGHT);
+			this.clearFlag(FLAG.NFT_BOUGHT);
 			this.moves.push({plNum:this.activePlayer}); // don't allow UNDO
 		} 
 		if (this.getFlag(FLAG.UPDATE_CONTRACTS)) {
@@ -2675,7 +2682,7 @@ class GameServer extends Game {
 		// was this a KO?
 		if (this.thisIsKO()) {
 			// this was a KO action / EA
-			let koPiece = this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.KO);
+			let koPiece = this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.KO);
 			if (koPiece) {
 				this.sendHome(koPiece);
 			} else if (this.players[this.activePlayer].location.type === PLAYERLOC.KO) {
@@ -2691,8 +2698,8 @@ class GameServer extends Game {
 		if (!this.getFlag(FLAG.DID_EA) && (this.getEATixClicks() || this.getEABonusClicks())) {
 			this.state = GAMESTATE.EAOREND;
 		} else {
-			// if player's own asst in ko, return it home
-			let koPiece = this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.KO);
+			// if player's own helper in ko, return it home
+			let koPiece = this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.KO);
 			if (koPiece) {
 				this.sendHome(koPiece);
 			}
@@ -2733,8 +2740,8 @@ class GameServer extends Game {
 		if (playerLoc !=  ACTIONLOC.SALES && this.getSalesClicks()) {
 			clickables.push(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES}));
 		}
-		if (playerLoc !=  ACTIONLOC.ART && this.getArtClicks()) {
-			clickables.push(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.ART}));
+		if (playerLoc !=  ACTIONLOC.NFT && this.getArtClicks()) {
+			clickables.push(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.NFT}));
 		}
 		if (playerLoc !=  ACTIONLOC.MEDIA && this.getMediaClicks()) {
 			clickables.push(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MEDIA}));
@@ -2771,13 +2778,13 @@ class GameServer extends Game {
 	getKoActionClicks(koLoc, getClickables = false) {
 		let cFlag = false;
 		let tmp = {clickables:[], msgs:[]};
-		if (this.players[this.activePlayer].influence > 0) {
+		if (this.players[this.activePlayer].cred > 0) {
 			let hFlag = true;
 			switch (koLoc) {
 				case ACTIONLOC.SALES:
 					tmp = this.getSalesClicks(true);
 					break;
-				case ACTIONLOC.ART:
+				case ACTIONLOC.NFT:
 					tmp = this.getArtClicks(true);
 					break;
 				case ACTIONLOC.MEDIA:
@@ -2791,18 +2798,18 @@ class GameServer extends Game {
 					// error
 					break;
 			}
-			let infl = this.getUsableInfl();
+			let cred = this.getUsableCred();
 			for (let m in tmp.msgs) {
 				if (koLoc === ACTIONLOC.MEDIA && tmp.msgs[m].startsWith("#")) {
 					// hire needs special updating
 					// add a msg and don't mess with buttons
-					if (hFlag) tmp.msgs.push("HIREKOMSG".concat(":", infl));
+					if (hFlag) tmp.msgs.push("HIREKOMSG".concat(":", cred));
 					hFlag = false;	// only do this once
 				} else {
-					tmp.msgs[m] = "REDUCINFL".concat(":", tmp.msgs[m], ":", infl);
+					tmp.msgs[m] = "REDUCCRED".concat(":", tmp.msgs[m], ":", cred);
 				}
 				
-				// tmp.msgs[m] += ` (${PROMPT.EN.REDUCINFL} ${infl})`;
+				// tmp.msgs[m] += ` (${PROMPT.EN.REDUCCRED} ${cred})`;
 			}
 		}
 
@@ -2824,8 +2831,8 @@ class GameServer extends Game {
 	getSalesClicks(getClickables = false) {
 		// - can we get a contract? (or deal 4 contracts)
 		// 		CLICKITEM.CONTRACT-num or CLICKSPACE.DEALCONTRACTS 
-		// - can we sell art?
-		//		CLICKITEM.ART-artType-num
+		// - can we sell nft?
+		//		CLICKITEM.NFT-nftType-num
 		// 
 		//  
 		let clickables = [];
@@ -2836,27 +2843,29 @@ class GameServer extends Game {
 			case GAMESTATE.PICKACTION:
 			case GAMESTATE.KOSALES:
 			case GAMESTATE.SALES_MAIN:
-				// sell art (only available if player has not dealt 4 contracts)
+				// if already dealt contracts, choices are take one or do nothing
+				// sell nft (only available if player has not dealt 4 contracts)
 				// to sell:
 				// player has contract
-				// player has matching art
-				// note: highlight art that can be sold, later, after art selected, contract(s) will be highlighted
+				// player has matching nft
+				// note: highlight nft that can be sold, later, after nft selected, contract(s) will be highlighted
 				if ((playerFaceUpContracts.length) && !this.getFlag(FLAG.DEALT_CONTRACTS)) {
 					let playerContractTypes = [];
 					for (let pc of playerFaceUpContracts) {
 						// array of all players contract types (incl dupes)
-						playerContractTypes.push(pc.artType);
+						playerContractTypes.push(pc.nftType);
 					}
 					let playerArt = this.playerHasDisplayed();
 					for (let pa of playerArt) {
 						if (playerContractTypes.includes(pa.type)) {
-							clickables.push(this.obj2Str({type:CLICKITEM.ART, artType:pa.type, num:pa.num}));
+							clickables.push(this.obj2Str({type:CLICKITEM.NFT, nftType:pa.type, num:pa.num}));
 							cFlag = true;
 						}
 					}
 					if (cFlag) msgs.push("SELLART");
 					cFlag = false;
 				}
+			case GAMESTATE.KO_GETCONTRACT:
 			case GAMESTATE.EABONUS_CONTRACT:
 				// get a contract
 				// to get contract:
@@ -2873,7 +2882,13 @@ class GameServer extends Game {
 						clickables.push(this.obj2Str({type:CLICKITEM.CONTRACT, num:dc.num}));
 						cFlag = true;
 					}
-					if (cFlag) msgs.push("GETCONTRACT");
+					if (cFlag) {
+						msgs.push("GETCONTRACT");
+						if (this.getFlag(FLAG.DEALT_CONTRACTS)) {
+							msgs.push("#".concat(CLICKITEM.DONOTHING, "#", "DONOTHING"))
+							clickables.push(this.obj2Str({type:CLICKITEM.DONOTHING}));								
+						}
+					}
 					cFlag = false;
 				}
 				break;
@@ -2905,8 +2920,8 @@ class GameServer extends Game {
 				cFlag = false;
 				break;
 			case GAMESTATE.SALES_SELLART:
-				// player chose art to sell, highlight contract(s) that can be used
-				let usableContracts = playerFaceUpContracts.filter((c) => c.artType === this.art[this.substackEnd()].type); //TODO debug this 
+				// player chose nft to sell, highlight contract(s) that can be used
+				let usableContracts = playerFaceUpContracts.filter((c) => c.nftType === this.nft[this.substackEnd()].type); //TODO debug this 
 				for (let uc of usableContracts) {
 					clickables.push(this.obj2Str({type:CLICKITEM.CONTRACT, num:uc.num}));
 					cFlag = true;
@@ -2917,7 +2932,7 @@ class GameServer extends Game {
 			case GAMESTATE.SALES_VISITOR:
 				// state only entered if have visitors in gallery
 				// if (this.visitors.findIndex((v) => v.location.type === VISITORLOC.GALLERY && v.location.plNum === this.activePlayer) != -1) {
-					// art/contract chosen
+					// nft/contract chosen
 					// and has visitor(s) in gallery
 					// select visitor that leaves
 					for (let vc of Object.values(VISITORCOLOR)) {
@@ -2932,7 +2947,7 @@ class GameServer extends Game {
 					if (cFlag) msgs.push("LEAVINGVISITOR");
 					cFlag = false;
 				// } else {
-				// 	// art/contract chosen
+				// 	// nft/contract chosen
 				// 	// no visitors in gallery
 				// 	clickables.push(this.obj2Str({type:CLICKITEM.ORIENTATION, color:VISITORCOLOR.PINK}));
 				// 	clickables.push(this.obj2Str({type:CLICKITEM.ORIENTATION, color:VISITORCOLOR.BROWN}));
@@ -2962,29 +2977,29 @@ class GameServer extends Game {
 		switch (this.state) {
 			case GAMESTATE.PICKACTION:
 			case GAMESTATE.KOART:
-			case GAMESTATE.ART_MAIN:
-				// to buy art need:
-				// artist is discovered
-				// artist is not celebrity and has sig token available OR
+			case GAMESTATE.NFT_MAIN:
+				// to buy nft need:
+				// nftist is discovered
+				// nftist is not magnate and has sig token available OR
 				// 	 player has commission
-				// there is art left to buy
+				// there is nft left to buy
 				// player has space
 				// player can afford
-				let availArtists = this.artists.filter((a) => 
+				let availArtists = this.nftists.filter((a) => 
 					a.discovered && 
-					((a.fame < 19 && (a.sigTokens[0].location === SIGLOC.ARTIST || a.sigTokens[1].location === SIGLOC.ARTIST)) || 
+					((a.reknown < 19 && (a.sigTokens[0].location === SIGLOC.NFTIST || a.sigTokens[1].location === SIGLOC.NFTIST)) || 
 						(a.sigTokens[0].location === SIGLOC.COMMISSION &&  a.sigTokens[0].plNum === this.activePlayer))
 					);
 				let playerArt = this.playerHasDisplayed();
-				let artSpaceAvailable = false;
+				let nftSpaceAvailable = false;
 				let maybeArtSpace = false;
 				if (playerArt.length < 3) {
-					artSpaceAvailable = true;
+					nftSpaceAvailable = true;
 				} else if (playerArt.length < 4) {
 					// check if player has a masterpiece OR
 					// maybe could make one now
 					if (this.playerHasMasterpiece()) {
-						artSpaceAvailable = true;
+						nftSpaceAvailable = true;
 					} else {
 						// can player create masterpiece ?
 						maybeArtSpace = true;
@@ -2993,34 +3008,34 @@ class GameServer extends Game {
 				let playerCommission = this.playerHasCommission();
 				for (let aa of availArtists) {
 					let checkArt = this.topOfArtPile(aa.type);
-					if (checkArt && this.playerCanAfford((playerCommission == aa) ? aa.initFame : aa.fame)) {
-						if (artSpaceAvailable) {
-							clickables.push(this.obj2Str({type:CLICKITEM.ARTIST, artType:aa.type, color:aa.color}));
+					if (checkArt && this.playerCanAfford((playerCommission == aa) ? aa.initReknown : aa.reknown)) {
+						if (nftSpaceAvailable) {
+							clickables.push(this.obj2Str({type:CLICKITEM.NFTIST, nftType:aa.type, color:aa.color}));
 							cFlag = true;
 						} else if (maybeArtSpace) {
-							// check if player can both afford to buy art AND
+							// check if player can both afford to buy nft AND
 							// increase it to masterpiece
-							// artist current fame
-							let tmpFame = aa.fame;
-							// add fixed amount based on art
-							tmpFame += checkArt.fameBonus.fixed;
+							// nftist current reknown
+							let tmpReknown = aa.reknown;
+							// add fixed amount based on nft
+							tmpReknown += checkArt.reknownBonus.fixed;
 							// add variable amount based on # of white meeples in player's gallery 
-							tmpFame += checkArt.fameBonus.perWhite * this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, this.activePlayer);
-							if (tmpFame < 19) {
-								// just buying art doesn't bump to celebrity, check if player can use infl
-								let tmpInfl = this.players[this.activePlayer].influence;
+							tmpReknown += checkArt.reknownBonus.perWhite * this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, this.activePlayer);
+							if (tmpReknown < 19) {
+								// just buying nft doesn't bump to magnate, check if player can use cred
+								let tmpCred = this.players[this.activePlayer].cred;
 								let tmpMoney = this.players[this.activePlayer].money;
-								while (tmpMoney < ((playerCommission == aa) ? aa.initFame : aa.fame)) {
-									// player needs to use some infl for money
-									tmpInfl = this.inflNextMark(tmpInfl);
+								while (tmpMoney < ((playerCommission == aa) ? aa.initReknown : aa.reknown)) {
+									// player needs to use some cred for money
+									tmpCred = this.credNextMark(tmpCred);
 									tmpMoney++;
 								}
-								// player can use the rest of infl for fame
-								tmpFame += Math.ceil(tmpInfl / 5);
+								// player can use the rest of cred for reknown
+								tmpReknown += Math.ceil(tmpCred / 5);
 							}
-							if (tmpFame > 18) {
+							if (tmpReknown > 18) {
 								// good luck testing this path!
-								clickables.push(this.obj2Str({type:CLICKITEM.ARTIST, artType:aa.type, color:aa.color}));
+								clickables.push(this.obj2Str({type:CLICKITEM.NFTIST, nftType:aa.type, color:aa.color}));
 								cFlag = true;
 							} 
 						}
@@ -3032,11 +3047,11 @@ class GameServer extends Game {
 
 				//  to discover need:
 				// player doesn't have discovered sig token
-				// artist undiscovered
+				// nftist undiscovered
 				if (!this.playerHasCommission()) {
-					for (let aa of this.artists) {
+					for (let aa of this.nftists) {
 						if (!aa.discovered) {
-							clickables.push(this.obj2Str({type:CLICKITEM.ARTIST, artType:aa.type, color:aa.color}));
+							clickables.push(this.obj2Str({type:CLICKITEM.NFTIST, nftType:aa.type, color:aa.color}));
 							cFlag = true;
 						}
 					}
@@ -3058,29 +3073,29 @@ class GameServer extends Game {
 		let clickables = [];
 		let cFlag = false;
 		let msgs = [];
-		let availArtists = this.artists.filter((a) => a.discovered && (a.thumb < 5) && (a.thumb+1  <= this.getUsableInfl()));
+		let availArtists = this.nftists.filter((a) => a.discovered && (a.thumb < 5) && (a.thumb+1  <= this.getUsableCred()));
 		switch (this.state) {
 			case GAMESTATE.PICKACTION:
 			case GAMESTATE.KOMEDIA:
 			case GAMESTATE.MEDIA_MAIN:
 				// to promote need:
-				// - discovered artist with promotion level < 5 AND 
-				// 		<= infl player - 1 (i.e. player can pay infl for thumb) AND
+				// - discovered nftist with promotion level < 5 AND 
+				// 		<= cred player - 1 (i.e. player can pay cred for thumb) AND
 				//		thumb of correct level is available
 				if (availArtists.length) {
-					// for (let artist of availArtists) {
-					// 	let thumb = this.thumbs[artist.thumb + 1].find((t) => !t.color);
+					// for (let nftist of availArtists) {
+					// 	let thumb = this.thumbs[nftist.thumb + 1].find((t) => !t.color);
 					// 	if (!thumb) continue;	// no thumb available
-					// 	clickables.push(this.obj2Str({type:CLICKITEM.ARTIST, color:artist.color, artType:artist.type}));
+					// 	clickables.push(this.obj2Str({type:CLICKITEM.NFTIST, color:nftist.color, nftType:nftist.type}));
 					// }
-					// msgs.push("artist to promote");
+					// msgs.push("nftist to promote");
 
 					for (let promoLvl = 1; promoLvl <= 5; promoLvl++) {
 						let thumbLevelIdx = promoLvl - 1;
 						let thumbIdx = this.thumbs[thumbLevelIdx].map((t) => !t.color).lastIndexOf(true); //findIndex((t) => !t.color);
 						if (thumbIdx === -1) continue;	// no thumb available
 						if (availArtists.find((aa) => aa.thumb+1 === promoLvl)) {
-							// there is an artist that an be promoted to this level
+							// there is an nftist that an be promoted to this level
 							clickables.push(this.obj2Str({type:CLICKITEM.THUMB, level:thumbLevelIdx, num:thumbIdx}));
 							cFlag = true;
 						}
@@ -3091,10 +3106,10 @@ class GameServer extends Game {
 
 				// to hire:
 				// need empty desks
-				// need assts unemployed
-				// need money and/or influence to cover cost
-				let numDesksAvailable = 4 - this.players[this.activePlayer].assistants.filter((a) => a.location.type === ASSTLOC.DESK).length;
-				let unemployed = this.players[this.activePlayer].assistants.filter((a) => a.location.type === ASSTLOC.UNEMPLOYED);
+				// need helpers unemployed
+				// need money and/or cred to cover cost
+				let numDesksAvailable = 4 - this.players[this.activePlayer].helpers.filter((a) => a.location.type === HELPERLOC.DESK).length;
+				let unemployed = this.players[this.activePlayer].helpers.filter((a) => a.location.type === HELPERLOC.UNEMPLOYED);
 				if (numDesksAvailable && unemployed.length) {
 					const hireCost = [0,0,1,2,2,3,3,4,5,6];
 					let emps2Hire = 0;
@@ -3103,8 +3118,8 @@ class GameServer extends Game {
 						totalCost += hireCost[i];
 						if ((emps2Hire >= numDesksAvailable) || !this.playerCanAfford(totalCost)) break;
 						emps2Hire++;
-						clickables.push(this.obj2Str({type:CLICKITEM.HIREASST, num:emps2Hire}));
-						msgs.push( "#".concat(this.obj2Str({type:CLICKITEM.HIREASST, num:emps2Hire}), "#", "HIRE", ":", emps2Hire, ":", totalCost));
+						clickables.push(this.obj2Str({type:CLICKITEM.HIREHELPER, num:emps2Hire}));
+						msgs.push( "#".concat(this.obj2Str({type:CLICKITEM.HIREHELPER, num:emps2Hire}), "#", "HIRE", ":", emps2Hire, ":", totalCost));
 					}
 	
 				}
@@ -3122,13 +3137,13 @@ class GameServer extends Game {
 		let clickables = [];
 		let cFlag = false;
 		let msgs = [];
-		// for all, player has correct visitors and 1+ avail. asst.
-		// for top, space for tile, acquired right ARTTYPE
+		// for all, player has correct visitors and 1+ avail. helper.
+		// for top, space for tile, acquired right NFTTYPE
 		// for bottom, space is empty, can pay
 		
-		// player has 1+ asst.
-		let availableAssts = this.getAvailableAssistants();
-		if (availableAssts.length) {
+		// player has 1+ helper.
+		let availableHelpers = this.getAvailableHelpers();
+		if (availableHelpers.length) {
 
 			// player has correct lobby visitors
 			let visitorsForCol = {};
@@ -3156,13 +3171,13 @@ class GameServer extends Game {
 								(v.color === VISITORCOLOR.PINK) ||
 								(v.color === VISITORCOLOR.BROWN)) > -1);
 
-						for (let at of Object.values(ARTTYPE)) {
-							if ((this.art.findIndex((a) => ((a.location.type === ARTLOC.DISPLAY) || (a.location.type === ARTLOC.SOLD)) && a.type === at && a.location.plNum === this.activePlayer) != -1)) {
-								// player has on display or has sold this type of art AND
+						for (let at of Object.values(NFTTYPE)) {
+							if ((this.nft.findIndex((a) => ((a.location.type === NFTLOC.WALLET) || (a.location.type === NFTLOC.SOLD)) && a.type === at && a.location.plNum === this.activePlayer) != -1)) {
+								// player has in wallet or has sold this type of nft AND
 								for (let col in MARKETCOL) {
 									if (visitorsForCol[col] ) {
 										// col is usable
-										let index = this.repTiles.findIndex((r) => r.location.type === REPTILELOC.INTLMARKET && r.location.artType === at && r.location.col === col);
+										let index = this.repTiles.findIndex((r) => r.location.type === REPTILELOC.INTLMARKET && r.location.nftType === at && r.location.col === col);
 										if (index != -1) {
 											// col has a reptile on it
 											clickables.push(this.obj2Str({type:CLICKITEM.REPTILE, num:index}));
@@ -3179,22 +3194,22 @@ class GameServer extends Game {
 
 
 					// no need to check if player can get bonus for an auction space, see https://boardgamegeek.com/thread/1694828/auction-market-international
-					// get an array of all the assistants in the auction
-					let auctionAssts = [];
+					// get an array of all the helpers in the auction
+					let auctionHelpers = [];
 					for (let pl=0; pl < this.numPlayers; pl++) {
-						auctionAssts = auctionAssts.concat(this.players[pl].assistants.filter((a) => a.location.type === ASSTLOC.AUCTION));
+						auctionHelpers = auctionHelpers.concat(this.players[pl].helpers.filter((a) => a.location.type === HELPERLOC.AUCTION));
 					}
 					for (let av of Object.values(AUCTIONVAL)) {
 						let row = Math.floor((av - 1)/2); // 0/2/5
 						for (let col in MARKETCOL) {
-							let colNum = 3 - MARKETCOL2INFL[col];	// 0-2
+							let colNum = 3 - MARKETCOL2CRED[col];	// 0-2
 							if (colNum == 1 && this.numPlayers < 3) continue;
 							if (visitorsForCol[col] &&
-								this.playerCanAfford(av, MARKETCOL2INFL[col]) &&
-								(!auctionAssts.find((a) => a.location.row === row && a.location.col === colNum))) {
+								this.playerCanAfford(av, MARKETCOL2CRED[col]) &&
+								(!auctionHelpers.find((a) => a.location.row === row && a.location.col === colNum))) {
 								// col is usable AND
 								// player can afford it AND
-								// col has no asst on it
+								// col has no helper on it
 								clickables.push(this.obj2Str({type:CLICKSPACE.AUCTION, row:row, col:colNum}));
 								cFlag = true;
 							}
@@ -3245,13 +3260,13 @@ class GameServer extends Game {
 
 	playerHasCommission() {
 		// commmission will always be sig 0
-		return this.artists.find((artist) => artist.sigTokens[0].location === SIGLOC.COMMISSION && artist.sigTokens[0].plNum === this.activePlayer);
+		return this.nftists.find((nftist) => nftist.sigTokens[0].location === SIGLOC.COMMISSION && nftist.sigTokens[0].plNum === this.activePlayer);
 	}
 
 	playerHasMasterpiece() {
 		let playerArt = this.playerHasDisplayed();
 		for (let pArt of playerArt) {
-			if (this.artists[pArt.byArtist].fame > 18) return true;
+			if (this.nftists[pArt.byArtist].reknown > 18) return true;
 		}
 		return false;
 	}
@@ -3269,7 +3284,7 @@ class GameServer extends Game {
 			let count = 0;
 			if (this.getFlag(FLAG.BAG_EMPTY)) count++;
 			if (this.getFlag(FLAG.TIX_EMPTY)) count++;
-			if (this.getFlag(FLAG.TWO_CELEBRITY)) count++;
+			if (this.getFlag(FLAG.TWO_MAGNATE)) count++;
 			if (count > 1) {
 				this.setFlag(FLAG.END_TRIGGERED);
 				this.logMsg("ENDTRIG");
@@ -3291,9 +3306,9 @@ class GameServer extends Game {
 				let playerBids = [];
 				for (let plNum=0; plNum < this.numPlayers; plNum++) {
 					let bid = 0;
-					let auctionAssts = this.players[plNum].assistants.filter((asst) => asst.location.type === ASSTLOC.AUCTION);
-					for (let asst of auctionAssts) {
-						bid += bids[asst.location.row][asst.location.col];
+					let auctionHelpers = this.players[plNum].helpers.filter((helper) => helper.location.type === HELPERLOC.AUCTION);
+					for (let helper of auctionHelpers) {
+						bid += bids[helper.location.row][helper.location.col];
 					}
 					if (bid) playerBids.push({plNum:plNum, bid:bid});
 				}
@@ -3316,13 +3331,13 @@ class GameServer extends Game {
 
 	finalScore(forLiveScore = false) {
 		// let money = [0,0,0,0];
-		// let infl = [0,0,0,0];
+		// let cred = [0,0,0,0];
 		// for (let plNum=0; plNum < this.numPlayers; plNum++) {
 		// 	money[plNum] = this.players[plNum].money;
-		// 	infl[plNum] = this.players[plNum].influence;
+		// 	cred[plNum] = this.players[plNum].cred;
 		// }
 		let money = {};
-		let infl = {};
+		let cred = {};
 
 		money.onhand = [];
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
@@ -3337,17 +3352,17 @@ class GameServer extends Game {
 		const majorityBonus = [[6,3,1],[10,6,3],[15,10,6]];
 		for (let col=0; col < 3; col++) {
 			if (this.numPlayers < 3 && col===1) continue;
-			let numAsstInCol = [0,0,0,0];
+			let numHelperInCol = [0,0,0,0];
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
-				// get num assts each player has in specific col of market/auction 
-				numAsstInCol[plNum] = this.players[plNum].assistants.filter((a) => (a.location.type === ASSTLOC.INTLMARKET || a.location.type === ASSTLOC.AUCTION) && a.location.col === col).length;
+				// get num helpers each player has in specific col of market/auction 
+				numHelperInCol[plNum] = this.players[plNum].helpers.filter((a) => (a.location.type === HELPERLOC.INTLMARKET || a.location.type === HELPERLOC.AUCTION) && a.location.col === col).length;
 			}
 			let bonusIdx = 0;
-			let maxAssts = Math.max(...numAsstInCol);
+			let maxHelpers = Math.max(...numHelperInCol);
 			let colBonus = majorityBonus[col][bonusIdx];
-			while (maxAssts && bonusIdx < 3) {
+			while (maxHelpers && bonusIdx < 3) {
 				// maxCount = how many players are tied at this count
-				let maxCount = numAsstInCol.filter((n) => n === maxAssts).length;
+				let maxCount = numHelperInCol.filter((n) => n === maxHelpers).length;
 				for (let i=1; i < maxCount; i++) {
 					// if players are tied, add up bonues for tied positions
 					bonusIdx++;
@@ -3356,27 +3371,27 @@ class GameServer extends Game {
 				// divide bonus by number of players to rcv
 				colBonus = Math.floor(colBonus/maxCount);
 				for (let plNum=0; plNum < this.numPlayers; plNum++) {
-					if (numAsstInCol[plNum] === maxAssts) {
+					if (numHelperInCol[plNum] === maxHelpers) {
 						// this player gets bonus
 						money.columns[plNum] += colBonus;
 						if (!forLiveScore) this.logMsg("COLBONUS",plNum,colBonus,col+1);
 						// remove this player from further consideration
-						numAsstInCol[plNum] = 0;
+						numHelperInCol[plNum] = 0;
 					}
 				}
 				// move to next bonus
 				bonusIdx++;
-				maxAssts = Math.max(...numAsstInCol);
+				maxHelpers = Math.max(...numHelperInCol);
 				if (bonusIdx < 3) colBonus = majorityBonus[col][bonusIdx];
 			}
 		}
 
 		// repTiles
 		money.repTiles = [];
-		infl.repTiles = [];
+		cred.repTiles = [];
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
 			money.repTiles[plNum] = 0;
-			infl.repTiles[plNum] = 0;
+			cred.repTiles[plNum] = 0;
 		}
 		// note: normally reptiles can be scored in any order BUT rep tile 0 MUST be scored before others for that plaayer
 		// To simplify, loop all reptiles starting from 0 and score in that order
@@ -3385,26 +3400,26 @@ class GameServer extends Game {
 			let tile = this.repTiles.find((t) => t.tNum === i && t.location.type === REPTILELOC.PLAYER);
 			if (tile) {
 				let money2add = 0;
-				let infl2add = 0;
+				let cred2add = 0;
 				let tmpNum = 0;
 				switch (i) {
-					case 0:	// 1 money per 3 infl (score first)
-						money2add = Math.floor(infl[tile.location.plNum] / 3);
+					case 0:	// 1 money per 3 cred (score first)
+						money2add = Math.floor(cred[tile.location.plNum] / 3);
 						break;
-					case 1:	// 1 infl + 3 money per Collector
+					case 1:	// 1 cred + 3 money per Celeb
 						tmpNum = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, tile.location.plNum);
 						money2add = 3 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 2:	// 1 infl + 2 money per VIP
+					case 2:	// 1 cred + 2 money per Influencer
 						tmpNum = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.PINK, tile.location.plNum);
 						money2add = 2 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 3:	// 1 infl + 2 money per Investor
+					case 3:	// 1 cred + 2 money per crypto bro
 						tmpNum = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.BROWN, tile.location.plNum);
 						money2add = 2 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
 					case 4: // 1 money per visitor
 						money2add = this.visitors.filter((v) => v.location.type === VISITORLOC.GALLERY && v.location.plNum === tile.location.plNum).length;
@@ -3414,94 +3429,94 @@ class GameServer extends Game {
 							this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.PINK, tile.location.plNum),
 							this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.BROWN, tile.location.plNum));
 						break;
-					case 6: // 1 infl + 2 money per repTile
+					case 6: // 1 cred + 2 money per repTile
 						tmpNum = this.repTiles.filter((t) => t.location.type === REPTILELOC.PLAYER && t.location.plNum === tile.location.plNum).length;
 						money2add = 2 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 7: // 1 infl + 3 money per asst in auction
-						tmpNum = this.players[tile.location.plNum].assistants.filter((a) => a.location.type === ASSTLOC.AUCTION).length;
+					case 7: // 1 cred + 3 money per helper in auction
+						tmpNum = this.players[tile.location.plNum].helpers.filter((a) => a.location.type === HELPERLOC.AUCTION).length;
 						money2add = 3 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 8: // 1 infl + 1 money per asst not unemployed https://boardgamegeek.com/thread/1533273
-						tmpNum = 10 - this.players[tile.location.plNum].assistants.filter((a) => a.location.type === ASSTLOC.DISCARD || a.location.type === ASSTLOC.UNEMPLOYED).length;
+					case 8: // 1 cred + 1 money per helper not unemployed https://boardgamegeek.com/thread/1533273
+						tmpNum = 10 - this.players[tile.location.plNum].helpers.filter((a) => a.location.type === HELPERLOC.DISCARD || a.location.type === HELPERLOC.UNEMPLOYED).length;
 						money2add = tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 9: // 2 money per artist with 4 thumb or higher
-						tmpNum = this.artists.filter((a) => a.thumb > 3).length;
+					case 9: // 2 money per nftist with 4 thumb or higher
+						tmpNum = this.nftists.filter((a) => a.thumb > 3).length;
 						money2add = 2 * tmpNum;
 						break;
-					case 10: // 2 money per work of art acquired
-						tmpNum = this.art.filter((a) => (a.location.type === ARTLOC.DISPLAY || a.location.type === ARTLOC.SOLD) && a.location.plNum === tile.location.plNum).length;
+					case 10: // 2 money per work of nft acquired
+						tmpNum = this.nft.filter((a) => (a.location.type === NFTLOC.WALLET || a.location.type === NFTLOC.SOLD) && a.location.plNum === tile.location.plNum).length;
 						money2add = 2 * tmpNum;
 						break;
-					case 11: // 1 infl + 3 money per artwork sold
-						tmpNum = this.art.filter((a) => (a.location.type === ARTLOC.SOLD) && a.location.plNum === tile.location.plNum).length;
+					case 11: // 1 cred + 3 money per nftwork sold
+						tmpNum = this.nft.filter((a) => (a.location.type === NFTLOC.SOLD) && a.location.plNum === tile.location.plNum).length;
 						money2add = 3 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 12: // 1 infl + 3 money per artwork on exhibit
-						tmpNum = this.art.filter((a) => (a.location.type === ARTLOC.DISPLAY) && a.location.plNum === tile.location.plNum).length;
+					case 12: // 1 cred + 3 money per nftwork on exhibit
+						tmpNum = this.nft.filter((a) => (a.location.type === NFTLOC.WALLET) && a.location.plNum === tile.location.plNum).length;
 						money2add = 3 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 13: // 1 infl + 2 money per art type acquired
-						for (let artType of Object.values(ARTTYPE)) {
-							if (this.art.some((a) => a.type === artType && (a.location.type === ARTLOC.DISPLAY || a.location.type === ARTLOC.SOLD) && a.location.plNum === tile.location.plNum)) tmpNum++;
+					case 13: // 1 cred + 2 money per nft type acquired
+						for (let nftType of Object.values(NFTTYPE)) {
+							if (this.nft.some((a) => a.type === nftType && (a.location.type === NFTLOC.WALLET || a.location.type === NFTLOC.SOLD) && a.location.plNum === tile.location.plNum)) tmpNum++;
 						}
 						money2add = 2 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 14: // 1 infl + 3 money per photograph acquired
-					case 15: // 1 infl + 3 money per painting acquired
-					case 16: // 1 infl + 3 money per digital art acquired
-					case 17: // 1 infl + 3 money per sketch acquired
-						const conv = [ARTTYPE.PHOTO, ARTTYPE.PAINT, ARTTYPE.ABSTRACT, ARTTYPE.SKETCH];
-						tmpNum = this.art.filter((a) => a.type === conv[i-14] && (a.location.type === ARTLOC.DISPLAY || a.location.type === ARTLOC.SOLD) && a.location.plNum === tile.location.plNum).length;
+					case 14: // 1 cred + 3 money per phakeland acquired
+					case 15: // 1 cred + 3 money per galaxy acquired
+					case 16: // 1 cred + 3 money per digital nft acquired
+					case 17: // 1 cred + 3 money per dejacat acquired
+						const conv = [NFTTYPE.PHAKELAND, NFTTYPE.GALAXY, NFTTYPE.ABSTRACT, NFTTYPE.DEJACAT];
+						tmpNum = this.nft.filter((a) => a.type === conv[i-14] && (a.location.type === NFTLOC.WALLET || a.location.type === NFTLOC.SOLD) && a.location.plNum === tile.location.plNum).length;
 						money2add = 3 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 18: // 1 infl + 2 money per artist with 15+ fame
-						tmpNum = this.artists.filter((a) => a.fame > 14).length;
+					case 18: // 1 cred + 2 money per nftist with 15+ reknown
+						tmpNum = this.nftists.filter((a) => a.reknown > 14).length;
 						money2add = 2 * tmpNum;
-						infl2add = tmpNum;
+						cred2add = tmpNum;
 						break;
-					case 19: // 2 infl + 4 money per Masterpiece on exhibit
+					case 19: // 2 cred + 4 money per Masterpiece on exhibit
 						{
 							let playerArt = this.playerHasDisplayed(tile.location.plNum);
 							for (let pArt of playerArt) {
-								if (this.artists[pArt.byArtist].fame > 18) tmpNum++;
+								if (this.nftists[pArt.byArtist].reknown > 18) tmpNum++;
 							}
 						}
 						money2add = 4 * tmpNum;
-						infl2add = 2 * tmpNum;
+						cred2add = 2 * tmpNum;
 						break;
 				}
 				if (money2add) {
 					money.repTiles[tile.location.plNum] += money2add;
 					if (!forLiveScore) this.logMsg("TILEMONEY",tile.location.plNum,money2add,i);
 				}
-				if (infl2add) {
-					infl.repTiles[tile.location.plNum] += infl2add;
-					if (!forLiveScore) this.logMsg("TILEINFL",tile.location.plNum,infl2add,i);
+				if (cred2add) {
+					cred.repTiles[tile.location.plNum] += cred2add;
+					if (!forLiveScore) this.logMsg("TILECRED",tile.location.plNum,cred2add,i);
 				}
 				
 			}
 		}
 
-		// sale value of exhibitted art
+		// sale value of exhibitted nft
 		money.exhibitted = [];
 
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
 			money.exhibitted[plNum] = 0;
 		}
-			let exhibitArt = this.art.filter((a) => a.location.type === ARTLOC.DISPLAY);
-		for (let art of exhibitArt) {
-			let val = this.artists[art.byArtist].getValue();
-			money.exhibitted[art.location.plNum] += val;
-			if (!forLiveScore) this.logMsg("EXART",art.location.plNum,val,art.byArtist);
+			let exhibitArt = this.nft.filter((a) => a.location.type === NFTLOC.WALLET);
+		for (let nft of exhibitArt) {
+			let val = this.nftists[nft.byArtist].getValue();
+			money.exhibitted[nft.location.plNum] += val;
+			if (!forLiveScore) this.logMsg("EXART",nft.location.plNum,val,nft.byArtist);
 		}
 
 
@@ -3512,15 +3527,15 @@ class GameServer extends Game {
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
 			money.auction[plNum] = 0;
 		}
-		let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.TOPLAYER);
-		for (let art of auctionWorks) {
-			// remember art won for later
-			plAuctionArt[art.location.plNum] = art;
+		let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.TOPLAYER);
+		for (let nft of auctionWorks) {
+			// remember nft won for later
+			plAuctionArt[nft.location.plNum] = nft;
 
-			// player who won art rcvs its value
-			let av = this.auctionValue(art);
-			money.auction[art.location.plNum] += av.value;
-			if (!forLiveScore) this.logMsg("AUCTIONART",art.location.plNum,av.value,av.artistIdx);
+			// player who won nft rcvs its value
+			let av = this.auctionValue(nft);
+			money.auction[nft.location.plNum] += av.value;
+			if (!forLiveScore) this.logMsg("AUCTIONART",nft.location.plNum,av.value,av.nftistIdx);
 		}
 		
 
@@ -3541,36 +3556,36 @@ class GameServer extends Game {
 					dVal = dValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOSOLD",plNum);
-						plAuctionArt[plNum].moveArtTo({type:ARTLOC.SOLD, plNum:plNum});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum, fromAuction:true});
 					}
 				} else {
 					cVal = cValWith;
 					if (!forLiveScore) {
-						this.logMsg("TODISPLAY",plNum);
-						plAuctionArt[plNum].moveArtTo({type:ARTLOC.DISPLAY, plNum:plNum});
+						this.logMsg("TOWALLET",plNum);
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum, fromAuction:true});
 					}
 				}
 			}
 			money.secretCards[plNum] += cVal;
-			if (!forLiveScore) this.logMsg("DISPLAYBONUS",plNum,cVal);
+			if (!forLiveScore) this.logMsg("WALLETBONUS",plNum,cVal);
 
 			money.secretCards[plNum] += dVal;
 			if (!forLiveScore) this.logMsg("SOLDBONUS",plNum,dVal);
 		}
 
-		let gainedInfl = [0,0,0,0];
-		for (let stype in infl) {
+		let gainedCred = [0,0,0,0];
+		for (let stype in cred) {
 			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-				gainedInfl[plNum] += infl[stype][plNum];
+				gainedCred[plNum] += cred[stype][plNum];
 			}
 		}
 
-		// infl track
-		money.infl = [];
+		// cred track
+		money.cred = [];
 		for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-			let val = this.infl2money(gainedInfl[plNum] + this.players[plNum].influence);
-			money.infl[plNum] = val;
-			if (!forLiveScore) this.logMsg("INFLBONUS",plNum,val);
+			let val = this.cred2money(gainedCred[plNum] + this.players[plNum].cred);
+			money.cred[plNum] = val;
+			if (!forLiveScore) this.logMsg("CREDBONUS",plNum,val);
 		}
 
 		
@@ -3584,10 +3599,10 @@ class GameServer extends Game {
 		if (forLiveScore) {
 			return ret;
 		} else {
-			// actually add money/influence if it's not for live score
+			// actually add money/cred if it's not for live score
 			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
 				this.players[plNum].addMoney(ret[plNum]);
-				this.players[plNum].addInfluence(gainedInfl[plNum]);
+				this.players[plNum].addCred(gainedCred[plNum]);
 			}
 			// save money for as stats
 			this.stats.scoring = money;
@@ -3596,15 +3611,15 @@ class GameServer extends Game {
 
 	finalResults() {
 		// most money wins
-		// tie breaker 1 - most art purchased
+		// tie breaker 1 - most nft purchased
 		// tie breaker 2 - most gallery visitors
-		// tie breaker 3 - most assistants in play
+		// tie breaker 3 - most helpers in play
 		this.results = [];
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
-			let numArtBought = this.art.filter((a) => (a.location.type === ARTLOC.DISPLAY || a.location.type === ARTLOC.SOLD) && a.location.plNum === plNum).length;
+			let numArtBought = this.nft.filter((a) => (a.location.type === NFTLOC.WALLET || a.location.type === NFTLOC.SOLD) && a.location.plNum === plNum).length;
 			let numVisitors = this.visitors.filter((v) => v.location.type === VISITORLOC.GALLERY && v.location.plNum === plNum).length;
-			let asstInPlay = 10 - this.players[plNum].assistants.filter((a) => a.location.type === ASSTLOC.DISCARD || a.location.type === ASSTLOC.UNEMPLOYED).length;
-			let score = (((this.players[plNum].money * 32) + numArtBought * 32) + numVisitors * 16) + asstInPlay;
+			let helperInPlay = 10 - this.players[plNum].helpers.filter((a) => a.location.type === HELPERLOC.DISCARD || a.location.type === HELPERLOC.UNEMPLOYED).length;
+			let score = (((this.players[plNum].money * 32) + numArtBought * 32) + numVisitors * 16) + helperInPlay;
 			this.results.push({player:plNum, money:this.players[plNum].money, score:score});
 		}
 		this.results.sort((a,b) => b.score - a.score);
@@ -3614,12 +3629,12 @@ class GameServer extends Game {
 	}
 
 	evalCards(numNeeded, locType, auctionArtType = null, plNum ) {
-		const artBonusTypes = Object.values(ARTTYPE);
+		const nftBonusTypes = Object.values(NFTTYPE);
 		let getBonus = true;
 		for (let i=0; i<4; i++) {
 			if (!numNeeded[i]) continue;
-			let numOfType = this.art.filter((a) => a.location.type === locType && a.location.plNum === plNum && a.type === artBonusTypes[i]).length;
-			if (auctionArtType === artBonusTypes[i]) numOfType++;
+			let numOfType = this.nft.filter((a) => a.location.type === locType && a.location.plNum === plNum && a.type === nftBonusTypes[i]).length;
+			if (auctionArtType === nftBonusTypes[i]) numOfType++;
 			if (numOfType < numNeeded[i]) {
 				getBonus = false;
 				break;
@@ -3642,7 +3657,7 @@ class GameServer extends Game {
 		let cardNum = this.players[plNum].curator;
 		let numNeeded = this.neededHung(cardNum);
 		for (let bNum=0; bNum < numNeeded.length; bNum++) {
-			let getBonus = this.evalCards(numNeeded[bNum], ARTLOC.DISPLAY, auctionArtType, plNum);
+			let getBonus = this.evalCards(numNeeded[bNum], NFTLOC.WALLET, auctionArtType, plNum);
 			if (getBonus) totalBonus += 10 + 5 * bNum; // 10 for bonus 0, 15 for bonus 1
 		}
 		return totalBonus;
@@ -3662,7 +3677,7 @@ class GameServer extends Game {
 		let cardNum = this.players[plNum].dealer;
 		let numNeeded = this.neededSold(cardNum);
 		for (let bNum=0; bNum < numNeeded.length; bNum++) {
-			let getBonus = this.evalCards(numNeeded[bNum], ARTLOC.SOLD, auctionArtType, plNum);
+			let getBonus = this.evalCards(numNeeded[bNum], NFTLOC.SOLD, auctionArtType, plNum);
 			if (getBonus) {
 				totalBonus += 5; // 5 for bonus 0
 				if (bNum) totalBonus += 5;	// 10 for bonus 1/2
@@ -3732,12 +3747,12 @@ class GameServer extends Game {
 	// 	return;
 	// }
 
-	visitorsToArt(art, artType) {
-		for (let i = 0; i < art.numTixBonus; i++) {
+	visitorsToArt(nft, nftType) {
+		for (let i = 0; i < nft.numTixBonus; i++) {
 			let vFromBag = this.getRandomFromBag();
 			if (vFromBag) {
-				// if there was a visitor pulled from bag, move to art
-				vFromBag.moveVisitorTo({type:VISITORLOC.ART, artType:artType});
+				// if there was a visitor pulled from bag, move to nft
+				vFromBag.moveVisitorTo({type:VISITORLOC.NFT, nftType:nftType});
 				// check if bag empty
 				if (!this.getFlag(FLAG.BAG_EMPTY)) {
 					if (this.bagEmpty()) {
@@ -3759,12 +3774,12 @@ class GameServer extends Game {
 		let clickables = [];
 		if (!this.getFlag(FLAG.DID_EA)) {
 			// can player use contract bonus?
-			// player has available asst?
-			if (this.players[this.activePlayer].assistants.find((a) => a.location.type === ASSTLOC.DESK ||  a.location.type === ASSTLOC.ACTION || a.location.type === ASSTLOC.KO)) {
+			// player has available helper?
+			if (this.players[this.activePlayer].helpers.find((a) => a.location.type === HELPERLOC.DESK ||  a.location.type === HELPERLOC.ACTION || a.location.type === HELPERLOC.KO)) {
 				let playerContracts = this.contracts.filter((c) => c.location.type === CONTRACTLOC.PLAYER && c.location.plNum === this.activePlayer);
 				for (let pc of playerContracts) {
 					// player has contract without used bonus?
-					if (!this.players[this.activePlayer].assistants.find((a) => (a.location.type === ASSTLOC.CONTRACTBONUS || a.location.type === ASSTLOC.SOLDBONUS) && a.location.num === pc.num)) {
+					if (!this.players[this.activePlayer].helpers.find((a) => (a.location.type === HELPERLOC.CONTRACTBONUS || a.location.type === HELPERLOC.SOLDBONUS) && a.location.num === pc.num)) {
 						clickables.push(this.obj2Str({type:CLICKITEM.CONTRACT, num:pc.num}));
 					}
 				}
@@ -3783,16 +3798,16 @@ class GameServer extends Game {
 	getKOpiece() {
 		// for any piece return player number in .playerIdx
 		// for player piece return link to player in .player, otherwise return null
-		// for asst, return link to asst in .asst and asst# in asstIdx
-		let ret = {player:null, asst:null, playerIdx:null, asstIdx:null};
+		// for helper, return link to helper in .helper and helper# in helperIdx
+		let ret = {player:null, helper:null, playerIdx:null, helperIdx:null};
 		ret.playerIdx = this.players.findIndex((p) => p.location.type === PLAYERLOC.KO);
 		if (ret.playerIdx == -1) {
-			// no player piece kicked out, check assistants for each player
+			// no player piece kicked out, check helpers for each player
 			for (let plNum = 0; plNum < this.numPlayers; plNum++) {
-				ret.asstIdx = this.players[plNum].assistants.findIndex((a) => a.location.type === ASSTLOC.KO);
-				if (ret.asstIdx != -1) {
+				ret.helperIdx = this.players[plNum].helpers.findIndex((a) => a.location.type === HELPERLOC.KO);
+				if (ret.helperIdx != -1) {
 					ret.playerIdx = plNum;
-					ret.asst = this.players[plNum].assistants[ret.asstIdx];
+					ret.helper = this.players[plNum].helpers[ret.helperIdx];
 				}
 			}
 		} else {
@@ -3821,12 +3836,12 @@ class GameServer extends Game {
 	// 	}
 	// }
 	resetTurnFlags() {
-		const mask = ~(FLAG.DID_EA | FLAG.DEALT_CONTRACTS | FLAG.ART_BOUGHT | FLAG.UPDATE_CONTRACTS);
+		const mask = ~(FLAG.DID_EA | FLAG.DEALT_CONTRACTS | FLAG.NFT_BOUGHT | FLAG.UPDATE_CONTRACTS);
 		this.flags &= mask;
 	}
 
 	resetRoundFlags() {
-		const mask = ~(FLAG.DID_EA | FLAG.DID_ACTION | FLAG.DID_KO | FLAG.DEALT_CONTRACTS | FLAG.ART_BOUGHT | FLAG.UPDATE_CONTRACTS);
+		const mask = ~(FLAG.DID_EA | FLAG.DID_ACTION | FLAG.DID_KO | FLAG.DEALT_CONTRACTS | FLAG.NFT_BOUGHT | FLAG.UPDATE_CONTRACTS);
 		this.flags &= mask;
 	}
 
@@ -3875,23 +3890,24 @@ class GameServer extends Game {
 				}
 			}
 			// add auction works values
-			let auctionWorks = this.art.filter((a) => a.location.type === ARTLOC.AUCTION);
-			for (let art of auctionWorks) {
+			let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.AUCTION || a.location.fromAuction);
+			for (let nft of auctionWorks) {
 				if (!obj.auction) obj.auction = {};
-				let val = this.auctionValue(art).value;
-				obj.auction[art.type] = val;
+				let val = this.auctionValue(nft).value;
+				if (nft.location.fromAuction) val += 100;
+				obj.auction[nft.type] = val;
 			}
 
 			// obj.soldcard/hungcard will be array of objects like:
-			// [{"paint":1},{"sketch":2,"photo":1,"abstract":1}]
+			// [{"galaxy":1},{"dejacat":2,"phakeland":1,"abstract":1}]
 			// each array entry is the bonus reqs
-			const artBonusTypes = Object.values(ARTTYPE);
+			const nftBonusTypes = Object.values(NFTTYPE);
 			obj.soldcard = [];
 			let numNeeded = this.neededSold(this.players[playerIndex].dealer);
 			for (let i of numNeeded) {
 				tmp = {};
 				for (let j=0; j < i.length; j++) {
-					tmp[artBonusTypes[j]] = i[j];
+					tmp[nftBonusTypes[j]] = i[j];
 				}
 				obj.soldcard.push(tmp);
 			}
@@ -3901,7 +3917,7 @@ class GameServer extends Game {
 			for (let i of numNeeded) {
 				tmp = {};
 				for (let j=0; j < i.length; j++) {
-					tmp[artBonusTypes[j]] = i[j];
+					tmp[nftBonusTypes[j]] = i[j];
 				}
 				obj.hungcard.push(tmp);
 			}
@@ -3931,8 +3947,8 @@ class GameServer extends Game {
 					obj[k] = this[k];
 					break;
 				// following are complicated to stringify
-				case "artists":
-				case "art":
+				case "nftists":
+				case "nft":
 				case "contracts":
 				case "repTiles":
 				case "players":
@@ -3960,8 +3976,8 @@ class GameServer extends Game {
 
 
 export {
-	ArtistServer,
-	ArtServer,
+	NftistServer,
+	NftServer,
 	ContractServer,
 	PlayerServer,
 	GameServer,

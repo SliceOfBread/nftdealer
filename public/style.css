@@ -19,7 +19,7 @@
     50% {opacity: .4;}
     100% {opacity: 1.0;} */
     0%   {outline-color: black;}
-    40%  {outline-color: red;}
+    60%  {outline-color: red;}
     100% {outline-color: black;}
 }
 
@@ -115,14 +115,14 @@ td {
     content: '✗';
 }
 
-.artspace {
+.nftspace {
     height:5vw;
     width: 5vw;
     margin: 0.5vw;
     border-radius: .5em;
     background-color: var(--backgrey);
 }
-.artist {
+.nftist {
     height:5vw;
     width: 5vw;
     text-align: center;
@@ -131,32 +131,32 @@ td {
     font-size: 60%;
     margin: 0.5vw;
 }
-.artistfame > p,
-.artistpromo > p {
+.nftistreknown > p,
+.nftistpromo > p {
     font-size: 80%;
 }
-.artistblue {
+.nftistblue {
     background-color: var(--blue);
 
 }
-.artistred {
+.nftistred {
     background-color: var(--red);
 
 }
-.artistupper {
+.nftistupper {
     width: 100%;
     height:50%;
     background-color:rgba(255, 255 , 255, .3);
     border-radius: .5em .5em 0 0;
 }
-.artisttype {
+.nftisttype {
     position: absolute;
     width:40%;
     height: 80%;
     top:8%;
     left:4%;
 }
-.artistpromo {
+.nftistpromo {
     position: absolute;
     width:2.2vw;
     height: 1vw;
@@ -170,13 +170,13 @@ td {
     justify-content: center;
     align-items: center;
 }
-.artistvalue {
+.nftistvalue {
     position: absolute;
     top: 55%;
     font-size: 150%;
     left:50%;
 }
-.artistlower {
+.nftistlower {
     width:100%;
     height:50%;
     display: grid;
@@ -185,7 +185,7 @@ td {
     padding: 0;
     border-radius: 0 0 .5em .5em;
 }
-.artistfame {
+.nftistreknown {
     background-color: rgba(255, 255 , 255, .9);
     height: 100%;
     display: flex;
@@ -193,7 +193,7 @@ td {
     align-items: center;
     /* line-height: 100%; */
 }
-.fame19 {
+.reknown19 {
     background-color: rgba(255, 255 , 255, 0.5);
     position: absolute;
     width:16%;
@@ -205,35 +205,35 @@ td {
     top:65%;
     left:84%;
 }
-.fame1 {
+.reknown1 {
     border-radius: 0 0 0 .5em;
 }
-.fame6 {
+.reknown6 {
     border-radius: 0 0 .5em 0;
 }
-.artistval20 {
+.nftistval20 {
     background-color: white;
 }
-.artistval17 {
+.nftistval17 {
     background-color:violet;
 }
-.artistval14 {
+.nftistval14 {
     background-color:#8aaddb;
 }
-.artistval11 {
+.nftistval11 {
     background-color:#00b300;
 }
-.artistval8 {
+.nftistval8 {
     background-color:#e6e600;
 }
-.artistval5 {
+.nftistval5 {
     background-color:orange;
 }
-.artistval0 {
+.nftistval0 {
     background-color:red;
 }
 
-.art {
+.nft {
     height:5vw;
     width: 5vw;
     text-align: center;
@@ -242,19 +242,19 @@ td {
     /* margin: 0 0.5vw; */
     position: absolute;
 }
-.artupper {
+.nftupper {
     height:80%;
 }
-.showback > .artupper {
+.showback > .nftupper {
     width: 100%;
     height:50%;
     background-color:rgba(255, 255 , 255, .3);
     border-radius: .5em .5em 0 0;
 }
-.artlower {
+.nftlower {
     display: none;
 }
-.showback > .artlower {
+.showback > .nftlower {
     width:100%;
     height:50%;
     display: grid;
@@ -264,80 +264,72 @@ td {
     background-color: rgba(255, 255 , 255, .3);
     border-radius: 0 0 .5em .5em;
 }
-.artreknown {
+.nfttype {
+    position: absolute;
+    height: 1vw;
+    width: 1vw;
+    top: 4vw;
+    left: 4vw;
+}
+.showback > .nfttype {
+    top: 3.5vw;
+}
+.nftreknown {
     background-color: rgba(0, 0 , 0, 0.3);
     color: white;
     font-size: 140%;
     width:100%;
 }
-.artreknown > img {
+.nftreknown > img {
     height: initial;
 }
-/* .arttix { */
-    /* display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0 , 0, 0.2);
-    width:100%; */
-    /* position: absolute; */
-    /* width: 100%; */
-    /* height: 2vw; */
-    /* top: 1vw;
-    left: 2vw; */
-    /* background: white; */
-    /* border-radius: 0.15vw; */
-    /* box-shadow: 0.1vw 0.1vw 0.1vw; */
-    /* background-repeat: no-repeat; */
-    /* background-size: contain; */
-    /* background-position: center center; */
-/* } */
-.arttix0,
-.arttix1,
-.arttix2,
-.arttix3,
-.arttix6,
-.arttix7 {
+
+.nfttix0,
+.nfttix1,
+.nfttix2,
+.nfttix3,
+.nfttix6,
+.nfttix7 {
     width: 100%;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center center;
 }
-.arttix4,
-.arttix5 {
+.nfttix4,
+.nfttix5 {
     width: 100%;
     background-repeat: no-repeat,no-repeat;
     background-size: contain;
     background-position: top, bottom;
 }
-.arttix0 {
+.nfttix0 {
     background-image: url(res/ticket_pink.png);
 }
-.arttix1 {
+.nfttix1 {
     background-image: url(res/ticket_brown.png);
 }
-.arttix2, 
-.arttix3 {
+.nfttix2, 
+.nfttix3 {
     background-image: url(res/ticket_any.png);
 }
-.arttix4 {
+.nfttix4 {
     background-image: url(res/ticket_pink.png), url(res/ticket_brownwhite.png);
 }
-.arttix5 {
+.nfttix5 {
     background-image: url(res/ticket_brown.png), url(res/ticket_pinkwhite.png);
 }
-.arttix6, 
-.arttix7 {
+.nfttix6, 
+.nfttix7 {
     background-image: url(res/2tixbonus.png);
 }
-.articon {
+.nfticon {
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0 , 0, 0.3);
     width:100%;
 }
-.artbonustile {
+.nftbonustile {
     position: absolute;
     width: 2vw;
     height: 2vw;
@@ -350,13 +342,13 @@ td {
     background-size: auto 1.6vw;
     background-position: center center;
 }
-.unknown > .artistupper {
+.unknown > .nftistupper {
     filter: blur(.1vw);
 }
 .hide {
     visibility: hidden;
 }
-/* .artbonusimg {
+/* .nftbonusimg {
     width:90%;
     height: 90%;
     margin: 5%;
@@ -720,8 +712,8 @@ gap: 5%;
   gap: 10%;
 }
 .lobby {
-border: dashed 0.2vw;
-border-radius: 0.25vw;
+    border:dotted;
+    border-radius: 1vw;
 }
 .action {
   display: flex;
@@ -763,7 +755,7 @@ flex-direction: column;
 .playeryellow {
  background: rgb(255, 255, 128);
 }
-.artarea {
+.nftarea {
     grid-area: 1 / 3 / 3 / 4;
     height: 28vw;
     width: 100%;
@@ -774,7 +766,7 @@ background-color: var(--backgrey);
 display: flex;
 flex-direction: column;
 }
-.artoftype {
+.nftoftype {
 display: flex;
 flex-direction: row;
 margin-bottom: 1vw;
@@ -791,19 +783,19 @@ margin-bottom: 1vw;
     justify-content: center;
     align-items: center;
 }
-.promoassts {
+.promohelpers {
     display: grid;
     grid-template-columns: auto auto auto auto auto auto auto auto;
 }
-.promoasstcost {
+.promohelpercost {
     width: 1.2vw;
     height: 0.5vw;  
 }
-.promoasstdiv {
+.promohelperdiv {
     width: 1.2vw;
     height: 1.25vw;  
 }
-.promoasstbonus {
+.promohelperbonus {
     width: 1.2vw;
     height: 0.5vw;  
 }
@@ -978,24 +970,24 @@ transform: rotate(180deg);
   height: 11.9vw;
   display: inline-grid;
   grid-template-areas: 
-    'gaassts gadisplay gadisplay gadesks'
-    'gaassts gatiles gaplcontracts gapltix' ;
+    'gahelpers gadisplay gadisplay gadesks'
+    'gahelpers gatiles gaplcontracts gapltix' ;
 }
-.pbassts {
-    grid-area: gaassts;
+.pbhelpers {
+    grid-area: gahelpers;
     width:2.25vw;
     height: 11.9vw;
     display: flex;
     flex-direction: column;
 }
-.pbassttop {
+.pbhelpertop {
     height: 1.05vw;
     background-image: url('res/helper.png');
     background-size: .75vw 0.9vw;
     background-repeat: no-repeat;
     background-position: center;
 }
-.pbasstbox {
+.pbhelperbox {
     height:1.35vw;
     background: #6a6144;
     border-width: 0.05vw 0.05vw 0 0.05vw;
@@ -1004,7 +996,7 @@ transform: rotate(180deg);
     /* display: grid;
     grid-template-columns: auto auto; */
 }
-.pbasstcost {
+.pbhelpercost {
     position: absolute;
     left:55%;
     top:30%;
@@ -1019,7 +1011,7 @@ transform: rotate(180deg);
     justify-content: center;
     align-items: center;
 }
-.pbasstbonus {
+.pbhelperbonus {
     position: absolute;
     left:0%;
     top:20%;
@@ -1039,7 +1031,7 @@ transform: rotate(180deg);
 .pbdisplayextra {
     grid-template-columns: 4.12vw 4.12vw 4.12vw 4.12vw 4.12vw;
 }
-.pbartspace {
+.pbnftspace {
     border-style: solid;
     border-width: 0.05vw 0.05vw 0.05vw 0;
     border-radius: 0.5vw;
@@ -1049,16 +1041,16 @@ transform: rotate(180deg);
     align-items: center;
     /* flex-direction: column; */
 }
-.pbartceleb {
+.pbnftmagnate {
     width: 30%;
     height: 30%;
 }
-.pbarthung {
+.pbnfthung {
     width: 20%;
     height: 20%;
 
 }
-.pbartinner {
+.pbnftinner {
     margin-top: 3.375vw;
     display: flex;
     justify-content: center;
@@ -1292,7 +1284,7 @@ div .clickable, img .clickable {
     width: 518px;
     height: 208px;  
 }
-.playerasst {
+.playerhelper {
     display: block;
     padding: 0;
     margin: 0;
@@ -1318,11 +1310,11 @@ div .clickable, img .clickable {
     z-index: 2;
 }
 
-.famemarker {
+.reknownmarker {
     border-style: solid;
-    border-width: 0.15vw;
-    border-color: rgb(255, 255, 0);
-    background-color: rgba(120,120,0,.5);
+    border-width: 0.2vw;
+    /* border-color: rgb(255, 255, 0); */
+    /* background-color: rgba(120,120,0,.5); */
     position: absolute;
     width: 0.9vw;
     height: 0.9vw;
@@ -1416,14 +1408,14 @@ div .clickable, img .clickable {
 }
 
 
-.playerasst,
+.playerhelper,
 .playerpiece {
     z-index: 4;
     width: auto;
     height: 1.5vw;
 }
 
-/* .asstonpb {
+/* .helperonpb {
     height: 1.5vw;
 } */
 
@@ -1453,7 +1445,7 @@ div .clickable, img .clickable {
     box-shadow: 0.5vw 0.5vw 0.5vw;
 }
 
-.influenceloc {
+.credloc {
     width:1.25vw;
     height:1.25vw;
     top: 33.8vw;
@@ -1582,12 +1574,12 @@ div .clickable, img .clickable {
     box-shadow: 0.1vw 0.1vw 0.1vw 0 rgba(0,0,0,0.5);
 } */
 
-/* .artstuff {
+/* .nftstuff {
     width: 5vw;
     height: 5vw;
 } */
 
-.artvalue {
+.nftvalue {
     position: absolute;
     font-weight: bold;
     font-size: 140%;
@@ -1652,7 +1644,7 @@ div .clickable, img .clickable {
     height:5.6vw;
 }
 
-#sp_action-art {
+#sp_action-nft {
     left:30.3vw;
     top:14.75vw;
     width:8.6vw;

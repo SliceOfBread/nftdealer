@@ -1,10 +1,10 @@
 import {
 	ACTIONLOC,
-	ARTBONUSTYPE,
-	ARTISTCOLOR,
-	ARTLOC,
-	ARTTYPE,
-	ASSTLOC,
+	NFTBONUSTYPE,
+	NFTISTCOLOR,
+	NFTLOC,
+	NFTTYPE,
+	HELPERLOC,
 	CLICKITEM,
 	CLICKSPACE,
 	CONTRACTBONUS,
@@ -22,9 +22,9 @@ import {
 	VISITORCOLOR,
 	VISITORLOC} from './egalconstants.mjs' ;
 
-import {Art,
-	Artist,
-	Assistant,
+import {Nft,
+	Nftist,
+	Helper,
 	Board,
 	Contract,
 	Game,
@@ -51,7 +51,7 @@ function boardOffset(node) {
 }
 
 
-class ArtClient extends Art {
+class NftClient extends Nft {
 	constructor(type, num) {
 		super(type, num);
 		this.posNum = 0;
@@ -60,44 +60,47 @@ class ArtClient extends Art {
 	updateArtInfo(posNum = -1, playerBoardDom, saleValue) {
 		this.posNum = posNum;
 		if (!this.dom) {
-			this.dom = document.getElementById(`arttemplate`).cloneNode(true);
+			this.dom = document.getElementById(`nfttemplate`).cloneNode(true);
 			this.dom.classList.remove('invis');
-			this.dom.id = CLICKITEM.ART.concat("-", this.type, "-", this.num);
-			for (let i of this.dom.getElementsByClassName("arttype")) {
-				i.src = `res/${this.type}.png`;
-			}
-			this.valueDom = this.dom.getElementsByClassName('artvalue')[0];
+			this.dom.id = CLICKITEM.NFT.concat("-", this.type, "-", this.num);
+			this.dom.getElementsByClassName("nfttype")[0].src = `res/${this.type}.png`;
+			this.dom.getElementsByClassName("nftdisp")[0].src = `res/${this.type}${this.num}.jpg`;
+			// for (let i of this.dom.getElementsByClassName("nfttype")) {
+			// 	i.src = `res/${this.type}.png`;
+			// 	if ([NFTTYPE.DEJACAT, NFTTYPE.GALAXY].includes(this.type)) i.src = `res/${this.type}${this.num}.jpg`;
+			// }
+			this.valueDom = this.dom.getElementsByClassName('nftvalue')[0];
 			document.getElementById('allboardsdiv').appendChild(this.dom);
 			// TODO change following for different tix bonuses
 			// EASIEST make .png for each OR foreach tixBonus
 			// tixBonus.length 1 (center center) or 2 (top center, bottom center) etc
 
-			this.dom.getElementsByClassName('arttix')[0].classList.add(`arttix${this.num}`); //style.backgroundImage = `url(res/2tixbonus.png)`;
+			this.dom.getElementsByClassName('nfttix')[0].classList.add(`nfttix${this.num}`); //style.backgroundImage = `url(res/2tixbonus.png)`;
 			// update display of reknown
-			this.dom.getElementsByClassName("reknownx")[0].innerHTML = this.fameBonus.fixed;
+			this.dom.getElementsByClassName("reknownx")[0].innerHTML = this.reknownBonus.fixed;
 
 
-			// this.dom = twoSidedDiv(CLICKITEM.ART + "-" + this.type + "-" + this.num, 
+			// this.dom = twoSidedDiv(CLICKITEM.NFT + "-" + this.type + "-" + this.num, 
 			// 	frontDiv, //fn + "front.png", 
 			// 	backDiv, // fn + "back.png", 
-			// 	this.type + "art");
+			// 	this.type + "nft");
 			// document.getElementById("allboardsdiv").appendChild(this.dom);
-			// this.dom.classList.add("artstuff");
+			// this.dom.classList.add("nftstuff");
 			// this.valueDom = document.createElement("DIV");
-			// this.valueDom.classList.add("artvalue");
+			// this.valueDom.classList.add("nftvalue");
 			// this.dom.appendChild(this.valueDom);
 		}
 		
 		this.dom.classList.remove('auction', `top${this.type}`);
 		let offset = {top:0, left:0};
 		switch (this.location.type) {
-			case ARTLOC.PILETOP:
+			case NFTLOC.PILETOP:
 				this.dom.classList.add(`top${this.type}`);
-			case ARTLOC.PILE:
+			case NFTLOC.PILE:
 				offset = boardOffset(document.getElementById(`space${this.type}`));
 				// this.dom.style.left = "53vw";
-				// this.dom.style.top = 0 + (7 * Object.values(ARTTYPE).indexOf(this.type)) + "vw";
-				if (this.location.type == ARTLOC.PILE) {
+				// this.dom.style.top = 0 + (7 * Object.values(NFTTYPE).indexOf(this.type)) + "vw";
+				if (this.location.type == NFTLOC.PILE) {
 					this.dom.classList.add('invis');
 				} else {
 					this.dom.classList.remove('invis');
@@ -106,16 +109,16 @@ class ArtClient extends Art {
 				this.dom.classList.add('showback');
 
 				break;
-			case ARTLOC.DISPLAY:
+			case NFTLOC.WALLET:
 				if (this.posNum > 3) {
-					// must be auction piece and display full
-					// show it below other art
-					offset = boardOffset(playerBoardDom.getElementsByClassName("pbartspace")[1]);
+					// must be auction piece and wallet full
+					// show it below other nft
+					offset = boardOffset(playerBoardDom.getElementsByClassName("pbnftspace")[1]);
 					offset.left += 2.6;
 					offset.top += 5.5;
 					this.dom.style.zIndex = 4;
 				} else {
-					offset = boardOffset(playerBoardDom.getElementsByClassName("pbartspace")[this.posNum]);
+					offset = boardOffset(playerBoardDom.getElementsByClassName("pbnftspace")[this.posNum]);
 					offset.top += .3;	
 				}
 
@@ -126,7 +129,7 @@ class ArtClient extends Art {
 				this.valueDom.innerHTML = PROMPT.EN.DOLLAR.concat(saleValue);
 				break;
 				
-			case ARTLOC.AUCTION:
+			case NFTLOC.AUCTION:
 				if (posNum != -1) {
 					// auction is active
 					offset.left = 15 + (6 * posNum);
@@ -135,9 +138,9 @@ class ArtClient extends Art {
 					this.dom.classList.add('auction');
 					break;
 				}
-			case ARTLOC.TOPLAYER:
-			case ARTLOC.SOLD:
-			case ARTLOC.DISCARD:
+			case NFTLOC.TOPLAYER:
+			case NFTLOC.SOLD:
+			case NFTLOC.DISCARD:
 				this.dom.classList.add('invis');
 				break;
 						
@@ -151,27 +154,27 @@ class ArtClient extends Art {
 }
 
 
-class AssistantClient extends Assistant {
+class HelperClient extends Helper {
 	constructor(num) {
 		super(num);
 	}
-	initDom(player, asstNum) {
-		// create dom for each asst
+	initDom(player, helperNum) {
+		// create dom for each helper
 		this.dom = document.createElement("IMG");
 		this.dom.classList.add("movable");
-		this.dom.classList.add("playerasst");
-		this.dom.src = "res/asst_" + player.color + ".png";
-		this.dom.id = CLICKITEM.ASSISTANT + "-" + player.num + "-" + asstNum;
+		this.dom.classList.add("playerhelper");
+		this.dom.src = "res/helper_" + player.color + ".png";
+		this.dom.id = CLICKITEM.HELPER + "-" + player.num + "-" + helperNum;
 		document.getElementById("allboardsdiv").appendChild(this.dom);
 
 		this.playerBoardDom = document.getElementById("playerbrd" + player.num);
 	}
 
-	updateAsstInfo(game, deskNum) {
+	updateHelperInfo(game, deskNum) {
 		let playerBoardOffset = boardOffset(this.playerBoardDom);
 		let offset = {top:0, left:0};
 		switch (this.location.type) {
-			case ASSTLOC.DESK:
+			case HELPERLOC.DESK:
 				// const desks = [	
 				// 	{left:482, top:18},
 				// 	{left:462, top:34},
@@ -182,24 +185,24 @@ class AssistantClient extends Assistant {
 				// this.dom.style.top = playerBoardOffset.top + desks[deskNum].top + "px";
 				offset = boardOffset(this.playerBoardDom.getElementsByClassName("pbdesk")[deskNum]);
 				break;
-			case ASSTLOC.UNEMPLOYED:
-				offset = boardOffset(this.playerBoardDom.getElementsByClassName("pbasstbox")[this.num - 2]);	
+			case HELPERLOC.UNEMPLOYED:
+				offset = boardOffset(this.playerBoardDom.getElementsByClassName("pbhelperbox")[this.num - 2]);	
 				offset.left += 1;
 				// this.dom.style.left = playerBoardOffset.left + 8 + "px";
 				// this.dom.style.top = playerBoardOffset.top - 18 + (this.num * 22.5) + "px";
 
 				break;
 			
-			case ASSTLOC.INTLMARKET:
+			case HELPERLOC.INTLMARKET:
 				{
 					let col = this.location.col;
-					let row = Object.values(ARTTYPE).indexOf(this.location.artType);
+					let row = Object.values(NFTTYPE).indexOf(this.location.nftType);
 					offset = boardOffset(document.getElementsByClassName("markettilespace")[row * 3 + col]);
 					// this.dom.style.left = 53 + (col * 48.5) + "px";
 					// this.dom.style.top = 232 + (row * 41) + "px";
 				}
 				break;
-			case ASSTLOC.AUCTION:
+			case HELPERLOC.AUCTION:
 				{
 					let col = this.location.col;
 					let row = this.location.row;
@@ -208,11 +211,11 @@ class AssistantClient extends Assistant {
 					// this.dom.style.top = 414 + (row * 41) + "px";
 				}
 				break;
-			case ASSTLOC.DISCARD:
+			case HELPERLOC.DISCARD:
 				this.dom.classList.add("invis");
 				break;
-			case ASSTLOC.CONTRACTBONUS:
-			case ASSTLOC.SOLDBONUS:
+			case HELPERLOC.CONTRACTBONUS:
+			case HELPERLOC.SOLDBONUS:
 				offset = boardOffset(this.playerBoardDom.getElementsByClassName('pbcontractspace')[game.contracts[this.location.num].location.num]);
 				if (game.contracts[this.location.num].faceUp) {
 					// this.dom.style.top = playerBoardOffset.top + 165 + "px";
@@ -241,67 +244,67 @@ class AssistantClient extends Assistant {
 }
 
 
-class ArtistClient extends Artist {
+class NftistClient extends Nftist {
 	constructor() {
 		super();
 		this.dom = null;
 		this.bonusDom = null;
-		this.fameDom = null;
+		this.reknownDom = null;
 		this.sigDom = [];
 	}
 	updateArtistInfo(game) {
 		if (!this.dom) {
-			// let fn = "res/artist" + this.color + this.type + this.num;
-			// this.dom = twoSided(CLICKITEM.ARTIST + "-" + this.color + "-" + this.type, 
+			// let fn = "res/nftist" + this.color + this.type + this.num;
+			// this.dom = twoSided(CLICKITEM.NFTIST + "-" + this.color + "-" + this.type, 
 			// 	fn + "front.png", 
 			// 	fn + "back.png", 
 			// 	this.color + " " + this.type);
-			// this.dom.classList.add("artstuff");
-			// this.dom.style.left = ((this.color == ARTISTCOLOR.RED) ? 935 : 825) + "px";
-			// this.dom.style.top = 23 + (134 * Object.values(ARTTYPE).indexOf(this.type)) + "px";
-			this.dom = document.getElementsByClassName(`artist${this.color} artist${this.type}`)[0];
-			this.dom.id = CLICKITEM.ARTIST.concat( "-", this.color, "-", this.type);
+			// this.dom.classList.add("nftstuff");
+			// this.dom.style.left = ((this.color == NFTISTCOLOR.RED) ? 935 : 825) + "px";
+			// this.dom.style.top = 23 + (134 * Object.values(NFTTYPE).indexOf(this.type)) + "px";
+			this.dom = document.getElementsByClassName(`nftist${this.color} nftist${this.type}`)[0];
+			this.dom.id = CLICKITEM.NFTIST.concat( "-", this.color, "-", this.type);
 			// invis all the unused levels
-			let famedivs = this.dom.getElementsByClassName('artistfame');
-			for (let f of famedivs) {
+			let reknowndivs = this.dom.getElementsByClassName('nftistreknown');
+			for (let f of reknowndivs) {
 				for (let c of f.classList) {
-					if (c.startsWith("fame")) {
-						let val = Number(c.slice(4));
-						if (val < this.initFame) {
+					if (c.startsWith("reknown")) {
+						let val = Number(c.slice("reknown".length));
+						if (val < this.initReknown) {
 							f.classList.add('hide');
 							break;
 						}
 					}
 				}
 			}
-			let iVal = this.getValue(this.initFame);
-			for (let f=this.initFame; f < 19; f++) {
+			let iVal = this.getValue(this.initReknown);
+			for (let f=this.initReknown; f < 19; f++) {
 				let newVal = this.getValue(f);
-				this.dom.getElementsByClassName(`fame${f}`)[0].classList.add('artistval'.concat(newVal));
+				this.dom.getElementsByClassName(`reknown${f}`)[0].classList.add('nftistval'.concat(newVal));
 				// if (newVal != iVal) {
-				// 	this.dom.getElementsByClassName(`fame${f}`)[0].classList.add('artistvaluebump');
+				// 	this.dom.getElementsByClassName(`reknown${f}`)[0].classList.add('nftistvaluebump');
 				// 	iVal = newVal;
 				// } else {
-				// 	this.dom.getElementsByClassName(`fame${f}`)[0].classList.remove('artistvaluebump');
+				// 	this.dom.getElementsByClassName(`reknown${f}`)[0].classList.remove('nftistvaluebump');
 				// }
 			}
 
 			// update promo level
-			this.dom.getElementsByClassName("artistpromo")[0].innerHTML = `<p>${this.thumb}&nbsp;&nbsp;&UpperRightArrow;</p>`;
+			this.dom.getElementsByClassName("nftistpromo")[0].innerHTML = `<p>${this.thumb}&nbsp;&nbsp;&UpperRightArrow;</p>`;
 
 			// this.bonusDom = document.createElement("IMG");
-			// this.bonusDom.src = "res/artistBonus" + Object.values(ARTBONUSTYPE).indexOf(this.bonus) + ".png";
+			// this.bonusDom.src = "res/nftistBonus" + Object.values(NFTBONUSTYPE).indexOf(this.bonus) + ".png";
 			// this.bonusDom.classList.add("movable");
 			// this.bonusDom.style.left = "60px";
 			// this.bonusDom.style.top = "45px";
-			// <div class="artbonustile" style="background-image: url('../graphics/2tixbonus.png')"></div>
+			// <div class="nftbonustile" style="background-image: url('../graphics/2tixbonus.png')"></div>
 			this.bonusDom = document.createElement("DIV");
-			this.bonusDom.classList.add("artbonustile");
+			this.bonusDom.classList.add("nftbonustile");
 			this.bonusDom.style.backgroundImage = `url('res/${this.bonus}.png')`;
 			this.dom.appendChild(this.bonusDom);
-			this.fameDom = document.createElement("DIV");
-			this.fameDom.classList.add("moveable", "famemarker", "invis");
-			this.dom.appendChild(this.fameDom);
+			this.reknownDom = document.createElement("DIV");
+			this.reknownDom.classList.add("moveable", "reknownmarker", "invis");
+			this.dom.appendChild(this.reknownDom);
 
 			// add sig tokens
 			for (let i in this.sigTokens) {
@@ -312,7 +315,7 @@ class ArtistClient extends Artist {
 				// document.getElementById("allboardsdiv").appendChild(tmpDom);
 				let tmpDom = document.createElement("DIV");
 				this.sigDom[i] = tmpDom;
-				tmpDom.classList.add("moveable","sigtoken",`artist${this.color}`);
+				tmpDom.classList.add("moveable","sigtoken",`nftist${this.color}`);
 				tmpDom.style.backgroundImage = `url('res/${this.type}.png')`;
 				tmpDom.innerHTML = '~~';
 				document.getElementById("allboardsdiv").appendChild(tmpDom);
@@ -323,28 +326,28 @@ class ArtistClient extends Artist {
 			this.dom.classList.remove("unknown");
 			this.bonusDom.classList.add("invis");
 
-			// update famemarker
-			this.fameDom.classList.remove("invis");
-			let currentFameDom = this.dom.getElementsByClassName(`fame${this.fame}`)[0];
-			let top = currentFameDom.offsetTop + currentFameDom.parentNode.offsetTop; // Math.floor((this.fame - 1) / 6);
-			let left = currentFameDom.offsetLeft; //((this.fame - 1) % 6);
+			// update reknownmarker
+			this.reknownDom.classList.remove("invis");
+			let currentReknownDom = this.dom.getElementsByClassName(`reknown${this.reknown}`)[0];
+			let top = currentReknownDom.offsetTop + currentReknownDom.parentNode.offsetTop; // Math.floor((this.reknown - 1) / 6);
+			let left = currentReknownDom.offsetLeft; //((this.reknown - 1) % 6);
 			// if (top % 2 != 0) {
-			// 	// fame move right to left
+			// 	// reknown move right to left
 			// 	left = 5 - left;
 			// }
 			// top = (5 - top) * 5/6;
 			// left = left * 5 / 6
-			this.fameDom.style.left = left - 2 + "px"; // leave these as px as they are computed above
-			this.fameDom.style.top = top - 2 + "px"; // leave these as px as they are computed above
+			this.reknownDom.style.left = left - 2 + "px"; // leave these as px as they are computed above
+			this.reknownDom.style.top = top - 2 + "px"; // leave these as px as they are computed above
 		} else {
 			// for UNDO
 			this.dom.classList.add("unknown");
 			this.bonusDom.classList.remove("invis");
-			this.fameDom.classList.add("invis");
+			this.reknownDom.classList.add("invis");
 		}
 
 		// update sale value
-		this.dom.getElementsByClassName("artistvalue")[0].innerHTML = ''; // PROMPT.EN.DOLLAR.concat(this.getValue());
+		this.dom.getElementsByClassName("nftistvalue")[0].innerHTML = ''; // PROMPT.EN.DOLLAR.concat(this.getValue());
 		
 		// update sigTokens
 		for (let i in this.sigTokens) {
@@ -352,23 +355,23 @@ class ArtistClient extends Artist {
 			let sDom = this.sigDom[i];
 			let offset = {top:0, left:0};
 
-			if (s.location == SIGLOC.ARTIST) {
+			if (s.location == SIGLOC.NFTIST) {
 				offset = boardOffset(this.dom);
 				offset.top +=  5.1;
 				offset.left += Number(i) * 1.1;
-				// let top = 129 + (134 * Object.values(ARTTYPE).indexOf(this.type));
-				// let left = (i * 20) + ((this.color == ARTISTCOLOR.RED) ? 945 : 835);
+				// let top = 129 + (134 * Object.values(NFTTYPE).indexOf(this.type));
+				// let left = (i * 20) + ((this.color == NFTISTCOLOR.RED) ? 945 : 835);
 
 			} else {
-				if (s.location == SIGLOC.ART) {
-					// if use art for offset it causes a problem with UNDO
-					let artIdx = s.artNum;
-					let art = game.art[artIdx];
-					let playerBoardDom = game.players[art.location.plNum].boardDom;
-					offset = boardOffset(playerBoardDom.getElementsByClassName("pbartspace")[art.posNum]);
+				if (s.location == SIGLOC.NFT) {
+					// if use nft for offset it causes a problem with UNDO
+					let nftIdx = s.nftNum;
+					let nft = game.nft[nftIdx];
+					let playerBoardDom = game.players[nft.location.plNum].boardDom;
+					offset = boardOffset(playerBoardDom.getElementsByClassName("pbnftspace")[nft.posNum]);
 					offset.top += 3.9;
 					offset.left += 2.5;
-					// let playerBoardOffset = boardOffset(game.players[art.location.plNum].boardDom);
+					// let playerBoardOffset = boardOffset(game.players[nft.location.plNum].boardDom);
 					// sDom.style.left = playerBoardOffset.left + 114 + 100 * posNum + "px";
 					// sDom.style.top = playerBoardOffset.top + 88 + "px";
 	
@@ -459,8 +462,8 @@ class BoardClient extends Board {
 		// }
 
 		// {
-		// 	// create clickable influence locations
-		// 	let theseLocs = document.getElementsByClassName("influenceloc");
+		// 	// create clickable cred locations
+		// 	let theseLocs = document.getElementsByClassName("credloc");
 		// 	for (let i=0; i < theseLocs.length; i++) {
 		// 		let col = theseLocs[i].id.split("-")[1];
 		// 		theseLocs[i].style.left = 13 + (col * 31.7) + "px";
@@ -474,20 +477,20 @@ class BoardClient extends Board {
 }
 
 class ContractClient extends Contract {
-	constructor(ARTTYPE, BONUSTYPE, num) {
-		super(ARTTYPE, BONUSTYPE, num);
+	constructor(NFTTYPE, BONUSTYPE, num) {
+		super(NFTTYPE, BONUSTYPE, num);
 		this.dom = null;
 	}
 	updateContractInfo(game) {
 		//this.dom = document.getElementById(CLICKITEM.CONTRACT + "-" + this.num);
 		if (!this.dom) {
 			// create dom object
-			// let t = this.artType;
+			// let t = this.nftType;
 			// let bt = this.bonusType.slice(0,4);
 			this.dom = document.getElementById(`contracttemplate`).cloneNode(true);
 			this.dom.id = CLICKITEM.CONTRACT.concat('-', this.num);
 			this.dom.classList.remove('invis');
-			this.dom.getElementsByClassName('contracttype')[0].src = `res/${this.artType}.png`;
+			this.dom.getElementsByClassName('contracttype')[0].src = `res/${this.nftType}.png`;
 			this.dom.getElementsByClassName('contractfrontbonus')[0].src = `res/${this.bonusType}.png`;
 			// this.dom = twoSided(CLICKITEM.CONTRACT + "-" + this.num,
 			// 	"res/contracttop" + t + ".png",
@@ -538,7 +541,6 @@ class ContractClient extends Contract {
 				
 				break;
 			case CONTRACTLOC.PLAYER:
-				// this.removeContractClasses();
 				// this.dom.style.visibility = "visible";
 				if (this.faceUp) {
 					this.dom.classList.remove("showback");
@@ -562,15 +564,6 @@ class ContractClient extends Contract {
 		this.dom.style.top = offset.top + "vw";
 		this.dom.style.left = offset.left + "vw";
 	}
-	removeContractClasses() {
-		this.dom.classList.remove("showback");
-		for (let i=this.dom.classList.length-1; i >= 0; i--) {
-			let tmpClass = this.dom.classList[i];
-			if (tmpClass.length > 8 && tmpClass.slice(0,8) == "contract") {
-				this.dom.classList.remove(tmpClass);
-			}
-		}
-	}
 }
 	
 class PlayerClient extends Player {
@@ -579,7 +572,7 @@ class PlayerClient extends Player {
 		this.score = 0;
 		this.board = new PlayerBoardClient(this);
 		for (let i=0; i < 10; i++) {
-				this.assistants.push(new AssistantClient(i));
+				this.helpers.push(new HelperClient(i));
 		}
 		this.boardDom = null;
 		this.infoDom = null;
@@ -631,7 +624,7 @@ class PlayerClient extends Player {
 			this.boardDom.classList.add("player" + this.color);
 			this.infoDom = document.getElementById("playerinfo" + plNum);
 			this.infoDom.style.display = "grid";
-			for (let a of this.assistants) {
+			for (let a of this.helpers) {
 				a.initDom(this, a.num);
 			}
 		}
@@ -642,16 +635,16 @@ class PlayerClient extends Player {
 	
 		PlayerClient.updatePlayerPiece(this.playerpiece, this.location, this.color);
 
-		// update assistants
+		// update helpers
 		
-		let	assts = this.assistants.filter((asst) => asst.location.type == ASSTLOC.DESK);
-		assts.forEach((asst, idx) => asst.updateAsstInfo(game, idx));
+		let	helpers = this.helpers.filter((helper) => helper.location.type == HELPERLOC.DESK);
+		helpers.forEach((helper, idx) => helper.updateHelperInfo(game, idx));
 		
-		assts = this.assistants.filter((asst) => asst.location.type != ASSTLOC.DESK);
-		assts.forEach((asst) => asst.updateAsstInfo(game));
+		helpers = this.helpers.filter((helper) => helper.location.type != HELPERLOC.DESK);
+		helpers.forEach((helper) => helper.updateHelperInfo(game));
 
-		// update infl marker
-		this.playerdisc.style.left =  .1 + (this.influence * 1.65) + this.discAdj + "vw";
+		// update cred marker
+		this.playerdisc.style.left =  .1 + (this.cred * 1.65) + this.discAdj + "vw";
 		
 
 		for (let e of this.infoDom.children) {
@@ -684,24 +677,24 @@ class PlayerClient extends Player {
 					{
 						const bids = [[1,1,1],[3,3,3],[6,6,6]];
 						let bid = 0;
-						let auctionAssts = this.assistants.filter((asst) => asst.location.type == ASSTLOC.AUCTION);
-						for (let asst of auctionAssts) {
-							bid += bids[asst.location.row][asst.location.col];
+						let auctionHelpers = this.helpers.filter((helper) => helper.location.type == HELPERLOC.AUCTION);
+						for (let helper of auctionHelpers) {
+							bid += bids[helper.location.row][helper.location.col];
 						}
 						e.innerText = "$" + bid;
 					}
 					break;
 				case "soldabstract":
-					e.innerText = game.playerHasSold(plNum).filter((art) => art.type == ARTTYPE.ABSTRACT).length; 
+					e.innerText = game.playerHasSold(plNum).filter((nft) => nft.type == NFTTYPE.ABSTRACT).length; 
 					break;
-				case "soldpaint":
-					e.innerText = game.playerHasSold(plNum).filter((art) => art.type == ARTTYPE.PAINT).length;
+				case "soldgalaxy":
+					e.innerText = game.playerHasSold(plNum).filter((nft) => nft.type == NFTTYPE.GALAXY).length;
 					break;
-				case "soldsketch":
-					e.innerText = game.playerHasSold(plNum).filter((art) => art.type == ARTTYPE.SKETCH).length;
+				case "solddejacat":
+					e.innerText = game.playerHasSold(plNum).filter((nft) => nft.type == NFTTYPE.DEJACAT).length;
 					break;
-				case "soldphoto":
-					e.innerText = game.playerHasSold(plNum).filter((art) => art.type == ARTTYPE.PHOTO).length;
+				case "soldphakeland":
+					e.innerText = game.playerHasSold(plNum).filter((nft) => nft.type == NFTTYPE.PHAKELAND).length;
 					break;
 			
 				default:
@@ -742,7 +735,7 @@ class PlayerClient extends Player {
 				// 		left = 219;
 				// 		top = 297;
 				// 		break;
-				// 	case ACTIONLOC.ART:
+				// 	case ACTIONLOC.NFT:
 				// 		left = 728;
 				// 		top = 297;
 				// 		break;
@@ -768,7 +761,7 @@ class PlayerClient extends Player {
 				// 		left = 219;
 				// 		top = 363;
 				// 		break;
-				// 	case ACTIONLOC.ART:
+				// 	case ACTIONLOC.NFT:
 				// 		left = 728;
 				// 		top = 363;
 				// 		break;
@@ -849,13 +842,13 @@ class RepTileClient extends RepTile {
 				thisOffset.left += 2;
 				break;
 			case REPTILELOC.INTLMARKET:
-				let idx = Object.keys(MARKETCOL).indexOf(this.location.col) + (3 * Object.values(ARTTYPE).indexOf(this.location.artType));
+				let idx = Object.keys(MARKETCOL).indexOf(this.location.col) + (3 * Object.values(NFTTYPE).indexOf(this.location.nftType));
 				thisOffset = boardOffset(document.getElementsByClassName("markettilespace")[idx]);
 				break;
 			case REPTILELOC.DISPLAY:
 				// this.dom.style.left = 280 + thisOffset.left + "px";
 				// this.dom.style.top = 38 + thisOffset.top + "px";
-				thisOffset = boardOffset(document.getElementById("playerbrd" + this.location.plNum).getElementsByClassName("pbartspace")[2]);
+				thisOffset = boardOffset(document.getElementById("playerbrd" + this.location.plNum).getElementsByClassName("pbnftspace")[2]);
 				thisOffset.left += 2;
 				thisOffset.top += 2;
 				break;
@@ -897,62 +890,27 @@ class VisitorClient extends Visitor {
 		let offsetColor = null;
 		this.dom.classList.remove("invis");
 		switch (this.location.type) {
-			case VISITORLOC.ART:
-				// offset = boardOffset(document.getElementById(CLICKITEM.ART.concat('-', this.location.artType, '-', this.location.artNum) ));
-				offset = boardOffset(document.getElementById(`space${this.location.artType}`));
-				// offset.left += posNum * 1.5;
+			case VISITORLOC.NFT:
+				offset = boardOffset(document.getElementById(`space${this.location.nftType}`));
 				offset.top += posNum;
-				// this.dom.style.left = 1045 + 10 + (posNum * 30) + "px";
-				// this.dom.style.top = 23 + (134 * Object.values(ARTTYPE).indexOf(this.location.artType)) + 53 + "px";
 				break;
-			case VISITORLOC.ARTIST:
-				offset = boardOffset(document.getElementById(CLICKITEM.ARTIST.concat('-', ARTISTCOLOR.RED, '-', this.location.artType) ));
-				// this.dom.style.left = offset.left + 35 + "px";
-				// this.dom.style.top = offset.top + 53 + "px";
+			case VISITORLOC.NFTIST:
+				offset = boardOffset(document.getElementById(CLICKITEM.NFTIST.concat('-', NFTISTCOLOR.RED, '-', this.location.nftType) ));
 				break;
 			case VISITORLOC.PLAZA:
 				offset = boardOffset(document.getElementsByClassName("plaza")[0]);
 				offset.left += (posNum % 7) * 1.2 + 0.5;
 				offset.top += Math.floor(posNum / 7) * 1.2 + 1;
-				// this.dom.style.left = offset.left + 440 + ((posNum % 5) * 25) + "px";
-				// this.dom.style.top = offset.top + 320 + (Math.floor(posNum/5) * 25) + "px";
 				break;
 			case VISITORLOC.LOBBY:
 				offset = boardOffset(document.getElementsByClassName(`lobby player${this.location.playerColor}`)[0]);
 				offset.left += (posNum % 7) * 1.2 + 0.5;
 				offset.top += Math.floor(posNum / 7) * 1.2 + 0.1;
-				// offsetColor =  this.location.playerColor; // player color
-				// if (offsetColor == PLAYERCOLOR.YELLOW || offsetColor == PLAYERCOLOR.BLUE) {
-				// 	offset.left -= 80;
-				// } else {
-				// 	offset.left += 130;
-				// }
-				// if (offsetColor == PLAYERCOLOR.YELLOW || offsetColor == PLAYERCOLOR.PURPLE) {
-				// 	offset.top -= 90;
-				// } else {
-				// 	offset.top += 110;
-				// }
-				// this.dom.style.left = offset.left + 440 + ((posNum % 3) * 25) + "px";
-				// this.dom.style.top = offset.top + 320 + (Math.floor(posNum/3) * 20) + "px";
 				break;
 			case VISITORLOC.GALLERY:
 				offset = boardOffset(document.getElementsByClassName(`gallery player${this.location.playerColor}`)[0]);
 				offset.left += (posNum % 7) * 1.2 + 0.5;
 				offset.top += Math.floor(posNum / 7) * 1.2 + 2;
-				// offset = boardOffset(document.getElementById("boarddiv"));
-				// offsetColor =  this.location.playerColor; // player color
-				// if (offsetColor == PLAYERCOLOR.YELLOW || offsetColor == PLAYERCOLOR.BLUE) {
-				// 	offset.left -= 140;
-				// } else {
-				// 	offset.left += 190;
-				// }
-				// if (offsetColor == PLAYERCOLOR.YELLOW || offsetColor == PLAYERCOLOR.PURPLE) {
-				// 	offset.top -= 160;
-				// } else {
-				// 	offset.top += 155;
-				// }
-				// this.dom.style.left = offset.left + 440 + ((posNum % 3) * 25) + "px";
-				// this.dom.style.top = offset.top + 320 + (Math.floor(posNum/3) * 20) + "px";
 				break;
 			case VISITORLOC.BAG:
 				offset = boardOffset(document.getElementById("boarddiv"));
@@ -963,9 +921,6 @@ class VisitorClient extends Visitor {
 				} else if (this.color == VISITORCOLOR.PINK) {
 					offset.left += 5;
 				}
-				// this.dom.style.top = offset.top + 40 + "px";
-				// this.dom.style.left = offset.left + 630 + "px";
-				// break;
 			default:
 				this.dom.classList.add("invis");
 				break;
@@ -983,12 +938,12 @@ class GameClient extends Game {
 		this.localFlags = 0;
 		this.iAmPlNum = -1;
 		for (let n=0; n<8; n++) {
-			let a = new ArtistClient();
-			this.artists.push(a);
+			let a = new NftistClient();
+			this.nftists.push(a);
 		}
-		for (let t of Object.values(ARTTYPE)) {
+		for (let t of Object.values(NFTTYPE)) {
 			for (let i=0; i < 8; i++) {
-				this.art.push(new ArtClient(t, i));
+				this.nft.push(new NftClient(t, i));
 			}
 		}
 		this.board = new BoardClient();
@@ -1003,10 +958,10 @@ class GameClient extends Game {
 			}
 		}
 		// 
-		for (let t of Object.values(ARTTYPE)) {
+		for (let t of Object.values(NFTTYPE)) {
 			for (let b of Object.values(CONTRACTBONUS)) {
-				if (b == CONTRACTBONUS.INFLUENCE && (t == ARTTYPE.PAINT || t == ARTTYPE.PHOTO)) continue;
-				if (b == CONTRACTBONUS.MONEY && (t == ARTTYPE.SKETCH || t == ARTTYPE.ABSTRACT)) continue;
+				if (b == CONTRACTBONUS.CRED && (t == NFTTYPE.GALAXY || t == NFTTYPE.PHAKELAND)) continue;
+				if (b == CONTRACTBONUS.MONEY && (t == NFTTYPE.DEJACAT || t == NFTTYPE.ABSTRACT)) continue;
 				this.contracts.push(new ContractClient(t, b, this.contracts.length));
 			}
 		}	
@@ -1183,8 +1138,8 @@ class GameClient extends Game {
 		while (el) {
 			// this while loop checks if what was clicked was clickable and, if not,
 			// checks the parent (ad infinitum) because sometimes the clickable element
-			// is partially hidden (ex: artist partially hidden) by bonus tile)
-			// (TODO check if bonus tile parent is artist!)
+			// is partially hidden (ex: nftist partially hidden) by bonus tile)
+			// (TODO check if bonus tile parent is nftist!)
 			// (another example might be all the elements that make up a flippable card)
 			if ((el.classList && el.classList.contains("clickable")) || el.nodeName == "BUTTON") {
 				let loc = el.id.split("-");
@@ -1250,40 +1205,40 @@ class GameClient extends Game {
 		this.drawTickets();
 		
 
-		let celebPrevDom = document.getElementById("numcelebrity").previousElementSibling;
-		document.getElementById("numcelebrity").innerText = this.numCelebrity(); 
-		if (this.getFlag(FLAG.TWO_CELEBRITY)) {
-			celebPrevDom.classList.add('completed');
+		let magnatePrevDom = document.getElementById("nummagnate").previousElementSibling;
+		document.getElementById("nummagnate").innerText = this.numMagnate(); 
+		if (this.getFlag(FLAG.TWO_MAGNATE)) {
+			magnatePrevDom.classList.add('completed');
 		} else {
-			celebPrevDom.classList.remove('completed');
+			magnatePrevDom.classList.remove('completed');
 		}
 
-		// update art not on player boards
+		// update nft not on player boards
 		let auctionCount = 0;
-		for (let i in this.art) {
-			if (this.art[i].location.type != ARTLOC.DISPLAY) {
-				if (this.state == GAMESTATE.FINALAUCTION && this.art[i].location.type == ARTLOC.AUCTION) {
-					this.art[i].updateArtInfo(auctionCount);
+		for (let i in this.nft) {
+			if (this.nft[i].location.type != NFTLOC.WALLET) {
+				if (this.state == GAMESTATE.FINALAUCTION && this.nft[i].location.type == NFTLOC.AUCTION) {
+					this.nft[i].updateArtInfo(auctionCount);
 					auctionCount++;
 				} else {
-					this.art[i].updateArtInfo();
+					this.nft[i].updateArtInfo();
 				}
 			}
 		}
 		for (let pl=0; pl < this.numPlayers; pl++) {
-			let artDisplay = this.playerHasDisplayed(pl);
-			artDisplay.forEach((a) => a.value = a.byArtist ? this.artists[a.byArtist].getValue() : this.auctionValue(a).value + 64);
-			if (artDisplay.length > 1) {
-				artDisplay.sort((a,b) => a.value - b.value);
+			let nftDisplay = this.playerHasDisplayed(pl);
+			nftDisplay.forEach((a) => a.value = a.byArtist ? this.nftists[a.byArtist].getValue() : this.auctionValue(a).value + 64);
+			if (nftDisplay.length > 1) {
+				nftDisplay.sort((a,b) => a.value - b.value);
 			}
-			for (let i=0; i < artDisplay.length; i++) {
-				// let val = artDisplay[i].byArtist ? this.artists[artDisplay[i].byArtist].getValue() : this.auctionValue(artDisplay[i]);
-				artDisplay[i].updateArtInfo(i, this.players[pl].boardDom, artDisplay[i].value % 64);
+			for (let i=0; i < nftDisplay.length; i++) {
+				// let val = nftDisplay[i].byArtist ? this.nftists[nftDisplay[i].byArtist].getValue() : this.auctionValue(nftDisplay[i]);
+				nftDisplay[i].updateArtInfo(i, this.players[pl].boardDom, nftDisplay[i].value % 64);
 			}
 		}
 
-		// update artists
-		for (let a of this.artists) {
+		// update nftists
+		for (let a of this.nftists) {
 			a.updateArtistInfo(this);
 		}
 		
@@ -1296,7 +1251,7 @@ class GameClient extends Game {
 					// thumbDom.src = "res/thumb" + n + ".png";
 					thumbDom = document.createElement("DIV");
 					thumbDom.id = "i_thumb-" + n + "-" + i;
-					thumbDom.classList.add("movable", "artistpromo", "thumb");
+					thumbDom.classList.add("movable", "nftistpromo", "thumb");
 					thumbDom.style.background = `linear-gradient(90deg, #FFFFFF 40%, #${['f3eddc','ffeb98','fad399','ef9dbb','ccab13'][n]} 40%)`;
 					document.getElementById("boarddiv").appendChild(thumbDom);
 					let tmpDom = document.createElement("P");
@@ -1308,8 +1263,8 @@ class GameClient extends Game {
 					thumbDom.style.top = "32vw";
 					thumbDom.style.left = 16.2 + (n * 3) + "vw";
 				} else {
-					// on artist
-					let offset = boardOffset(document.getElementById(CLICKITEM.ARTIST.concat('-', this.thumbs[n][i].color, '-', this.thumbs[n][i].artType)).getElementsByClassName("artistpromo")[0]);
+					// on nftist
+					let offset = boardOffset(document.getElementById(CLICKITEM.NFTIST.concat('-', this.thumbs[n][i].color, '-', this.thumbs[n][i].nftType)).getElementsByClassName("nftistpromo")[0]);
 					thumbDom.style.top = offset.top + "vw";
 					thumbDom.style.left = offset.left + "vw";
 				}
@@ -1321,18 +1276,18 @@ class GameClient extends Game {
 		// update reptiles
 		this.repTiles.forEach((r, idx) => r.updateRepTileInfo(idx));
 
-		// update art Pile #'s
-		for (let t of Object.values(ARTTYPE)) {
-			document.getElementById("remain" + t).innerText = this.art.filter((a) => (a.type == t) && (a.location.type == ARTLOC.PILE || a.location.type == ARTLOC.PILETOP)).length;
+		// update nft Pile #'s
+		for (let t of Object.values(NFTTYPE)) {
+			document.getElementById("remain" + t).innerText = this.nft.filter((a) => (a.type == t) && (a.location.type == NFTLOC.PILE || a.location.type == NFTLOC.PILETOP)).length;
 		}		
 		
 		// update visitors
 		for (let locType of Object.values(VISITORLOC)) {
 			let vHere;
 			switch (locType) {
-				case VISITORLOC.ART:
-					for (let artType of Object.values(ARTTYPE)) {
-						vHere = this.visitors.filter((v) => v.location.type == locType && v.location.artType == artType);
+				case VISITORLOC.NFT:
+					for (let nftType of Object.values(NFTTYPE)) {
+						vHere = this.visitors.filter((v) => v.location.type == locType && v.location.nftType == nftType);
 						vHere.forEach((visitor, idx) => visitor.updateVisitorInfo(idx));
 					}
 					break;
@@ -1381,8 +1336,8 @@ class GameClient extends Game {
 		if (msg.soldcard) {
 			for (let i=0; i < msg.soldcard.length; i++) {	// normally 0-2
 				let ii = 0;
-				for (let j in msg.soldcard[i]) {	// j will be the types of art needed
-					let numOfType = this.art.filter((a) => a.location.type === ARTLOC.SOLD && a.location.plNum === this.iAmPlNum && a.type === j).length;
+				for (let j in msg.soldcard[i]) {	// j will be the types of nft needed
+					let numOfType = this.nft.filter((a) => a.location.type === NFTLOC.SOLD && a.location.plNum === this.iAmPlNum && a.type === j).length;
 					for (let k=0; k < msg.soldcard[i][j]; k++) {	// k will be how many of type j needed
 						let el = document.getElementById(`sold-${i}-${ii}`);
 						let elsib = el.nextSibling;
@@ -1405,7 +1360,7 @@ class GameClient extends Game {
 			for (let i=0; i < msg.hungcard.length; i++) {	// normally 0-1
 				let ii = 0;
 				for (let j in msg.hungcard[i]) {
-					let numOfType = this.art.filter((a) => a.location.type === ARTLOC.DISPLAY && a.location.plNum === this.iAmPlNum && a.type === j).length;
+					let numOfType = this.nft.filter((a) => a.location.type === NFTLOC.WALLET && a.location.plNum === this.iAmPlNum && a.type === j).length;
 					for (let k=0; k < msg.hungcard[i][j]; k++) {
 						let el = document.getElementById(`hung-${i}-${ii}`);
 						let elsib = el.nextSibling;
@@ -1427,14 +1382,26 @@ class GameClient extends Game {
 
 		// update auction works and values
 		let auctionTypes = [];
-		for (let a of this.art.filter((a) => a.location.type == ARTLOC.AUCTION)) {
+		for (let a of this.nft.filter((a) => a.location.type == NFTLOC.AUCTION)) {
 			auctionTypes.push(a.type);
 		}
-		for (let t of Object.values(ARTTYPE)) {
+		for (let t of Object.values(NFTTYPE)) {
 			let valDom = document.getElementById("auction" + t);
 			if (auctionTypes.includes(t)) {
 				// this type is in the auction
-				valDom.innerText = msg.auction[t];
+				let val = msg.auction[t];
+				if (val > 20) {
+					valDom.innerText = " ";
+					let nft = this.nft.find((a) => a.location.fromAuction && a.type === t);
+					valDom.previousElementSibling.classList.add("player".concat(this.players[nft.location.plNum].color));
+					val -= 100;
+				// } else {	// NOTE: following not needed as auction is not currently undo-able
+				// 	// following needed for undo
+				// 	for (let pl of this.players) {
+				// 		valDom.previousElementSibling.classList.remove("player".concat(pl.color));
+				// 	}
+				}
+				valDom.innerText = val;
 			} else {
 				valDom.previousElementSibling.style.display = "none";
 				valDom.style.display = "none";
@@ -1533,8 +1500,8 @@ class GameClient extends Game {
 							let buttDom = document.getElementById(mId);
 							buttDom.classList.remove("invis");
 							buttDom.innerHTML = this.decodeMsg(mParts[2]);
-							if (mId == CLICKITEM.HIREASST + "-1") document.getElementById("hirediv").classList.remove("invis");
-						// } else if (m.startsWith(CLICKITEM.HIREASST)) {
+							if (mId == CLICKITEM.HIREHELPER + "-1") document.getElementById("hirediv").classList.remove("invis");
+						// } else if (m.startsWith(CLICKITEM.HIREHELPER)) {
 						// 	document.getElementById("hirediv").classList.remove("invis");
 						// 	let [tmp, num2hire, cost] = m.split(":");
 						// 	let buttDom = document.getElementById(tmp + "-" + num2hire);
@@ -1610,17 +1577,17 @@ class GameClient extends Game {
 		let action = this.randomBot(msg);
 		// add more robot code here 
 		////////////////////////////////////////////
-		// if state if PICKACTION priority is art if need art to match contract, contract if needed to match art
-		//			asst if available and none free, market if turn > numplayers*2 && > 1 asst free && not in all cols && free tile space
+		// if state if PICKACTION priority is nft if need nft to match contract, contract if needed to match nft
+		//			helper if available and none free, market if turn > numplayers*2 && > 1 helper free && not in all cols && free tile space
 		function neededArtTypes(game) {
 			let playerFaceUpContracts = game.contracts.filter((c) => c.location.type === CONTRACTLOC.PLAYER && c.location.plNum === game.activePlayer && c.faceUp);
 			let playerArt = game.playerHasDisplayed();
 			let contractsInNeed = [];
 			for (let c of playerFaceUpContracts) {
-				let idx = playerArt.findIndex((a) => a.type === c.artType);
+				let idx = playerArt.findIndex((a) => a.type === c.nftType);
 				if (idx == -1) {
-					// we have no art for this contract
-					contractsInNeed.push(c.artType);
+					// we have no nft for this contract
+					contractsInNeed.push(c.nftType);
 				}
 			}
 			return contractsInNeed;
@@ -1628,69 +1595,69 @@ class GameClient extends Game {
 		function neededContractTypes(game) {
 			let playerFaceUpContracts = game.contracts.filter((c) => c.location.type === CONTRACTLOC.PLAYER && c.location.plNum === game.activePlayer && c.faceUp);
 			let playerArt = game.playerHasDisplayed();
-			let artInNeed = [];
+			let nftInNeed = [];
 			if (playerFaceUpContracts.length < 3) {
 				for (let a of playerArt) {
-					let idx = playerFaceUpContracts.findIndex((c) => c.artType === a.type);
+					let idx = playerFaceUpContracts.findIndex((c) => c.nftType === a.type);
 					if (idx == -1) {
-						// no contract for this art
-						artInNeed.push(a.type);
+						// no contract for this nft
+						nftInNeed.push(a.type);
 					}
 				}
 			}
-			return artInNeed;
+			return nftInNeed;
 
 		}
 		if (this.state === GAMESTATE.PICKACTION) {
-			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.ART}))) {
-				// get art/discover is a possible action
-				// what art could we get that matches a contract we have
-				// remove contracts that already match art
+			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.NFT}))) {
+				// get nft/discover is a possible action
+				// what nft could we get that matches a contract we have
+				// remove contracts that already match nft
 				if (neededArtTypes(this).length) {
-					// is any of this art available and affordable?
+					// is any of this nft available and affordable?
 					// above is getArtClicks in server
 					// for now, do we have a space is enough
 					if (this.playerHasDisplayed().length < 3) {
-						return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.ART});
+						return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.NFT});
 					}
 				}
 			}  
 			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES}))) {
 				// sales action possible
-				let artInNeed = neededContractTypes(this);
-				if (artInNeed.length) {
-					// got some art in need of a contract
-					if (this.contracts.filter((c) => c.location.type === CONTRACTLOC.DEALT && artInNeed.includes(c.artType))) {
+				let nftInNeed = neededContractTypes(this);
+				if (nftInNeed.length) {
+					// got some nft in need of a contract
+					if (this.contracts.filter((c) => c.location.type === CONTRACTLOC.DEALT && nftInNeed.includes(c.nftType))) {
 						return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES});
 					}
 				}
-				if (artInNeed.length < this.playerHasDisplayed().length && this.players[this.iAmPlNum].money < 6) {
-					// if have sellable art and have less than $6 on hand, sell
+				if (nftInNeed.length < this.playerHasDisplayed().length && this.players[this.iAmPlNum].money < 6) {
+					// if have sellable nft and have less than $6 on hand, sell
 					return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.SALES});
 				}
 				
 			}  
 			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MEDIA}))) {
 				// media action available
-				if (this.getAvailableAssistants().length < 1 && this.getUnemployed().length) {
+				if (this.getAvailableHelpers().length < 1 && this.getUnemployed().length) {
 					return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MEDIA});
 				} 
 
 			} 
 			if (msg.clickables.includes(this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MARKET}))) {
-				// if turn > numplayers*2 && > 1 asst free && not in all cols && free tile space
+				// if turn > numplayers*2 && > 1 helper free && not in all cols && free tile space
 				if (this.turnNum > this.numPlayers*2 && 
-					this.getAvailableAssistants().length > 1 && 
+					this.getAvailableHelpers().length > 1 && 
 					this.repTiles.filter((t) => t.location.type == REPTILELOC.PLAYER && t.location.plNum == this.iAmPlNum).length < 6) {
 
-					// let asstInLobby = this.visitors.filter((v) => v.location.type === VISITORLOC.LOBBY && v.location.plNum === this.iAmPlNum);
+					// let helperInLobby = this.visitors.filter((v) => v.location.type === VISITORLOC.LOBBY && v.location.plNum === this.iAmPlNum);
 					// col free is essentially getMarketClicks. add later TODO
 					return this.obj2Str({type:CLICKSPACE.ACTION,loc:ACTIONLOC.MARKET});
 				}
 				
 			}
 		} else if (this.state == GAMESTATE.SALES_MAIN || this.state == GAMESTATE.KOSALES) {
-			// if state is SALES_MAIN priority is contract that matches unmatched display art or sale that helps secret
+			// if state is SALES_MAIN priority is contract that matches unmatched wallet nft or sale that helps secret
 			let typesNeeded = neededContractTypes(this);
 			if (typesNeeded.length) {
 				let contractNumsAvail = [];
@@ -1699,15 +1666,15 @@ class GameClient extends Game {
 						contractNumsAvail.push(c.slice(c.search('-')+1));
 					}
 				}
-				let usefulContracts = this.contracts.filter((c) => typesNeeded.includes(c.artType) && contractNumsAvail.includes(c.num));
+				let usefulContracts = this.contracts.filter((c) => typesNeeded.includes(c.nftType) && contractNumsAvail.includes(c.num));
 				if (usefulContracts.length && msg.clickables.includes()) {
 					let tmpSearch = this.obj2Str({type:CLICKITEM.CONTRACT,num:usefulContracts[0].num});
 					let tmpClick = msg.clickables.find((c) => c == tmpSearch);
 					if (tmpClick) return tmpClick;
 				}				
 			}
-		} else if (this.state == GAMESTATE.ART_MAIN || this.state == GAMESTATE.KOART) {
-			// if state is ART_MAIN priority is art/artist that matches contract w/o art
+		} else if (this.state == GAMESTATE.NFT_MAIN || this.state == GAMESTATE.KOART) {
+			// if state is NFT_MAIN priority is nft/nftist that matches contract w/o nft
 			let typesNeeded = neededArtTypes(this);
 			if (typesNeeded.length) {
 				for (let t of typesNeeded) {
@@ -1719,18 +1686,18 @@ class GameClient extends Game {
 			}
 			
 		} else if (this.state == GAMESTATE.MEDIA_MAIN || this.state == GAMESTATE.KOMEDIA) {
-			// if state is MEDIA_MAIN priority is get asst if 0 free
-			if (this.getAvailableAssistants().length < 1 && 
+			// if state is MEDIA_MAIN priority is get helper if 0 free
+			if (this.getAvailableHelpers().length < 1 && 
 				this.getUnemployed().length) {
-				if (msg.clickables.includes(this.obj2Str({type:CLICKITEM.HIREASST, num:2}))) {
-					return this.obj2Str({type:CLICKITEM.HIREASST, num:2});
+				if (msg.clickables.includes(this.obj2Str({type:CLICKITEM.HIREHELPER, num:2}))) {
+					return this.obj2Str({type:CLICKITEM.HIREHELPER, num:2});
 				}
-				if (msg.clickables.includes(this.obj2Str({type:CLICKITEM.HIREASST, num:1}))) {
-					return this.obj2Str({type:CLICKITEM.HIREASST, num:1});
+				if (msg.clickables.includes(this.obj2Str({type:CLICKITEM.HIREHELPER, num:1}))) {
+					return this.obj2Str({type:CLICKITEM.HIREHELPER, num:1});
 				}
 			} 
 		} else if (this.state == GAMESTATE.MARKET_MAIN || this.state == GAMESTATE.KOMARKET) {
-			// if state is MARKET_MAIN priority is col without asst ?
+			// if state is MARKET_MAIN priority is col without helper ?
 			// needs getMarketClicks TODO
 		}
 
@@ -1760,14 +1727,14 @@ class GameClient extends Game {
 				// assume c length == 3
 				switch (c[2]) {
 					case '1':
-					// replace with artType
-						ret = ret.replace(sub, PROMPT["EN"].ARTTYPE[val]);
+					// replace with nftType
+						ret = ret.replace(sub, PROMPT["EN"].NFTTYPE[val]);
 						break;
 
 					case '2':
-					// replace with artist
-						let artist = this.artists[Number(val)];
-						ret = ret.replace(sub, `${PROMPT["EN"][artist.color]} ${PROMPT["EN"].ART2ARTIST[artist.type]}`);
+					// replace with nftist
+						let nftist = this.nftists[Number(val)];
+						ret = ret.replace(sub, `${PROMPT["EN"][nftist.color]} ${PROMPT["EN"].NFT2NFTIST[nftist.type]}`);
 						break;
 				
 					case '3':
@@ -1889,7 +1856,7 @@ var alertSoundPlayed = true;
 
 function soundAdj() {
 	let  audioDom = document.getElementById("playsound");
-	audioDom.volume = document.getElementById("soundrange").value / 10;
+	audioDom.volume = Number(document.getElementById("soundrange").value) / 10;
 	audioDom.play();
 	sessionStorage.setItem("nftdealer", JSON.stringify({soundrange:document.getElementById("soundrange").value}));
 	
@@ -1905,6 +1872,7 @@ window.onload = function() {
 	if (tmp) oldInfo = JSON.parse(tmp);
 	if (oldInfo && oldInfo.soundrange) {
 		document.getElementById("soundrange").value = oldInfo.soundrange;
+		soundAdj();
 	}
 
 }
@@ -1927,8 +1895,6 @@ function getServerUpdate() {
 var socket = io();
 
 // credits
-// paint icon
-// https://thenounproject.com/nicklas.bruckner
 // abstract
 // https://thenounproject.com/everydaytemplate
 // camera

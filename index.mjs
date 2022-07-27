@@ -311,15 +311,16 @@ io.on('connection', (socket) => {
 			// - check if move allowed
 			// - implement move
 			// - send updated state individually to all players/spectators
+			let activeSpaces = game.getActiveSpaces();
 			if (msg.playerId != game.players[game.activePlayer].playerId) {
 				// msg with incorrect playerId
 				errorFlag = true;
 				console.log('Rcvd move from unexpected player, ignoring');
 				console.log(`Rcvd pid:${msg.playerId}, expected pid:${game.players[game.activePlayer].playerId}`);
-			} else if (!game.getActiveSpaces().clickables.includes(msg.move.location)) {
+			} else if (!activeSpaces.clickables.includes(msg.move.location)) {
 				// what was clicked was not allowed to be clicked
 				errorFlag = true;
-				console.log(`Clicked item (${msg.move.location}) not in allowed moves`);
+				console.log(`Clicked item (${msg.move.location}) not in allowed moves: ${activeSpaces.clickables}`);
 			} else {
 				// allowed move from correct player
 				// add move to move list // moved to processClick

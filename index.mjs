@@ -298,7 +298,7 @@ io.on('connection', (socket) => {
 		}
 		// fetch game from storage
 		// let thisGame = await gamesData.findGame(msg.gameId);
-		gamesData.findGame(msg.gameId).then(function(thisGame) {
+		gamesData.findGame(msg.gameId).then(async function(thisGame) {
 			if (!thisGame || !thisGame.ids) {
 				console.log(`Did not find game in storage:${msg.gameId}:`);
 				return;
@@ -356,8 +356,13 @@ io.on('connection', (socket) => {
 				}
 				// save game
 				if (!errorFlag) {
-					// saveToFile({gameId:msg.gameId});
-					gamesData.saveGame(msg.gameId, {
+					// This await is because there is a race condition without it.
+					// We save the game here, then send updates to the players.
+					// If a player responds too quickly, the game may not yet be in the database and
+					// so the old game state is retrieved, leading to an error. This should fix it by waiting
+					// for the DB to be updated before sending our the update.
+
+					await gamesData.saveGame(msg.gameId, {
 						ids:thisGame.ids,
 						init:thisGame.init,
 						lastUsed:Date.now(),

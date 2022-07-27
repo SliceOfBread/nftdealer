@@ -65,30 +65,14 @@ class NftClient extends Nft {
 			this.dom.id = CLICKITEM.NFT.concat("-", this.type, "-", this.num);
 			this.dom.getElementsByClassName("nfttype")[0].src = `res/${this.type}.png`;
 			this.dom.getElementsByClassName("nftdisp")[0].src = `res/${this.type}${this.num}.jpg`;
-			// for (let i of this.dom.getElementsByClassName("nfttype")) {
-			// 	i.src = `res/${this.type}.png`;
-			// 	if ([NFTTYPE.DEJACAT, NFTTYPE.GALAXY].includes(this.type)) i.src = `res/${this.type}${this.num}.jpg`;
-			// }
 			this.valueDom = this.dom.getElementsByClassName('nftvalue')[0];
 			document.getElementById('allboardsdiv').appendChild(this.dom);
-			// TODO change following for different tix bonuses
-			// EASIEST make .png for each OR foreach tixBonus
-			// tixBonus.length 1 (center center) or 2 (top center, bottom center) etc
 
-			this.dom.getElementsByClassName('nfttix')[0].classList.add(`nfttix${this.num}`); //style.backgroundImage = `url(res/2tixbonus.png)`;
+			this.dom.getElementsByClassName('nfttix')[0].classList.add(`nfttix${this.num}`); 
 			// update display of reknown
 			this.dom.getElementsByClassName("reknownx")[0].innerHTML = this.reknownBonus.fixed;
 
 
-			// this.dom = twoSidedDiv(CLICKITEM.NFT + "-" + this.type + "-" + this.num, 
-			// 	frontDiv, //fn + "front.png", 
-			// 	backDiv, // fn + "back.png", 
-			// 	this.type + "nft");
-			// document.getElementById("allboardsdiv").appendChild(this.dom);
-			// this.dom.classList.add("nftstuff");
-			// this.valueDom = document.createElement("DIV");
-			// this.valueDom.classList.add("nftvalue");
-			// this.dom.appendChild(this.valueDom);
 		}
 		
 		this.dom.classList.remove('auction', `top${this.type}`);
@@ -254,14 +238,6 @@ class NftistClient extends Nftist {
 	}
 	updateArtistInfo(game) {
 		if (!this.dom) {
-			// let fn = "res/nftist" + this.color + this.type + this.num;
-			// this.dom = twoSided(CLICKITEM.NFTIST + "-" + this.color + "-" + this.type, 
-			// 	fn + "front.png", 
-			// 	fn + "back.png", 
-			// 	this.color + " " + this.type);
-			// this.dom.classList.add("nftstuff");
-			// this.dom.style.left = ((this.color == NFTISTCOLOR.RED) ? 935 : 825) + "px";
-			// this.dom.style.top = 23 + (134 * Object.values(NFTTYPE).indexOf(this.type)) + "px";
 			this.dom = document.getElementsByClassName(`nftist${this.color} nftist${this.type}`)[0];
 			this.dom.id = CLICKITEM.NFTIST.concat( "-", this.color, "-", this.type);
 			// invis all the unused levels
@@ -281,23 +257,11 @@ class NftistClient extends Nftist {
 			for (let f=this.initReknown; f < 19; f++) {
 				let newVal = this.getValue(f);
 				this.dom.getElementsByClassName(`reknown${f}`)[0].classList.add('nftistval'.concat(newVal));
-				// if (newVal != iVal) {
-				// 	this.dom.getElementsByClassName(`reknown${f}`)[0].classList.add('nftistvaluebump');
-				// 	iVal = newVal;
-				// } else {
-				// 	this.dom.getElementsByClassName(`reknown${f}`)[0].classList.remove('nftistvaluebump');
-				// }
 			}
 
 			// update promo level
 			this.dom.getElementsByClassName("nftistpromo")[0].innerHTML = `<p>${this.thumb}&nbsp;&nbsp;&UpperRightArrow;</p>`;
 
-			// this.bonusDom = document.createElement("IMG");
-			// this.bonusDom.src = "res/nftistBonus" + Object.values(NFTBONUSTYPE).indexOf(this.bonus) + ".png";
-			// this.bonusDom.classList.add("movable");
-			// this.bonusDom.style.left = "60px";
-			// this.bonusDom.style.top = "45px";
-			// <div class="nftbonustile" style="background-image: url('../graphics/2tixbonus.png')"></div>
 			this.bonusDom = document.createElement("DIV");
 			this.bonusDom.classList.add("nftbonustile");
 			this.bonusDom.style.backgroundImage = `url('res/${this.bonus}.png')`;
@@ -308,11 +272,6 @@ class NftistClient extends Nftist {
 
 			// add sig tokens
 			for (let i in this.sigTokens) {
-				// let tmpDom = document.createElement("IMG");
-				// this.sigDom[i] = tmpDom;
-				// tmpDom.src = "res/sig_" + this.color + this.type + ".png";
-				// tmpDom.classList.add("movable", "sigtoken");
-				// document.getElementById("allboardsdiv").appendChild(tmpDom);
 				let tmpDom = document.createElement("DIV");
 				this.sigDom[i] = tmpDom;
 				tmpDom.classList.add("moveable","sigtoken",`nftist${this.color}`);
@@ -359,8 +318,6 @@ class NftistClient extends Nftist {
 				offset = boardOffset(this.dom);
 				offset.top +=  5.1;
 				offset.left += Number(i) * 1.1;
-				// let top = 129 + (134 * Object.values(NFTTYPE).indexOf(this.type));
-				// let left = (i * 20) + ((this.color == NFTISTCOLOR.RED) ? 945 : 835);
 
 			} else {
 				if (s.location == SIGLOC.NFT) {
@@ -371,17 +328,11 @@ class NftistClient extends Nftist {
 					offset = boardOffset(playerBoardDom.getElementsByClassName("pbnftspace")[nft.posNum]);
 					offset.top += 3.9;
 					offset.left += 2.5;
-					// let playerBoardOffset = boardOffset(game.players[nft.location.plNum].boardDom);
-					// sDom.style.left = playerBoardOffset.left + 114 + 100 * posNum + "px";
-					// sDom.style.top = playerBoardOffset.top + 88 + "px";
 	
 				} else {
 					// SIGLOC.COMMISSION
 					let playerBoardDom = game.players[s.plNum].boardDom;
 					offset = boardOffset(playerBoardDom.getElementsByClassName("pbcomm")[0]);
-					// let playerBoardOffset = boardOffset(game.players[s.plNum].boardDom);
-					// sDom.style.left = playerBoardOffset.left + 454 + "px";
-					// sDom.style.top = playerBoardOffset.top + 88 + "px";
 
 				}
 			
@@ -588,39 +539,34 @@ class PlayerClient extends Player {
 			let boardDom = document.getElementById("boarddiv");
 
 			this.playerpiece = document.createElement("IMG");
-			this.playerpiece.id = "playerpiece".concat(this.color);
+			this.playerpiece.id = "playerpiece".concat(plNum);
 			this.playerpiece.src = "res/player_".concat(this.color,".png");
 			this.playerpiece.classList.add('playerpiece', 'movable');
 			boardDom.appendChild(this.playerpiece);
 
-			// this.playerpiece = document.getElementById("playerpiece" + this.color);
-			// this.playerpiece.style.visibility = "visible";
-
 			this.playerdisc = document.createElement("IMG");
-			this.playerdisc.id = "playerdisc".concat(this.color);
+			this.playerdisc.id = "playerdisc".concat(plNum);
 			this.playerdisc.src = "res/disc_".concat(this.color,".png");
 			this.playerdisc.classList.add('playerdisc', 'movable');
 			boardDom.appendChild(this.playerdisc);
-			// this.playerdisc = document.getElementById("playerdisc" + this.color);
-			// this.playerdisc.style.visibility = "visible";
 			this.playerdisc.style.top = "33.1vw";
-			switch (this.color) {
-				case PLAYERCOLOR.PURPLE:
+			// disc positions
+			// 0 2
+			// 3 1
+			switch (plNum) {
+				case 2:
 					this.discAdj = .5;				
 					break;
-				case PLAYERCOLOR.ORANGE:
+				case 1:
 					this.discAdj = .5;
-				case PLAYERCOLOR.BLUE:
+				case 3:
 					this.playerdisc.style.top = "34.4vw";
 					break;
 			
 				default:
-					// this.playerdisc.style.zIndex = 14;
 					break;
 			}
 			this.boardDom = document.getElementById("playerbrd" + plNum);
-			// this.boardDom.style.display = "block";
-			// this.boardDom.style.backgroundColor = this.color;
 			this.boardDom.classList.add("player" + this.color);
 			this.infoDom = document.getElementById("playerinfo" + plNum);
 			this.infoDom.style.display = "grid";
@@ -633,7 +579,7 @@ class PlayerClient extends Player {
 			// TODO ???
 		}
 	
-		PlayerClient.updatePlayerPiece(this.playerpiece, this.location, this.color);
+		PlayerClient.updatePlayerPiece(this.playerpiece, this.location);
 
 		// update helpers
 		
@@ -655,10 +601,6 @@ class PlayerClient extends Player {
 				case "playername":
 					e.innerText = this.name;
 					e.classList.add("color".concat(this.color));
-					// e.style.color = this.color;
-					// if (this.color == "orange") {
-					// 	e.style.color = "#b32d00";
-					// }
 					break;
 				case "playertime":
 					e.innerText = '#'.concat(plNum+1);
@@ -701,78 +643,23 @@ class PlayerClient extends Player {
 					break;
 			}
 		}
-		document.getElementById("limit".concat(this.color)).innerHTML = game.playerHasSold(plNum).length + 1;
+		document.getElementById("limit".concat(plNum)).innerHTML = game.playerHasSold(plNum).length + 1;
 	}
-	static updatePlayerPiece(pieceDom, location, color = null) {
+	static updatePlayerPiece(pieceDom, location) {
 		let offset = {top:0, left:0};
-		let top = 0;
-		let left = 0;
 		switch (location.type) {
 			case PLAYERLOC.HOME:
-				offset = boardOffset(document.getElementsByClassName('gallery player'.concat(color))[0]);
-				// if (color == PLAYERCOLOR.YELLOW || color == PLAYERCOLOR.PURPLE) {
-				// 	top = 151;
-				// } else {
-				// 	top = 466;
-				// }				
-				// if (color == PLAYERCOLOR.YELLOW || color == PLAYERCOLOR.BLUE) {
-				// 	left = 243;
-				// } else {
-				// 	left = 710;
-				// }
-				
+				offset = boardOffset(document.getElementsByClassName('gallery'.concat(pieceDom.id.slice(pieceDom.id.length-1)))[0]);
 				break;
 			case PLAYERLOC.ACTION:
 				offset = boardOffset(document.getElementById(CLICKSPACE.ACTION.concat('-',location.loc)).getElementsByClassName("mainaction")[0]);
 				offset.top += .4;
 				offset.left += .4;
-				// switch (location.loc) {
-				// 	case ACTIONLOC.SALES:
-				// 		left = 442;
-				// 		top = 77;
-				// 		break;
-				// 	case ACTIONLOC.MARKET:
-				// 		left = 219;
-				// 		top = 297;
-				// 		break;
-				// 	case ACTIONLOC.NFT:
-				// 		left = 728;
-				// 		top = 297;
-				// 		break;
-				// 	case ACTIONLOC.MEDIA:
-				// 		left = 442;
-				// 		top = 562;
-				// 		break;
-				
-				// 	default:
-				// 		break;
-				// }
 				break;
 			case PLAYERLOC.KO:
 				offset = boardOffset(document.getElementById(CLICKSPACE.ACTION.concat('-',location.loc)).getElementsByClassName("sideaction")[0]);
 				offset.top += .3;
 				offset.left += .3;
-				// switch (location.loc) {
-				// 	case ACTIONLOC.SALES:
-				// 		left = 508;
-				// 		top = 77;
-				// 		break;
-				// 	case ACTIONLOC.MARKET:
-				// 		left = 219;
-				// 		top = 363;
-				// 		break;
-				// 	case ACTIONLOC.NFT:
-				// 		left = 728;
-				// 		top = 363;
-				// 		break;
-				// 	case ACTIONLOC.MEDIA:
-				// 		left = 508;
-				// 		top = 562;
-				// 		break;
-				
-				// 	default:
-				// 		break;
-				// }
 				break;
 			default:
 				break;
@@ -788,27 +675,6 @@ class PlayerBoardClient extends PlayerBoard {
 	constructor(player) {
 		super(player);
 		this.dom = null;
-		// {
-		// 	// adjust clickable reptile locations
-		// 	let theseLocs = document.getElementsByClassName("reptileloc");
-		// 	for (let i=0; i < theseLocs.length; i++) {
-		// 		let spaceNum = Number(theseLocs[i].id.split('-')[1]);
-		// 		let row = Math.floor(spaceNum / 3);
-		// 		let col = spaceNum % 3;
-		// 		theseLocs[i].style.left = 59 + (col * 42) + "px";
-		// 		theseLocs[i].style.top = 108 + (row * 66) + "px";
-		// 	}
-		// }
-		// {
-		// 	// adjust clickable contract locations
-		// 	let theseLocs = document.getElementsByClassName("plcontractloc");
-		// 	for (let i=0; i < theseLocs.length; i++) {
-		// 		let spaceNum = Number(theseLocs[i].id.split('-')[1]);
-		// 		theseLocs[i].style.left = 190 + (spaceNum * 88) + "px";
-		// 		theseLocs[i].style.top = "110px";
-		// 	}
-		// }
-
 	}
 }
 
@@ -887,7 +753,6 @@ class VisitorClient extends Visitor {
 			document.getElementById("boarddiv").appendChild(this.dom);
 		}
 		let offset = {top:0, left:0};
-		let offsetColor = null;
 		this.dom.classList.remove("invis");
 		switch (this.location.type) {
 			case VISITORLOC.NFT:
@@ -903,12 +768,12 @@ class VisitorClient extends Visitor {
 				offset.top += Math.floor(posNum / 7) * 1.2 + 1;
 				break;
 			case VISITORLOC.LOBBY:
-				offset = boardOffset(document.getElementsByClassName(`lobby player${this.location.playerColor}`)[0]);
-				offset.left += (posNum % 7) * 1.2 + 0.5;
-				offset.top += Math.floor(posNum / 7) * 1.2 + 0.1;
+				offset = boardOffset(document.getElementsByClassName(`lobby${this.location.plNum}`)[0]);
+				offset.left += (posNum % 4) * 1.2 + 0.5;
+				offset.top += Math.floor(posNum / 4) * 1.2 + 0.1;
 				break;
 			case VISITORLOC.GALLERY:
-				offset = boardOffset(document.getElementsByClassName(`gallery player${this.location.playerColor}`)[0]);
+				offset = boardOffset(document.getElementsByClassName(`gallery${this.location.plNum}`)[0]);
 				offset.left += (posNum % 7) * 1.2 + 0.5;
 				offset.top += Math.floor(posNum / 7) * 1.2 + 2;
 				break;
@@ -994,33 +859,6 @@ class GameClient extends Game {
 			e.style.visibility = "hidden";
 		}
 	}
-	// clickButton(id) {
-	// 	switch (id) {
-	// 		case 'redobutton':
-	// 			// cancel turn and redo
-	// 			socket.emit('redo turn', {playerId:playerId});
-	// 			game.waitForServer();
-	// 			break;
-	// 		case 'endbutton':
-	// 			// confirm turn to server
-	// 			socket.emit('end turn', {playerId:playerId});
-	// 			game.waitForServer();
-	// 			break;
-	// 		case 'pinkupbutton':
-	// 		case 'brownupbutton':
-	// 			game.sendMove({
-	// 				playerId:playerId,
-	// 				moveNum:game.moveNum,
-	// 				move:{
-	// 					plNum: game.activePlayer,
-	// 					location:CLICKITEM.ORIENTATION + '-' + (id.charAt(0) == 'p') ? VISITORCOLOR.PINK : VISITORCOLOR.BROWN
-	// 				}
-	// 			});
-	// 			break;
-	// 		default:
-	// 			break;
-	// 	}
-	// }
 	
 	
 	drawTickets() {
@@ -1139,8 +977,8 @@ class GameClient extends Game {
 			// this while loop checks if what was clicked was clickable and, if not,
 			// checks the parent (ad infinitum) because sometimes the clickable element
 			// is partially hidden (ex: nftist partially hidden) by bonus tile)
-			// (TODO check if bonus tile parent is nftist!)
 			// (another example might be all the elements that make up a flippable card)
+			// (this only works for when element is child of clickable element)
 			if ((el.classList && el.classList.contains("clickable")) || el.nodeName == "BUTTON") {
 				let loc = el.id.split("-");
 				if (loc[0] == CLICKSPACE.DEALCONTRACTS && this.options.numContractPiles == 4) {
@@ -1227,7 +1065,7 @@ class GameClient extends Game {
 		}
 		for (let pl=0; pl < this.numPlayers; pl++) {
 			let nftDisplay = this.playerHasDisplayed(pl);
-			nftDisplay.forEach((a) => a.value = a.byArtist ? this.nftists[a.byArtist].getValue() : this.auctionValue(a).value + 64);
+			nftDisplay.forEach((a) => a.value = a.byArtist != null ? this.nftists[a.byArtist].getValue() : this.auctionValue(a).value + 64);
 			if (nftDisplay.length > 1) {
 				nftDisplay.sort((a,b) => a.value - b.value);
 			}
@@ -1343,7 +1181,7 @@ class GameClient extends Game {
 						let elsib = el.nextSibling;
 						el.src = `res/${j}.png`;
 						if (k >= numOfType) {
-							// TODO mark this req as not yet met
+							// mark this req as not yet met
 							elsib.classList.remove('done');
 							elsib.classList.add('missing');
 						} else {
@@ -1366,7 +1204,7 @@ class GameClient extends Game {
 						let elsib = el.nextSibling;
 						el.src = `res/${j}.png`;
 						if (k >= numOfType) {
-							// TODO mark this req as not yet met
+							// mark this req as not yet met
 							elsib.classList.remove('done');
 							elsib.classList.add('missing');
 						} else {
@@ -1390,17 +1228,6 @@ class GameClient extends Game {
 			if (auctionTypes.includes(t)) {
 				// this type is in the auction
 				let val = msg.auction[t];
-				if (val > 20) {
-					valDom.innerText = " ";
-					let nft = this.nft.find((a) => a.location.fromAuction && a.type === t);
-					valDom.previousElementSibling.classList.add("player".concat(this.players[nft.location.plNum].color));
-					val -= 100;
-				// } else {	// NOTE: following not needed as auction is not currently undo-able
-				// 	// following needed for undo
-				// 	for (let pl of this.players) {
-				// 		valDom.previousElementSibling.classList.remove("player".concat(pl.color));
-				// 	}
-				}
 				valDom.innerText = val;
 			} else {
 				valDom.previousElementSibling.style.display = "none";
@@ -1446,6 +1273,7 @@ class GameClient extends Game {
 			// show final stats
 			document.getElementById("finalstats").classList.remove('invis');
 			let rowDoms = document.getElementById("statsplayers").getElementsByClassName("stats");
+			// show player names
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
 				rowDoms[plNum].classList.remove('invis');
 				rowDoms[plNum].classList.add('color'.concat(this.players[plNum].color));
@@ -1453,15 +1281,18 @@ class GameClient extends Game {
 				//rowDoms[plNum].innerHTML = this.decodeMsg("PLNAME".concat(':',plNum)); //this.players[plNum].name;
 			}
 			rowDoms = document.getElementById("statsplace").getElementsByClassName("stats");
+			// show players' finish place
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
 				rowDoms[plNum].classList.remove('invis');
 				rowDoms[plNum].innerHTML = PROMPT.EN.PLACE[playerPlace[plNum]];
 			}
 			rowDoms = document.getElementById("statsfinalscore").getElementsByClassName("stats");
+			// show players final score
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
 				rowDoms[plNum].classList.remove('invis');
 				rowDoms[plNum].innerHTML = this.players[plNum].money;
 			}
+			// show stats for score
 			for (let statcat in this.stats) {
 				for (let stat in this.stats[statcat]) {
 					rowDoms = document.getElementById("stats".concat(statcat,stat)).getElementsByClassName("stats");
@@ -1758,17 +1589,33 @@ class GameClient extends Game {
 	setAsClient(plNum) {
 		this.iAmPlNum = plNum;
 
-		// move dom nodes so this player is shown first
-		// let pbd = document.getElementById("playerbrddiv");
-		// let pbi = document.getElementById("allplayerinfo");
+		// move dom nodes so this player board/info is shown first
 		for(let pd = 0; pd < 4; pd++) {
+			let newNum = (plNum + pd) % 4;
 			let dom = document.getElementById("playerbrdx" + pd);
-			dom.id = "playerbrd" + ((plNum + pd) % 4);
-			// pbd.insertBefore(dom, pbd.childNodes[0]);
-			let idom = document.getElementById("playerinfox" + pd);
-			idom.id = "playerinfo" + ((plNum + pd) % 4);
-			// pbi.insertBefore(idom, pbi.childNodes[0]);
+			dom.id = "playerbrd".concat(newNum);
+			
+			dom = document.getElementById("playerinfox" + pd);
+			dom.id = "playerinfo".concat(newNum);
+			
+			// put this player in upper right corner
+			dom =  document.getElementById("limitx" + pd);
+			dom.id = "limit".concat(newNum);
+			dom = document.getElementsByClassName("galleryx" + pd)[0];
+			dom.classList.add("gallery".concat(newNum));
+			dom = document.getElementsByClassName("lobbyx" + pd)[0];
+			dom.classList.add("lobby".concat(newNum));
 		}
+		// add colors on main board
+		for (let pl = 0; pl < 4; pl++) {
+			let colClass = "playergrey";
+			if (pl < this.numPlayers) {
+				colClass = "player".concat(this.players[pl].color);
+			}
+			document.getElementsByClassName("gallery" + pl)[0].classList.add(colClass);
+			document.getElementsByClassName("lobby" + pl)[0].classList.add(colClass);
+		}
+
 		// show curator/dealer cards
 		let cdom = document.getElementById("hungcard");
 		cdom.classList.remove('invis');
@@ -1829,6 +1676,7 @@ function main() {
 				};
 			}
 		
+			// invis unused player boards/info
 			for (let i=game.numPlayers; i < 4; i++) {
 				document.getElementById("playerbrd" + i).classList.add('invis');
 				document.getElementById("playerinfo" + i).classList.add('invis');

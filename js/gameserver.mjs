@@ -164,30 +164,7 @@ class VisitorServer extends Visitor {
 		super(color);
 	}
 	moveVisitorTo(toLocation) {
-		// let updateLocs = [];
-		// switch (this.location.type) {
-		// 	case VISITORLOC.PLAZA:
-		// 	case VISITORLOC.LOBBY:
-		// 	case VISITORLOC.GALLERY:
-		// 		updateLocs.push(this.location);
-		// 		break;
-		// 	default:
-		// 		// other locations do not need updating of 'from' loc
-		// 		break;
-		// }
-		// switch (toLocation.type) {
-		// 	case VISITORLOC.PLAZA:
-		// 	case VISITORLOC.LOBBY:
-		// 	case VISITORLOC.GALLERY:
-		// 	case VISITORLOC.NFT:
-		// 		updateLocs.push(toLocation);
-		// 		break;
-		// 	default:
-		// 		// other locations do not need updating of 'to' loc
-		// 		break;
-		// }
 		this.location = toLocation;
-		// return updateLocs;
 
 	}
 
@@ -695,8 +672,7 @@ class GameServer extends Game {
 					// if above did not find another player/helper in ko loc
 					// OR if player cannot do any Ko action then turn is over, next player
 					// otherwise activePlayer does KOpickAction
-					// TODO if player WAS KOed but can't do anything, send them home!
-					// if (!checkKO || !this.getKoActionClicks(locationKO)) {
+					// if player WAS KOed but can't do anything, send them home!
 					if (!(koPiece.player || koPiece.helper) || !this.getKoActionClicks(locationKO)) {
 						// if no kickout, then next player (unless game over)
 						this.currentPlayer = this.nextPlNum(this.currentPlayer);
@@ -920,7 +896,7 @@ class GameServer extends Game {
 		// TODO do something about DUMMY player for solo
 		for (let pl=0; pl < this.numPlayers; pl++) {
 			let v = this.getRandomFromBag();
-			v.moveVisitorTo({plNum:pl, playerColor:this.players[pl].color, type:VISITORLOC.LOBBY});
+			v.moveVisitorTo({plNum:pl, type:VISITORLOC.LOBBY});
 		}
 
 		// create curator/dealer cards
@@ -1371,6 +1347,7 @@ class GameServer extends Game {
 			default:
 				// reduce cred 
 				this.players[this.activePlayer].cred = this.getUsableCred();
+				this.logMsg("PLKONONE", this.activePlayer);
 				// TODO log use of cred?				
 				return false;
 		}
@@ -1385,9 +1362,6 @@ class GameServer extends Game {
 		let useHelper;
 		let contractNum;
 		let extraReknown = 0;
-
-		// TODO add log msgs
-		// TODO add live scoring
 
 		switch (this.state) {
 			case GAMESTATE.KOSALES:
@@ -1456,7 +1430,7 @@ class GameServer extends Game {
 					// return signature
 					let nftist =  this.nftists[nft.byArtist];
 					let sig = nftist.sigTokens.find((s) => s.location === SIGLOC.NFT && s.nftNum === nftIdx);
-					sig.location = SIGLOC.NFTIST; // TODO this failed (sig undefined)
+					sig.location = SIGLOC.NFTIST;
 					// move nft to "sold"
 					nft.moveArtTo({type:NFTLOC.SOLD, plNum:pl});
 					// if helper on contract, send home
@@ -1549,7 +1523,6 @@ class GameServer extends Game {
 					} else {
 						// error
 					}
-					// TODO different stuff for 4 vs 8 piles
 					// renumber pile contract came from
 					if (this.options.numContractPiles === 4) {
 						let oldPile = this.contracts.filter((c) => c.location.type === CONTRACTLOC.DEALT && c.location.num === oldPileNum);
@@ -1940,7 +1913,7 @@ class GameServer extends Game {
 							if (this.visitors[Number(loc[1])].location.plNum === this.activePlayer) {
 								// player's own lobby, move to gallery
 								this.logMsg("USESTIX", this.activePlayer, vColor, "PLGALLERY");
-								this.visitors[Number(loc[1])].moveVisitorTo({type:VISITORLOC.GALLERY, plNum:this.activePlayer, playerColor:this.activeColor()});
+								this.visitors[Number(loc[1])].moveVisitorTo({type:VISITORLOC.GALLERY, plNum:this.activePlayer});
 
 							} else {
 								// other player's lobby, move to plaza
@@ -1951,7 +1924,7 @@ class GameServer extends Game {
 						} else {
 							// move to player's lobby from plaza
 							this.logMsg("USESTIX", this.activePlayer, vColor, "PLLOBBY");
-							this.visitors[Number(loc[1])].moveVisitorTo({type:VISITORLOC.LOBBY, plNum:this.activePlayer, playerColor:this.activeColor()});
+							this.visitors[Number(loc[1])].moveVisitorTo({type:VISITORLOC.LOBBY, plNum:this.activePlayer});
 						}
 
 					} else if (clicked === CLICKITEM.DONOTHING) {
@@ -2082,7 +2055,7 @@ class GameServer extends Game {
 							break;
 					}
 				} else {
-					// back of contract bonus TODO
+					// back of contract bonus
 					if (this.contracts[contractNum].moneyUp) {
 						let bonus = this.bonusMoney();
 						this.logMsg("RCVSMONEY",this.activePlayer,bonus,"FORBONUS");
@@ -2129,12 +2102,12 @@ class GameServer extends Game {
 					// move selected a visitor to gallery
 					let visitor = this.visitors[Number(loc[1])];
 					this.logMsg("GETVISITOR",this.activePlayer,visitor.color);
-					visitor.moveVisitorTo({type:VISITORLOC.GALLERY, plNum:this.activePlayer, playerColor:this.activeColor()});
+					visitor.moveVisitorTo({type:VISITORLOC.GALLERY, plNum:this.activePlayer});
 					// check if bag empty
 					if (!this.getFlag(FLAG.BAG_EMPTY)) {
 						if (this.bagEmpty()) {
 							this.setFlag(FLAG.BAG_EMPTY);
-							// TODO add msg
+							// TODO add msg?
 							this.checkEndGame();
 						}
 					}
@@ -2459,34 +2432,6 @@ class GameServer extends Game {
 					// this case only if nftWasBought or needContractsDealt
 					case CLICKITEM.CONTINUE:
 						this.endTurnRefill();
-						// if (this.getFlag(FLAG.NFT_BOUGHT)) {
-						// 	// show new nft and visitors
-						// 	for (let nftType of Object.values(NFTTYPE)) {
-						// 		if (this.nft.find((nft) => nft.location.type === NFTLOC.PILETOP && nft.type === nftType)) {
-						// 			// pile has top, do nothing
-						// 		} else {
-						// 			// pile has no top, make one
-						// 			let nftTop = this.chooseArtPileTop(nftType);
-						// 			if (nftTop) {
-						// 				// a new piletop was selected, add visitors
-						// 				this.visitorsToArt(nftTop, nftType);
-						// 			}
-						// 		}
-						// 	}
-						// 	// this.setArtWasBought(0);
-						// 	this.clearFlag(FLAG.NFT_BOUGHT);
-						// 	this.moves.push({plNum:this.activePlayer}); // don't allow UNDO
-						// 	// state stays same
-						// } else if (this.getFlag(FLAG.UPDATE_CONTRACTS)) {
-						// 	// deal new contracts
-						// 	this.dealContracts(true);
-						// 	// this.setNeedContractsDealt(0);
-						// 	this.clearFlag(FLAG.UPDATE_CONTRACTS);
-						// 	this.moves.push({plNum:this.activePlayer}); // don't allow UNDO
-						// 	// state stays same
-						// } else {
-						// 	// TODO error
-						// }
 						break;
 
 					// this case only occurs in EAOREND
@@ -2509,7 +2454,6 @@ class GameServer extends Game {
 						this.substack.push(GAMESTATE.PICKACTION);
 						this.logMsg("PLEATIX", this.activePlayer);
 						this.state = GAMESTATE.EATIX_MAIN;
-						// TODO more logging
 						return;
 					} else if (clicked === CLICKITEM.EABONUS) {
 						this.substack.push(GAMESTATE.PICKACTION);
@@ -2921,7 +2865,7 @@ class GameServer extends Game {
 				break;
 			case GAMESTATE.SALES_SELLART:
 				// player chose nft to sell, highlight contract(s) that can be used
-				let usableContracts = playerFaceUpContracts.filter((c) => c.nftType === this.nft[this.substackEnd()].type); //TODO debug this 
+				let usableContracts = playerFaceUpContracts.filter((c) => c.nftType === this.nft[this.substackEnd()].type);
 				for (let uc of usableContracts) {
 					clickables.push(this.obj2Str({type:CLICKITEM.CONTRACT, num:uc.num}));
 					cFlag = true;
@@ -3556,13 +3500,13 @@ class GameServer extends Game {
 					dVal = dValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOSOLD",plNum);
-						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum, fromAuction:true});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum});
 					}
 				} else {
 					cVal = cValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOWALLET",plNum);
-						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum, fromAuction:true});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum});
 					}
 				}
 			}
@@ -3605,6 +3549,7 @@ class GameServer extends Game {
 				this.players[plNum].addCred(gainedCred[plNum]);
 			}
 			// save money for as stats
+			// remmeber money is object with each peice of final scoring
 			this.stats.scoring = money;
 		}
 	}
@@ -3890,11 +3835,10 @@ class GameServer extends Game {
 				}
 			}
 			// add auction works values
-			let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.AUCTION || a.location.fromAuction);
+			let auctionWorks = this.nft.filter((a) => a.location.type === NFTLOC.AUCTION);
 			for (let nft of auctionWorks) {
 				if (!obj.auction) obj.auction = {};
 				let val = this.auctionValue(nft).value;
-				if (nft.location.fromAuction) val += 100;
 				obj.auction[nft.type] = val;
 			}
 

@@ -436,14 +436,6 @@ class Visitor {
 		}
 		return;		
 	}
-	// static getColorFrom(aVisitors, color, getFrom) {
-	// 	let vList = aVisitors.filter((v) => 
-	// 		v.color == color && v.location.type == getFrom);
-	// 	if (!vList.length) {
-	// 		return null;
-	// 	}
-	// 	return vList[0];
-	// }
 	
 	
 }

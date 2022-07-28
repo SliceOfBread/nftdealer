@@ -2,12 +2,10 @@
 import {
 	DEBUG,
 	ACTIONLOC,
-	NFTBONUSTYPE,
 	NFTISTCOLOR,
 	NFTLOC,
 	NFTTYPE,
 	HELPERLOC,
-	AVAILHELPERLOCS,
 	AUCTIONVAL,
 	BONUSTYPE,
 	CLICKITEM,
@@ -21,9 +19,7 @@ import {
 	MARKETCOL2CRED,
 	MAXCRED,
 	MAXREPTILES,
-	PLAYERCOLOR,
 	PLAYERLOC,
-	PROMPT,
 	REPTILELOC,
 	SIGLOC,
 	TIXCOLOR,
@@ -41,18 +37,6 @@ import {
 	PlayerBoard,
 	RepTile,
 	Visitor} from '../public/js/common.mjs';
-
-const CLIENTSIDE = false;
-
-function mulberry32(a) {
-    return function() {
-      a |= 0; 
-	  a = a + 0x6D2B79F5 | 0;
-      var t = Math.imul(a ^ a >>> 15, 1 | a);
-      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    }
-}
 
 class Random {
     constructor(seed = 0) {
@@ -3500,13 +3484,13 @@ class GameServer extends Game {
 					dVal = dValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOSOLD",plNum);
-						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum, fromAuction:true});
 					}
 				} else {
 					cVal = cValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOWALLET",plNum);
-						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum, fromAuction:true});
 					}
 				}
 			}

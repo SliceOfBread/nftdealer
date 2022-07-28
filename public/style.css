@@ -110,6 +110,14 @@ td {
     content: '✓';
 }
 
+.doneauction::after {
+    content:"";
+    background-image: url('res/auction.png');
+    background-size: 1vw 1vw;
+    display: inline-block;
+    width: 1vw; 
+    height: 1vw;
+}
 .missing::after {
     color:red;
     content: '✗';

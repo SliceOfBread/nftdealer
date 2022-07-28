@@ -1171,11 +1171,16 @@ class GameClient extends Game {
 		}
 
 		// update hung/sold cards
+		// msg.soldcard/hungcard will be array of objects like:
+		// [{"galaxy":1},{"dejacat":2,"phakeland":1,"abstract":1}]
+		// each array entry is the bonus reqs
 		if (msg.soldcard) {
 			for (let i=0; i < msg.soldcard.length; i++) {	// normally 0-2
 				let ii = 0;
 				for (let j in msg.soldcard[i]) {	// j will be the types of nft needed
-					let numOfType = this.nft.filter((a) => a.location.type === NFTLOC.SOLD && a.location.plNum === this.iAmPlNum && a.type === j).length;
+					let myArtOfType = this.nft.filter((a) => a.location.type === NFTLOC.SOLD && a.location.plNum === this.iAmPlNum && a.type === j);
+					let numOfType = myArtOfType.length;
+					let haveFromAuction = myArtOfType.filter((a) => a.location.fromAuction).length;
 					for (let k=0; k < msg.soldcard[i][j]; k++) {	// k will be how many of type j needed
 						let el = document.getElementById(`sold-${i}-${ii}`);
 						let elsib = el.nextSibling;
@@ -1187,7 +1192,13 @@ class GameClient extends Game {
 						} else {
 							// mark this req as met
 							elsib.classList.remove('missing');
-							elsib.classList.add('done');
+							if (haveFromAuction) {
+								elsib.classList.remove('done');
+								elsib.classList.add('doneauction');
+								haveFromAuction = 0;
+							} else {
+								elsib.classList.add('done');
+							}
 						}
 						ii++;
 					}
@@ -1198,7 +1209,9 @@ class GameClient extends Game {
 			for (let i=0; i < msg.hungcard.length; i++) {	// normally 0-1
 				let ii = 0;
 				for (let j in msg.hungcard[i]) {
-					let numOfType = this.nft.filter((a) => a.location.type === NFTLOC.WALLET && a.location.plNum === this.iAmPlNum && a.type === j).length;
+					let myArtOfType = this.nft.filter((a) => a.location.type === NFTLOC.WALLET && a.location.plNum === this.iAmPlNum && a.type === j);
+					let numOfType = myArtOfType.length;
+					let haveFromAuction = myArtOfType.filter((a) => a.location.fromAuction).length;
 					for (let k=0; k < msg.hungcard[i][j]; k++) {
 						let el = document.getElementById(`hung-${i}-${ii}`);
 						let elsib = el.nextSibling;
@@ -1210,7 +1223,12 @@ class GameClient extends Game {
 						} else {
 							// mark this req as met
 							elsib.classList.remove('missing');
-							elsib.classList.add('done');
+							if (haveFromAuction) {
+								elsib.classList.add('doneauction');
+								haveFromAuction = 0;
+							} else {
+								elsib.classList.add('done');
+							}
 						}
 						ii++;
 					}

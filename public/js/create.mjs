@@ -24,16 +24,16 @@ function setColorDisabled(nodes, color, setTo) {
 
 function changeNumPlayers() {
     let numPlayers = Number(document.getElementById("selectplayers").value);
-    let startOptions = document.getElementById("selectstarter").children;
-    for (let col of Object.values(PLAYERCOLOR)) {
-        setColorDisabled(startOptions, col, true);
-    }
+    // let startOptions = document.getElementById("selectstarter").children;
+    // for (let col of Object.values(PLAYERCOLOR)) {
+    //     setColorDisabled(startOptions, col, true);
+    // }
 
     for (let p=1; p <= 4; p++) {
         let plColor = document.getElementById("selectcolorp" + p).value;
         if (p <= numPlayers) {
             document.getElementById("pl" + p).classList.remove('invis');
-            if (plColor != "random") setColorDisabled(startOptions, plColor, false);
+            // if (plColor != "random") setColorDisabled(startOptions, plColor, false);
         } else {
             document.getElementById("pl" + p).classList.add('invis');
         }
@@ -70,13 +70,13 @@ function startGame() {
         if (dom.classList.contains('invis')) continue;
         players.push({name:document.getElementById("tname" + p).value, color:document.getElementById("selectcolorp" + p).value});
     }
-    let startColor = document.getElementById("selectstarter").value;
-    let startPlayer = players.findIndex((p) => p.color === startColor && p.color != "random");
-    if (startPlayer === -1) startPlayer = 'x';
+    // let startColor = document.getElementById("selectstarter").value;
+    // let startPlayer = players.findIndex((p) => p.color === startColor && p.color != "random");
+    // if (startPlayer === -1) startPlayer = 'x';
     socket.emit('create game', {
         players: players,
         options: {
-            startPlayer: startPlayer,
+            // startPlayer: startPlayer,
             numContractPiles: Number(document.getElementById("numcontracts").value)
         }
     });

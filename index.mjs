@@ -463,32 +463,36 @@ io.on('connection', (socket) => {
 			}
 		}
 
-		let startNum = Math.floor(Math.random() * players.length);
-		if (options.startPlayer !== undefined && !isNaN(options.startPlayer)) {
-			startNum = Number(options.startPlayer);
-		}
+		// let startNum = Math.floor(Math.random() * players.length);
+		// if (options.startPlayer !== undefined && !isNaN(options.startPlayer)) {
+		// 	startNum = Number(options.startPlayer);
+		// }
 
 		// NOTE: FOR NOW, color determines play order
 		// start with array of colors twice: yellow,purple,orange,blue,yellow,purple,orange,blue
-		tmpColors = Object.values(PLAYERCOLOR).concat(Object.values(PLAYERCOLOR));
-		// remove from start of array until it is same as startPlayer color
-		while (players[startNum].color != tmpColors[0]) {
-			tmpColors.shift();
-		}
-		// keep only the first 4. In a 4P game, this is the order
-		while (tmpColors.length > 4) {
-			tmpColors.pop();
-		}
+		// tmpColors = Object.values(PLAYERCOLOR).concat(Object.values(PLAYERCOLOR));
+		// // remove from start of array until it is same as startPlayer color
+		// while (players[startNum].color != tmpColors[0]) {
+		// 	tmpColors.shift();
+		// }
+		// // keep only the first 4. In a 4P game, this is the order
+		// while (tmpColors.length > 4) {
+		// 	tmpColors.pop();
+		// }
 
-		// loop through colors in order, if a player is that color add them to order
-		while (tmpColors.length) {
-			let c = tmpColors.shift();
-			for (let i=0; i < players.length; i++) {
-				if (players[i].color == c) {
-					playerOrder.push(players[i]);
-					continue;
-				}
-			}
+		// // loop through colors in order, if a player is that color add them to order
+		// while (tmpColors.length) {
+		// 	let c = tmpColors.shift();
+		// 	for (let i=0; i < players.length; i++) {
+		// 		if (players[i].color == c) {
+		// 			playerOrder.push(players[i]);
+		// 			continue;
+		// 		}
+		// 	}
+		// }
+
+		while (players.length) {
+			playerOrder.push(players.splice(Math.floor(Math.random() * players.length), 1)[0]);
 		}
 
 		return playerOrder;

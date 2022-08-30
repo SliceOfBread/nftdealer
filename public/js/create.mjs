@@ -73,8 +73,15 @@ function startGame() {
     // let startColor = document.getElementById("selectstarter").value;
     // let startPlayer = players.findIndex((p) => p.color === startColor && p.color != "random");
     // if (startPlayer === -1) startPlayer = 'x';
+    let url = window.location;
+    let adminCode = '';
+    if (url.search) {
+        let params = new URLSearchParams(url.search);
+        adminCode = params.get("admin");
+    }
     socket.emit('create game', {
         players: players,
+        adminCode: adminCode,
         options: {
             // startPlayer: startPlayer,
             numContractPiles: Number(document.getElementById("numcontracts").value)

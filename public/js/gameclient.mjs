@@ -33,9 +33,8 @@ import {Nft,
 	RepTile,
 	Visitor} from './common.mjs';
 
-const CLIENTSIDE = true;
-
 var waitingForServer = false;
+var lang = "EN";
 
 function boardOffset(node) {
 	let ret = {top:0, left:0};
@@ -110,7 +109,7 @@ class NftClient extends Nft {
 				// this.dom.style.top = offset.top + 5 + "px";
 				this.dom.classList.remove('invis', 'showback');
 				this.valueDom.classList.remove('invis');
-				this.valueDom.innerHTML = PROMPT.EN.DOLLAR.concat(saleValue);
+				this.valueDom.innerHTML = PROMPT[lang].DOLLAR.concat(saleValue);
 				break;
 				
 			case NFTLOC.AUCTION:
@@ -306,7 +305,7 @@ class NftistClient extends Nftist {
 		}
 
 		// update sale value
-		this.dom.getElementsByClassName("nftistvalue")[0].innerHTML = ''; // PROMPT.EN.DOLLAR.concat(this.getValue());
+		this.dom.getElementsByClassName("nftistvalue")[0].innerHTML = ''; // PROMPT[lang].DOLLAR.concat(this.getValue());
 		
 		// update sigTokens
 		for (let i in this.sigTokens) {
@@ -956,7 +955,7 @@ class GameClient extends Game {
 	actionMsg(msg) {
 		// update 'action' section with message
 		document.getElementById("actionmsg").innerHTML = msg;
-		if (msg == PROMPT.EN.FINALSCORE) {
+		if (msg == PROMPT[lang].FINALSCORE) {
 			document.getElementById("actionmsg").style.cursor = 'pointer';
 			document.getElementById("actionmsg").onclick = function() {
 				document.getElementById("finalstats").style.visibility = "visible";
@@ -1013,7 +1012,7 @@ class GameClient extends Game {
 	}
 
 	waitingMsg(game) {
-		if (waitingForServer) game.actionMsg(PROMPT.EN.WAITING);
+		if (waitingForServer) game.actionMsg(PROMPT[lang].WAITING);
 		waitingForServer = false;
 	}
 
@@ -1277,7 +1276,7 @@ class GameClient extends Game {
 		this.clearClickables();
 		// this.removeDomClass("clickable");
 		if (this.state == GAMESTATE.FINALSCORE) {
-			let txt = PROMPT.EN.FINALSCORE;
+			let txt = PROMPT[lang].FINALSCORE;
 			let place = 0;
 			let playerPlace = [0,0,0,0];
 			for (let i = 0; i < this.results.length; i++) {
@@ -1285,7 +1284,7 @@ class GameClient extends Game {
 					if (this.results[i].score != this.results[i-1].score) place = i;
 				}
 				playerPlace[this.results[i].player] = place;
-				// txt += `<br>${PROMPT.EN.PLACE[place]}-${this.decodeMsg("PLNAME".concat(':',this.results[i].player))}-${this.results[i].money}`;
+				// txt += `<br>${PROMPT[lang].PLACE[place]}-${this.decodeMsg("PLNAME".concat(':',this.results[i].player))}-${this.results[i].money}`;
 			}
 			this.actionMsg(txt);
 			// show final stats
@@ -1302,7 +1301,7 @@ class GameClient extends Game {
 			// show players' finish place
 			for (let plNum=0; plNum < this.numPlayers; plNum++) {
 				rowDoms[plNum].classList.remove('invis');
-				rowDoms[plNum].innerHTML = PROMPT.EN.PLACE[playerPlace[plNum]];
+				rowDoms[plNum].innerHTML = PROMPT[lang].PLACE[playerPlace[plNum]];
 			}
 			rowDoms = document.getElementById("statsfinalscore").getElementsByClassName("stats");
 			// show players final score
@@ -1341,7 +1340,7 @@ class GameClient extends Game {
 				}
 				// do messages
 				if (msg.msgs.length) {
-					let txt = PROMPT.EN.CHOOSE;
+					let txt = PROMPT[lang].CHOOSE;
 					for (let m of msg.msgs) {
 						if (m.startsWith('#')) {
 							let mParts =  m.split("#");
@@ -1367,7 +1366,7 @@ class GameClient extends Game {
 			}
 		} else {
 			alertSoundPlayed = false;
-			this.actionMsg(this.players[this.activePlayer].name + PROMPT.EN.TAKINGTURN);
+			this.actionMsg(this.players[this.activePlayer].name + PROMPT[lang].TAKINGTURN);
 		}
 
 		if (Number(document.getElementById("autoplay").value) && this.state != GAMESTATE.FINALSCORE) {
@@ -1396,18 +1395,18 @@ class GameClient extends Game {
 				this.localFlags |= FLAG.MID_TRIGGERED;
 				if (!this.getFlag(FLAG.MID_DONE) ) {
 					// haven't done mid scoring yet (if already done, do not alert)
-					alert(PROMPT.EN.MIDALERT);
+					alert(PROMPT[lang].MIDALERT);
 				}
 			}
 			if (this.getFlag(FLAG.END_TRIGGERED) && !this.getFlag(FLAG.FINAL_ROUND) && !(this.localFlags & FLAG.END_TRIGGERED) ) {
 				// server set endtrigger and locally not yet set, maybe need alert, maybe user reloaded browser
 				this.localFlags |= FLAG.END_TRIGGERED;
-				alert(PROMPT.EN.ENDALERT);
+				alert(PROMPT[lang].ENDALERT);
 			}
 			if (this.getFlag(FLAG.FINAL_ROUND) && !(this.localFlags & FLAG.FINAL_ROUND) ) {
 				// server set endtrigger and locally not yet set, maybe need alert, maybe user reloaded browser
 				this.localFlags |= FLAG.FINAL_ROUND;
-				alert(PROMPT.EN.FINALROUND);
+				alert(PROMPT[lang].FINALROUND);
 			}	
 		}
 
@@ -1558,7 +1557,7 @@ class GameClient extends Game {
 	decodeMsg(msg) {
 		let parts = msg.split(':');
 		// parts[0] is PROMPT object key
-		let ret = PROMPT["EN"][parts[0]];
+		let ret = PROMPT[lang][parts[0]];
 		if (parts.length == 1) {
 			return ret;
 		}
@@ -1577,13 +1576,13 @@ class GameClient extends Game {
 				switch (c[2]) {
 					case '1':
 					// replace with nftType
-						ret = ret.replace(sub, PROMPT["EN"].NFTTYPE[val]);
+						ret = ret.replace(sub, PROMPT[lang].NFTTYPE[val]);
 						break;
 
 					case '2':
 					// replace with nftist
 						let nftist = this.nftists[Number(val)];
-						ret = ret.replace(sub, `${PROMPT["EN"][nftist.color]} ${PROMPT["EN"].NFT2NFTIST[nftist.type]}`);
+						ret = ret.replace(sub, `${PROMPT[lang][nftist.color]} ${PROMPT[lang].NFT2NFTIST[nftist.type]}`);
 						break;
 				
 					case '3':
@@ -1705,9 +1704,7 @@ function main() {
 			game.deserialize(msgObj);
 		}
 		game.updateInfo(msgObj);
-		
-		//game.setActiveSpaces(msgObj);
-		
+				
 	});
 
 	socket.on('server error', () => {
@@ -1724,23 +1721,35 @@ function soundAdj() {
 	let  audioDom = document.getElementById("playsound");
 	audioDom.volume = Number(document.getElementById("soundrange").value) / 10;
 	audioDom.play();
-	sessionStorage.setItem("nftdealer", JSON.stringify({soundrange:document.getElementById("soundrange").value}));
-	
+	storeData();
+}
 
+function storeData() {
+	sessionStorage.setItem("nftdealer", JSON.stringify({soundrange:document.getElementById("soundrange").value, lang:lang}));
+}
+
+function changeLang() {
+	lang = document.getElementById("lang").value;
+	storeData();
+	getServerUpdate();
 }
 
 window.onload = function() {
 	main();
 	getServerUpdate();
 	document.getElementById("soundrange").addEventListener("change", soundAdj);
+	document.getElementById("lang").addEventListener("change", changeLang);
 	let tmp = sessionStorage.getItem("nftdealer");
 	let oldInfo;
 	if (tmp) oldInfo = JSON.parse(tmp);
-	if (oldInfo && oldInfo.soundrange) {
+	if (oldInfo && !isNaN(oldInfo.soundrange)) {
 		document.getElementById("soundrange").value = oldInfo.soundrange;
 		soundAdj();
 	}
-
+	if (oldInfo && oldInfo.lang) {
+		lang = oldInfo.lang;
+		document.getElementById("lang").value = lang;
+	}
 }
 
 function getServerUpdate() {

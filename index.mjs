@@ -240,30 +240,32 @@ io.on('connection', (socket) => {
 
 
 	socket.on('create game', (msg) => {
-		console.log('create game rcvd, sending game setup');
+		if (msg && msg.adminCode && msg.adminCode === adminCode) {
+			console.log('create game rcvd, sending game setup');
 
-		let gameId = "g" + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16);
-
-		// TODO is newGame needed?
-		let newGame = new GameServer();
-		// setup is array of playerId (p######), name, color
-		let setup = playerSetup(msg.players, msg.options);
-		let initSeed = Math.floor(Math.random() * 0xffffffff);
-		newGame.init(setup, msg.options, initSeed);
-		// Ideally, would not send game page until we know game was created correctly
-		socket.emit('game page', {gameId:gameId});
-		// createGame is async but returns nothing
-		gamesData.createGame(gameId, {
-			ids:[],
-			init: {
-				players:setup,
-				options:msg.options, 
-				seed: initSeed,
-			},
-			lastUsed:Date.now(),
-			complete:false,
-			state:newGame.serialize("server")
-		});
+			let gameId = "g" + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16);
+	
+			// TODO is newGame needed?
+			let newGame = new GameServer();
+			// setup is array of playerId (p######), name, color
+			let setup = playerSetup(msg.players, msg.options);
+			let initSeed = Math.floor(Math.random() * 0xffffffff);
+			newGame.init(setup, msg.options, initSeed);
+			// Ideally, would not send game page until we know game was created correctly
+			socket.emit('game page', {gameId:gameId});
+			// createGame is async but returns nothing
+			gamesData.createGame(gameId, {
+				ids:[],
+				init: {
+					players:setup,
+					options:msg.options, 
+					seed: initSeed,
+				},
+				lastUsed:Date.now(),
+				complete:false,
+				state:newGame.serialize("server")
+			});	
+		}
 		
 	});
 

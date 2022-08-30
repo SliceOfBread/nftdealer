@@ -3199,8 +3199,8 @@ class GameServer extends Game {
 		return false;
 	}
 
-	playerRepTileDisplayIdx() {
-		return this.repTiles.findIndex((t) => t.location.type === REPTILELOC.DISPLAY && t.location.plNum === this.activePlayer);
+	playerRepTileDisplayIdx(plNum = this.activePlayer) {
+		return this.repTiles.findIndex((t) => t.location.type === REPTILELOC.DISPLAY && t.location.plNum === plNum);
 	}
 
 	playerRepTiles(plNum = this.activePlayer) {
@@ -3230,17 +3230,7 @@ class GameServer extends Game {
 				// game is over
 				// do the auction
 				// get bidders and bids
-				const bids = [[1,1.01,1.1],[3.002,3.02,3.2],[6.004,6.04,6.4]];
-				let playerBids = [];
-				for (let plNum=0; plNum < this.numPlayers; plNum++) {
-					let bid = 0;
-					let auctionHelpers = this.players[plNum].helpers.filter((helper) => helper.location.type === HELPERLOC.AUCTION);
-					for (let helper of auctionHelpers) {
-						bid += bids[helper.location.row][helper.location.col];
-					}
-					if (bid) playerBids.push({plNum:plNum, bid:bid});
-				}
-				playerBids.sort((a,b) => b.bid - a.bid);
+				let playerBids = this.getPlayerBids();
 				if (playerBids.length) {
 					this.activePlayer = playerBids.shift().plNum;
 					this.substack.push(playerBids);
@@ -3255,6 +3245,21 @@ class GameServer extends Game {
 				}
 			}
 		} 
+	}
+
+	getPlayerBids() {
+		const bids = [[1,1.01,1.1],[3.002,3.02,3.2],[6.004,6.04,6.4]];
+		let playerBids = [];
+		for (let plNum=0; plNum < this.numPlayers; plNum++) {
+			let bid = 0;
+			let auctionHelpers = this.players[plNum].helpers.filter((helper) => helper.location.type === HELPERLOC.AUCTION);
+			for (let helper of auctionHelpers) {
+				bid += bids[helper.location.row][helper.location.col];
+			}
+			if (bid) playerBids.push({plNum:plNum, bid:bid});
+		}
+		playerBids.sort((a,b) => b.bid - a.bid);
+		return playerBids;
 	}
 
 	finalScore(forLiveScore = false) {
@@ -3332,7 +3337,7 @@ class GameServer extends Game {
 				let tmpNum = 0;
 				switch (i) {
 					case 0:	// 1 money per 3 cred (score first)
-						money2add = Math.floor(cred[tile.location.plNum] / 3);
+						money2add = Math.floor(this.players[tile.location.plNum].cred / 3);
 						break;
 					case 1:	// 1 cred + 3 money per Celeb
 						tmpNum = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, tile.location.plNum);

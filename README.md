@@ -8,7 +8,7 @@ with Eagle-Gryphon Games or Vital Lacerda in any way.**
 The board game is great and this repository highly recommends [purchasing it](https://www.eaglegames.net/The-Gallerist-Complete-Bundle-p/102322.htm) for personal use.
 
 ## ⬤ I want to play!
-Instructions for deploying it on herokuapp are coming soon (I hope). 
+I set this up with the intention that it could be deployed on herokuapp. With the free hobby version of that going away I doubt I'll write instructions for that.  
 
 ## ⬤ I want to learn how to play
 Search YouTube for videos.
@@ -22,6 +22,3 @@ Many thanks to the contributors to [the online open-source version of Terraforma
 Please see the credits in gamerules.html
 
 
-## LICENSE
-
-For now, all the code and images (with the exceptions of those credited in Credits) is Copyright by SliceOfBread. None of it may be used or copied without my consent.

@@ -2649,14 +2649,20 @@ class GameServer extends Game {
 		// forces the game to end (tix done and bag empty -> game over)
 
 		// any tix left
-		if (this.playerGetsTix(-1, TIXCOLOR.BROWN)) return;
+		if (!this.getFlag(FLAG.TIX_EMPTY)) {
+			this.playerGetsTix(-1, TIXCOLOR.BROWN);
+			return;
+		}
 
 		// no tix left, any visitors in bag?
 		let tmpVisitor = this.getRandomFromBag();	// null if bag empty
 		if (tmpVisitor) {
 			tmpVisitor.moveVisitorTo({type:VISITORLOC.PLAZA});
 			this.logMsg("VISITOR2PLAZA", tmpVisitor.color);
+		} else {
+			this.setFlag(FLAG.BAG_EMPTY);
 		}
+		this.checkEndGame();
 		
 	}
 

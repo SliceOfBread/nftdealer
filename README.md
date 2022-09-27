@@ -8,7 +8,9 @@ with Eagle-Gryphon Games or Vital Lacerda in any way.**
 The board game is great and this repository highly recommends [purchasing it](https://www.eaglegames.net/The-Gallerist-Complete-Bundle-p/102322.htm) for personal use.
 
 ## ⬤ I want to play!
-I set this up with the intention that it could be deployed on herokuapp. With the free hobby version of that going away I doubt I'll write instructions for that.  
+You can play solo against bot(s) at [this link](https://sliceofbread.neocities.org/nftdealer/botplayer.html). This play 100% in the browser. The bots play better in a 4P (3 bots vs 1 human) than a 2P game.
+
+I set this up with the intention that it could be deployed on herokuapp. With the free hobby version of that going away I doubt I'll write instructions for that.
 
 ## ⬤ I want to learn how to play
 Search YouTube for videos.

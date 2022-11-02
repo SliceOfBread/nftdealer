@@ -263,7 +263,7 @@ io.on('connection', (socket) => {
 				},
 				lastUsed:Date.now(),
 				complete:false,
-				state:newGame.serialize("server")
+				state:structuredClone(newGame.serialize("server"))
 			});	
 		}
 		
@@ -369,7 +369,7 @@ io.on('connection', (socket) => {
 						init:thisGame.init,
 						lastUsed:Date.now(),
 						complete: game.gameComplete(),
-						state:game.serialize("server")
+						state:structuredClone(game.serialize("server"))
 					});	
 				}
 			}
@@ -416,7 +416,7 @@ io.on('connection', (socket) => {
 						init:thisGame.init,
 						lastUsed:Date.now(),
 						complete: newGame.gameComplete(),
-						state:newGame.serialize("server")
+						state:structuredClone(newGame.serialize("server"))
 					});	
 				}); 
 			} else {

@@ -1005,6 +1005,8 @@ class GameServer extends Game {
 				{
 					// player to choose helper
 					let plHelpers = this.getAvailableHelpers();
+					let deskHelper = plHelpers.find((h) => h.location.type === HELPERLOC.DESK);
+					if (deskHelper) plHelpers = [deskHelper];
 					for (let helper of plHelpers) {
 						tmp.clickables.push(this.obj2Str({type:CLICKITEM.HELPER, num:helper.num}));
 					}
@@ -1081,9 +1083,24 @@ class GameServer extends Game {
 				{
 					let tmpCred = this.players[this.activePlayer].cred;
 					if (tmpCred && this.substackEnd()) {
-						// if player has cred and price (on substack) > 0, show next mark down to reduce price by 1
-						tmp.clickables.push(this.obj2Str({type:CLICKSPACE.CRED, num:this.credNextMark(tmpCred)}));
-						tmp.msgs.push("CRED4COST".concat(":",this.substackEnd()-1));
+						// if buying art, check if player needs to make nftist into magnate to fit art, if so, limit cred->money
+						//   enough to allow cred->reknown (magnate)
+						let playerNumWhite = this.numVisitorsIn(VISITORLOC.GALLERY, VISITORCOLOR.WHITE, this.activePlayer);
+						let nft = this.substack.length > 4 ? this.nft[this.substackEnd(4)] : null;
+						if (this.substack.length > 3 && this.substackEnd(3) === GAMESTATE.NFT_BUY && // player buying nft AND
+							this.playerHasDisplayed().length === 3 &&	// player already has 3 nfts displayed AND
+							!this.playerHasMasterpiece() &&	// player does not have masterpiece AND
+							// nftist reknown + max player can incr reknown (if player uses cred4money) is less than 19
+							this.nftists[this.substackEnd(2)].reknown + nft.reknownBonus.fixed + nft.reknownBonus.perWhite * playerNumWhite + Math.ceil(this.credNextMark(tmpCred)/5) < 19) {
+							// if all above is true, do not allow cred4money
+
+							
+						} else {
+							// if any of above is false, allow cred4money
+							// if player has cred and price (on substack) > 0, show next mark down to reduce price by 1
+							tmp.clickables.push(this.obj2Str({type:CLICKSPACE.CRED, num:this.credNextMark(tmpCred)}));
+							tmp.msgs.push("CRED4COST".concat(":",this.substackEnd()-1));
+						}
 					}
 					// only allow done if affordable
 					if (this.substackEnd() <= this.players[this.activePlayer].money) {
@@ -1331,14 +1348,14 @@ class GameServer extends Game {
 			default:
 				// reduce cred 
 				this.players[this.activePlayer].cred = this.getUsableCred();
-				this.logMsg("PLKONONE", this.activePlayer);
+				// this.logMsg("PLKONONE", this.activePlayer);
 				// TODO log use of cred?				
 				return false;
 		}
 
 	}
 
-	processClick(move) {
+	processClick(move, speculation = false) {
 		let pl = this.activePlayer;
 		this.moves.push(move);
 		let loc = move.location.split("-");
@@ -1551,7 +1568,7 @@ class GameServer extends Game {
 					// this.setNeedContractsDealt(numPilesNeedContracts ? 1 : 0);
 					// if contract pile empty, deal new contract
 					if (numPilesNeedContracts) {
-						this.setFlag(FLAG.UPDATE_CONTRACTS);
+						if (!speculation) this.setFlag(FLAG.UPDATE_CONTRACTS);
 					} else {
 						this.clearFlag(FLAG.UPDATE_CONTRACTS);
 					}
@@ -2162,6 +2179,13 @@ class GameServer extends Game {
 						default:
 							break;
 					}
+				} else if (clicked === CLICKITEM.DONOTHING) {
+					let repTileNum = this.substack.pop();
+
+					this.logMsg("TILEDISC");
+					this.repTiles[repTileNum].moveRepTileTo({type:REPTILELOC.DISCARD});
+					this.state = this.substack.pop();
+
 				}
 
 				break;
@@ -2390,7 +2414,7 @@ class GameServer extends Game {
 			case GAMESTATE.ENDTURN:
 				if (clicked === CLICKITEM.ENDBUTTON) {
 					// finalize turn and go to next player
-					this.endTurnRefill();
+					if (!speculation) this.endTurnRefill();
 					this.nextPlayer();
 				} else {
 					// error
@@ -2415,13 +2439,19 @@ class GameServer extends Game {
 						
 					// this case only if nftWasBought or needContractsDealt
 					case CLICKITEM.CONTINUE:
-						this.endTurnRefill();
+						if (!speculation) {
+							this.endTurnRefill();
+						} else {
+							// if speculation, just clear flags
+							this.clearFlag(FLAG.NFT_BOUGHT);
+							this.clearFlag(FLAG.UPDATE_CONTRACTS);
+						}
 						break;
 
 					// this case only occurs in EAOREND
 					case CLICKITEM.ENDBUTTON:
 						// finalize turn and go to next player
-						this.endTurnRefill();
+						if (!speculation) this.endTurnRefill();
 						this.nextPlayer();
 						break;
 
@@ -2432,7 +2462,13 @@ class GameServer extends Game {
 			case GAMESTATE.PICKACTION:
 				{
 					if (clicked == CLICKITEM.CONTINUE) {
-						this.endTurnRefill();
+						if (!speculation) {
+							this.endTurnRefill();
+						} else {
+							// if speculation, just clear flags
+							this.clearFlag(FLAG.NFT_BOUGHT);
+							this.clearFlag(FLAG.UPDATE_CONTRACTS);
+						}
 						return;
 					} else if (clicked === CLICKITEM.EATIX) {
 						this.substack.push(GAMESTATE.PICKACTION);
@@ -3253,18 +3289,22 @@ class GameServer extends Game {
 		} 
 	}
 
-	getPlayerBids() {
+	getPlayerBids(getInfo = false) {
 		const bids = [[1,1.01,1.1],[3.002,3.02,3.2],[6.004,6.04,6.4]];
+		let unused = [[1,1.01,1.1],[3.002,3.02,3.2],[6.004,6.04,6.4]];
 		let playerBids = [];
 		for (let plNum=0; plNum < this.numPlayers; plNum++) {
 			let bid = 0;
 			let auctionHelpers = this.players[plNum].helpers.filter((helper) => helper.location.type === HELPERLOC.AUCTION);
 			for (let helper of auctionHelpers) {
-				bid += bids[helper.location.row][helper.location.col];
+				let thisBid = bids[helper.location.row][helper.location.col];
+				bid += thisBid;
+				unused[helper.location.row][helper.location.col] = 0;
 			}
 			if (bid) playerBids.push({plNum:plNum, bid:bid});
 		}
 		playerBids.sort((a,b) => b.bid - a.bid);
+		if (getInfo) return {bids:playerBids, unused:unused};
 		return playerBids;
 	}
 
@@ -3495,13 +3535,13 @@ class GameServer extends Game {
 					dVal = dValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOSOLD",plNum);
-						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum, fromAuction:true});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.SOLD, plNum:plNum});
 					}
 				} else {
 					cVal = cValWith;
 					if (!forLiveScore) {
 						this.logMsg("TOWALLET",plNum);
-						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum, fromAuction:true});
+						plAuctionArt[plNum].moveArtTo({type:NFTLOC.WALLET, plNum:plNum});
 					}
 				}
 			}
@@ -3559,7 +3599,7 @@ class GameServer extends Game {
 			let numArtBought = this.nft.filter((a) => (a.location.type === NFTLOC.WALLET || a.location.type === NFTLOC.SOLD) && a.location.plNum === plNum).length;
 			let numVisitors = this.visitors.filter((v) => v.location.type === VISITORLOC.GALLERY && v.location.plNum === plNum).length;
 			let helperInPlay = 10 - this.players[plNum].helpers.filter((a) => a.location.type === HELPERLOC.DISCARD || a.location.type === HELPERLOC.UNEMPLOYED).length;
-			let score = (((this.players[plNum].money * 32) + numArtBought * 32) + numVisitors * 16) + helperInPlay;
+			let score = ((this.players[plNum].money * 32 + numArtBought) * 32 + numVisitors) * 16 + helperInPlay;
 			this.results.push({player:plNum, money:this.players[plNum].money, score:score});
 		}
 		this.results.sort((a,b) => b.score - a.score);
@@ -3863,6 +3903,9 @@ class GameServer extends Game {
 
 		}
 		for(let k of Object.keys(this)) {
+			// TODO the 'straighforward' stuff that is arrays (like moves, logs, etc) will NOT make copies
+			// but will copy reference to array instead.
+			// can either return a structuredClone or let caller do this.
 			switch (k) {
 				case "currentPlayer":
 				case "seed":
